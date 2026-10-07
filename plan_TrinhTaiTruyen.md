@@ -3,7 +3,18 @@
 > File này là **plan và mô tả dự án hợp nhất** (thay `MO_TA_DU_AN.md`). Trước khi làm bất kỳ việc gì, đọc mục "Cách làm việc ở các phiên sau" trong MÔ TẢ PHẦN MỀM.
 
 ## CHECKLIST TIẾN ĐỘ
-Trạng thái: ĐANG MỞ | Phiên bản hiện tại: V1.59.1 | Cập nhật: 2026-10-04 | Cỡ đợt này: S
+Trạng thái: ĐANG MỞ | Phiên bản hiện tại: V1.59.2 | Cập nhật: 2026-10-08 | Cỡ đợt này: S
+
+### Đợt V1.59.2 — File thông tin truyện
+
+- [x] 1. `DriveManager.gs`: thêm `BOOK_INFO_NAME_ = 'info.txt'` và `writeBookInfo_(folder, book)` để tạo hoặc cập nhật file TXT UTF-8 trong thư mục chính của truyện, gồm tên truyện, tác giả, thể loại và link gốc. Quy tắc chi tiết ở mục 7.3b.
+- [x] 2. `BookManager.gs`, `Importer.gs`: ghi file khi tạo truyện từ website (kể cả giữ ở trạng thái ANALYZED), nhập một file, nhập cặp mục lục + truyện và đăng ký thư mục Drive có sẵn; cập nhật khi sửa thông tin truyện.
+- [x] 3. `Downloader.gs`: ghi/cập nhật file trước mỗi đợt tải, bổ sung cho truyện cũ chưa có file. `scanFolderChapters_` bỏ qua `info.txt`, không tính vào số chương hay số file không nhận diện được.
+- [x] 4. Nâng phiên bản trong `Code.gs` lên V1.59.2; cập nhật README và hướng dẫn sử dụng. Đồng bộ plan với mã đã đẩy lên GitHub, giữ lịch sử các đợt cũ.
+- [x] 5. Kiểm thử: `node --test tests/book-info.test.js`, 10/10 Đạt với dịch vụ Google giả lập. Kết quả và phạm vi ở KẾT QUẢ KIỂM THỬ.
+- [!] 6. Kiểm tra trên Apps Script/Drive thật sau khi triển khai: thêm truyện ở các luồng, tải tiếp truyện cũ, sửa thông tin và kiểm tra nội dung file. Lý do: chưa có phiên đăng nhập Google để kiểm chứng dịch vụ thật; chưa chạy lại các bộ kiểm thử lịch sử hoặc script tuân thủ không có trong repository.
+
+### Đợt V1.59.1 (đã thu gọn)
 
 - [x] 1. `JS.html` — Nhiệm vụ: thêm URL thì hiện ngay trong Bảng phân tích truyện rồi tự động phân tích lần lượt (Chủ dự án chốt ngày 2026-10-04). B1: zip V1.59.0 và plan V1.59.0 cùng phiên bản. Nguyên nhân gốc của độ trễ: bộ xử lý bấm nút Phân tích chờ `api_queueAnalyze` trả lời rồi mới có dòng trong `S.hang.w`, nên trên Apps Script thật bảng chỉ hiện sau vài giây. Hàm chính: `anaRows_()`, bộ xử lý bấm của nút Phân tích (`bAna`), biến `ANA_ADDING_`, `anaRun_`. Thuật toán: kiểm URL bắt đầu bằng http:// hoặc https:// (sai thì báo lỗi, giữ nguyên ô nhập); đưa URL vào `ANA_ADDING_`, xóa ô nhập, vẽ bảng ngay; `anaRows_` thêm dòng trạng thái Chờ phân tích (không nút) cho URL trong `ANA_ADDING_` chưa có ở `w`, `e` hoặc truyện đã phân tích; gọi `api_queueAnalyze`; trả lời xong thì bỏ URL khỏi `ANA_ADDING_`, dùng state máy chủ rồi `anaResume_`; lỗi thì dòng tạm biến mất và URL trả lại ô nhập. Bỏ khóa nút Phân tích suốt lượt phân tích (`anaRun_`), chỉ khóa trong lúc chờ máy chủ, để đang phân tích vẫn thêm được; chỉ xóa `ANA_TRIED_` của URL mới, không xóa cả bảng. Đầu vào: ô URL. Đầu ra: dòng trong `#anaBox`. Phụ thuộc: `api_queueAnalyze`, `take`, `call`, `anaResume_`.
 - [x] 2. `Code.gs` — Nhiệm vụ: nâng phiên bản V1.59.1 (dòng 1 và biến `VERSION`), không đổi logic
@@ -400,6 +411,7 @@ Ràng buộc: chỉ dùng với nội dung bạn có quyền truy cập/tải xu
 - **Lưu trữ:**
   - Google Sheet `TRUYEN_DOWNLOADER_DB` (4 sheet: CONFIG, BOOKS, CHAPTERS, LOG)
   - Thư mục Drive: `Thư mục gốc / Thể loại / Tên truyện / [Phần / Quyển /] Chương N - Tên.txt`
+  - Từ V1.59.2: thư mục chính của mỗi truyện có `info.txt` chứa tên truyện, tác giả, thể loại và link gốc (xem mục 7.3b); không phải file chương.
   - Script Properties: `DB_ID`, `FAVICON_FILE_ID`, cùng hai nhóm khóa lưu sẵn ID Drive để không tìm theo tên mỗi lần chạy: `FLD_{ID thư mục cha}_{md5 tên}` (ID thư mục con: thể loại, truyện, Phần/Quyển) và `IMP_{ID thư mục truyện}` (ID tệp `_import.json`). CacheService: đệm nội dung chương, cờ chống chạy chồng.
   - User Properties: tiến độ đọc theo truyện `RP_{mã truyện}` = `{c, y, p, t}` (V1.57.0); xóa cùng truyện trong `deleteBook_`. Vì triển khai dùng riêng (Thực thi dưới quyền chủ script), đây là tiến độ của một người dùng duy nhất.
   - `localStorage` phía trình duyệt: cài đặt đọc `rdPref`, truyện đang đọc `rdBook`, danh sách chương `rdList_{id}`, chương đọc dở `rdLast_{id}`, vị trí cuộn `rdPos_{id}` (`{c, y, p, t}`, V1.57.0). Danh sách chờ phân tích, URL phân tích lỗi (V1.59.0) và chờ chuyển xuống tải KHÔNG còn nằm ở trình duyệt mà lưu ở Script Property `ANA_QUEUE` (V1.46.0).
@@ -482,7 +494,7 @@ TrinhTaiTruyen/
 │   ├── Parser.gs          HTML → TXT, nhận diện tên truyện/tác giả/thể loại/nội dung chương
 │   ├── Cleaner.gs         Dọn rác đầu chương, từ khóa rác, tách tên/tiêu đề, nhận diện "Hồi thứ …"
 │   ├── Adapters.gs        Selector theo website (hiện chỉ có "generic")
-│   ├── DriveManager.gs    Thư mục gốc/thể loại/truyện/Phần/Quyển, đặt tên file
+│   ├── DriveManager.gs    Thư mục gốc/thể loại/truyện/Phần/Quyển, đặt tên file, tạo/cập nhật info.txt
 │   ├── ReaderData.gs      Danh sách chương DONE + đọc nội dung TXT (đệm, kiểm tra quyền)
 │   ├── Importer.gs        Thêm truyện từ 2 file (mục lục + truyện) hoặc từ thư mục Drive
 │   ├── Scheduler.gs       Trigger nền autoTick
@@ -503,6 +515,8 @@ TrinhTaiTruyen/
 ```
 
 Ngoài 29 file mã nguồn, thư mục gốc của zip bàn giao có `plan_TrinhTaiTruyen.md` (file này) và `HUONG_DAN_SU_DUNG.md`. Bộ kiểm thử Node và script tuân thủ nằm ngoài zip.
+
+Trong repository GitHub hiện có thêm `README.md`, `.gitignore` và `tests/book-info.test.js` (kiểm thử V1.59.2); thư mục `tests` chỉ phục vụ phát triển, không đồng bộ vào Apps Script. Các bộ kiểm thử lịch sử và script tuân thủ không có trong repository.
 
 ## KẾT QUẢ RÀ SOÁT KỊCH BẢN
 - Đợt V1.59.0 (cỡ M, Vừa: gộp luồng phân tích thành một Bảng phân tích truyện). Quản lý hệ thống: không đổi sheet; chỉ thêm khóa `e` vào JSON `ANA_QUEUE` (đọc ngược tương thích), ghi vẫn trong `withLock_` (B11); không chạm B7 đến B10. Lập trình viên: không thêm lượt gọi máy chủ (bảng dựng trong bộ nhớ từ `S`), `retryAnalyze_` kiểm kiểu, độ dài và sự tồn tại của URL (B9), mọi chuỗi từ máy chủ đưa vào DOM bằng `textContent` (B8); URL lỗi không tự phân tích lại để tránh vòng lặp vô hạn trên trang hỏng. Người dùng cuối: URL lỗi không còn biến mất, thấy lý do và phân tích lại bằng một nút; thêm lại URL đang lỗi bằng ô nhập cũng được. Chưa làm (ngoài kịch bản, ghi ở ĐỀ XUẤT MỞ RỘNG): nút xóa tất cả dòng lỗi, bảng thích ứng màn hẹp.
@@ -991,6 +1005,38 @@ sequenceDiagram
 
 `ManagerJS.openAddFile` → `api_addBookFromFiles` → `createBookFromFiles_` (Importer): giải mã file, `parseMarkedFile_` cho từng file, `mergeTocStory_` ghép theo (Phần | Quyển | số chương), `cleanChapterList_` làm sạch → tạo thư mục (`bookFolder_`) → lưu `_import.json` → `insertPendingFileBook_` (truyện `FILE` + CHAPTERS `PENDING`) → giao cho `drive_`/`runBatch_` ghi file TXT từng nhóm chương (theo cấu trúc `Phần/Quyển` nhờ `chapterFolder_`) → xong, xóa `_import.json` và ghi LOG.
 
+#### 7.3b. Quy tắc file thông tin truyện `info.txt` (V1.59.2)
+
+**Vị trí và định dạng:** file TXT UTF-8 tên chính xác `info.txt`, nằm ngay trong thư mục chính của truyện, không đặt trong thư mục Phần/Quyển. Bốn mục phải giữ đúng thứ tự và tiêu đề; giá trị nằm ở dòng bên dưới, các mục cách nhau một dòng trống:
+
+```text
+##Tên truyện
+Tên truyện
+
+##Tác giả
+Tên tác giả
+
+##Thể loại
+Thể loại của truyện
+
+##link gốc
+https://example.com/truyen/
+```
+
+**Nguồn dữ liệu:** dùng tên, tác giả, thể loại và URL của bản ghi truyện, cùng giá trị đã làm sạch dùng để lưu BOOKS. Link gốc là URL truyện (`book.url`), không phải URL chương. Thông tin chưa có để trống, không suy đoán. Truyện nhập từ file hoặc thư mục hiện lưu URL rỗng trong BOOKS nên mục `##link gốc` cũng để trống.
+
+**Thời điểm ghi:**
+
+1. `createBook_`: ghi khi tạo truyện từ website, trước khi thêm bản ghi BOOKS/CHAPTERS; áp dụng cả truyện giữ ở ANALYZED.
+2. `insertPendingFileBook_`: ghi cho luồng nhập một file và cặp file mục lục + truyện, trước khi thêm bản ghi.
+3. `createBookFromFolder_`: ghi trong thư mục Drive được đăng ký, sau khi kiểm tra trùng và nhận diện chương hợp lệ, trước khi thêm bản ghi.
+4. `runBatch_`: ghi/cập nhật trước mỗi đợt tải, kể cả tải tiếp truyện cũ chưa có file.
+5. `updateBookInfo_`: cập nhật file sau khi lưu tên, tác giả, thể loại vào BOOKS; giữ nguyên URL nguồn. Luồng đổi thể loại hàng loạt cũng đi qua hàm này. Nếu ghi Drive lỗi thì lỗi được trả ra; việc ghi Sheet và Drive không phải một giao dịch nguyên tử.
+
+**Ghi lặp và file phụ:** `writeBookInfo_` tìm file cùng tên chưa vào thùng rác trong đúng thư mục, cập nhật nội dung tại chỗ; nếu nội dung không đổi thì không ghi lại. Khi chưa có file hợp lệ, tạo mới. Không tạo thêm bản mỗi đợt tải; không tự dọn các bản trùng đã tồn tại trước đó. `scanFolderChapters_` bỏ qua `info.txt` trước khi nhận diện tên chương, không đưa vào CHAPTERS và không tính là file bị bỏ qua. Không dùng `info.txt` làm nguồn tự động nhập metadata.
+
+**Phạm vi truyện cũ:** không quét toàn bộ thư viện để tạo file hàng loạt. Truyện cũ được bổ sung khi tải tiếp hoặc sửa thông tin; truyện hoàn thành chưa thao tác lại có thể chưa có file. Không đổi schema Sheet, API hoặc cấu trúc file chương.
+
 #### 7.4. Đọc truyện
 
 1. Vào tab Đọc → `rdEnter()` mở truyện đọc gần nhất (`localStorage['rdBook']`) nếu truyện còn và đã có chương tải xong; nếu không thì `rdHome()` hiện ô tìm truyện cùng danh sách kết quả (tối đa 20 truyện đã tải, lọc không dấu theo tên, tác giả, thể loại). Truyện đang đọc bị xóa thì `rdSync()` cũng đưa về trạng thái này.
@@ -1059,6 +1105,8 @@ flowchart LR
 **Lưu ý triển khai:** sau khi sửa code cần **Deploy → Manage deployments → New version** để web app nhận bản mới; lần đầu chạy cần cấp quyền Drive/Sheets/UrlFetch/Trigger.
 
 ## KẾT QUẢ KIỂM THỬ
+Đợt V1.59.2 (2026-10-08): `node --test tests/book-info.test.js` đã chạy, 10 kiểm thử Đạt, 0 lỗi, 0 bỏ qua. Các ca kiểm tra: đủ bốn mục và URL nguồn, cập nhật tại chỗ/không ghi khi không đổi, thông tin trống và file trong thùng rác, tạo truyện website ở ANALYZED, nhập một file, nhập cặp mục lục + truyện, nhập thư mục không tính `info.txt` là chương, tải tiếp bổ sung file không trùng, sửa tác giả giữ URL, lỗi ghi Drive ngăn thêm bản ghi truyện mới. Drive/Sheets/Properties dùng giả lập, không chứng minh Apps Script thật đã hoạt động; các bộ kiểm thử lịch sử và script tuân thủ chưa chạy lại. Thay đổi bổ sung plan chỉ sửa tài liệu, không đổi mã hoặc kết quả kiểm thử.
+
 Đợt V1.59.1 (2026-10-04): thêm T11.32 đến T11.45, đều Đạt; bộ U (20) và Node (11) chạy lại vẫn Đạt. TÓM TẮT: LỖI 10 | CẢNH BÁO 17 | ĐÃ DUYỆT 16 | ĐẠT 16/21 | KHÔNG ÁP DỤNG 0.
 
 Đợt V1.59.0 (2026-10-04): thêm T11.1 đến T11.31, đều Đạt (11 kiểm tra Node cho hàng chờ phân tích và 20 kiểm tra Chromium cho Bảng phân tích truyện); bộ kiểm thử đặt ngoài zip. TÓM TẮT: LỖI 10 | CẢNH BÁO 38 | ĐÃ DUYỆT 16 | ĐẠT 16/21 | KHÔNG ÁP DỤNG 0 (cùng LỖI và CẢNH BÁO như zip gốc V1.58.0). Các bộ kiểm thử Node cũ không có trong zip nên chưa chạy lại; chức năng cũ liên quan (chuyển xuống tải, xóa truyện, sửa, chọn thể loại hàng loạt, Giám sát tác vụ) chỉ được chạy lại ở phạm vi các thao tác trong T11.12 đến T11.31.
@@ -1474,6 +1522,7 @@ Mười bộ kiểm thử Node chạy ngoài zip, tổng 320 kiểm tra, ngày 2
 | V1.58.0 | 2026-10-03 | Vừa | `Reader.html`, `ReaderCSS.html`, `ReaderJS.html`, `JS.html`, `Code.gs`, `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md` | Tùy chọn chế độ đọc: Cuộn dọc (như cũ, mặc định) hoặc Lật trang (nội dung chia cột theo chiều cao cửa sổ, lật bằng bấm mép trái/phải, vuốt ngang, nút ‹ ›, phím ← → PageUp PageDown; hết chương thì sang chương kế). Nút 📖/📜 trong ⚙️, nhớ ở `rdPref.mode`; dàn lại khi đổi cỡ chữ, phông, cửa sổ; tiến độ đọc V1.57.0 tính theo trang ở chế độ này. Chức năng liên quan: bộ PG trên Chromium thật đạt (không có lỗi trang), gồm lần chạy thử đầu tiên của khôi phục vị trí đọc; chưa thử cảm ứng thật, bộ Node cũ chưa chạy lại |
 | V1.59.0 | 2026-10-04 | Vừa | `AnalyzeQueue.gs`, `Code.gs`, `JS.html`, `CSS.html`, `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md` | Gộp hai bảng Chờ phân tích và Truyện đã phân tích thành một Bảng phân tích truyện (STT, Tên truyện, Tác giả, Thể loại, Url, Thư mục, Trạng thái, Thao tác); thư mục để trống đến khi phân tích xong. URL phân tích lỗi không còn bị xóa: chuyển sang danh sách `e` của `ANA_QUEUE` (lý do tối đa 80 ký tự, tối đa 50 dòng), hiện dòng Lỗi kèm lý do với 🔁 phân tích lại (`api_retryAnalyze`) và 🗑 bỏ; dòng chờ có 🗑 bỏ. Nguyên nhân gốc của việc mất URL lỗi: `analyzeAndHold_` gọi `dropPending_` khi lỗi nên chỉ còn một thông báo thoáng qua. Kiểm thử: 11 kiểm tra Node và 20 kiểm tra Chromium Đạt (T11.1 đến T11.31); chức năng cũ (chuyển xuống tải, xóa, sửa, đổi thể loại hàng loạt, Giám sát tác vụ) chạy lại trong phiên Chromium, không hỏng |
 | V1.59.1 | 2026-10-04 | Nhỏ | `JS.html`, `Code.gs`, `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md` | Thêm URL thì hiện ngay trong Bảng phân tích truyện (dòng tạm, trạng thái Chờ phân tích) rồi tự động phân tích lần lượt; đang phân tích vẫn thêm được URL mới; URL sai định dạng bị chặn ở giao diện và giữ trong ô nhập; máy chủ từ chối thì dòng tạm biến mất và URL trả lại ô nhập. Nguyên nhân gốc độ trễ: dòng chỉ có sau khi `api_queueAnalyze` trả lời. Kiểm thử T11.32 đến T11.45 Đạt; bộ U (20) và bộ Node (11) chạy lại vẫn Đạt |
+| V1.59.2 | 2026-10-08 | Nhỏ | `DriveManager.gs`, `BookManager.gs`, `Importer.gs`, `Downloader.gs`, `Code.gs`, `README.md`, `HUONG_DAN_SU_DUNG.md`, `tests/book-info.test.js`, `plan_TrinhTaiTruyen.md` | Tạo/cập nhật `info.txt` trong thư mục truyện khi thêm từ website/file/thư mục, tải tiếp hoặc sửa thông tin; bốn mục tên truyện, tác giả, thể loại, link gốc. Link gốc rỗng cho FILE/FOLDER; nhập thư mục bỏ qua file thông tin. Kiểm thử giả lập 10/10 Đạt, chưa kiểm chứng Apps Script thật. Plan được đồng bộ bổ sung sau commit mã V1.59.2. |
 
 ## NGOẠI LỆ ĐÃ DUYỆT
 Danh sách do AI đề xuất, Chủ dự án duyệt bằng chỉ thị "xử lý" ngày 2026-09-30 và "cho phép tự xử lý và hoàn thành" ngày 2026-10-03; Chủ dự án có thể gỡ bất kỳ mục nào. Chỉ áp dụng cho CẢNH BÁO.
