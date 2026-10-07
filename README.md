@@ -2,13 +2,14 @@
 
 Ứng dụng web tiếng Việt để tải truyện theo chương từ website, nhập truyện có sẵn, quản lý thư viện trên Google Drive và đọc ngay trong trình duyệt. Project chạy trên **Google Apps Script**, dùng **Google Sheets** làm cơ sở dữ liệu và **Google Drive** lưu nội dung.
 
-Mã nguồn được nhập từ `TrinhTaiTruyen_V1.59.1.zip`. Phiên bản trong `Code.gs`: **1.59.1**, ngày cập nhật của bản nguồn: **04/10/2026**.
+Mã nguồn ban đầu được nhập từ `TrinhTaiTruyen_V1.59.1.zip`. Phiên bản hiện tại trong `Code.gs`: **1.59.2**, cập nhật **08/10/2026**.
 
 ## Chức năng chính
 
 - Phân tích một hoặc nhiều URL truyện, lấy tên, tác giả, thể loại và danh sách chương; giữ truyện đã phân tích để người dùng chọn bắt đầu tải.
 - Quản lý hàng chờ tải, tải theo từng đợt, tạm dừng, tiếp tục và thử lại chương lỗi. Có trigger chạy nền mỗi phút khi được bật và có tác vụ tải.
 - Lưu mỗi chương thành file TXT; tổ chức thư mục theo thể loại, tên truyện và Phần/Quyển khi có.
+- Tạo `info.txt` trong thư mục truyện khi thêm từ website, file hoặc thư mục Drive; cập nhật khi sửa thông tin truyện. Truyện cũ được bổ sung file khi tiếp tục tải.
 - Nhập truyện từ file văn bản hoặc thư mục Drive có sẵn; thêm chương bằng URL, file hoặc nội dung dán trực tiếp.
 - Quản lý tên truyện, tác giả, thể loại; xem thư viện dạng bảng hoặc lưới.
 - Đọc truyện theo kiểu cuộn dọc hoặc lật trang, chỉnh phông/cỡ chữ và lưu vị trí đọc.
@@ -81,6 +82,24 @@ Luồng nhập file có nhận TXT, Markdown và CSV. CSV dùng ba cột: số c
 
 ## Cấu hình đáng chú ý
 
+File `info.txt` nằm ở thư mục chính của từng truyện, có định dạng:
+
+```text
+##Tên truyện
+Tên truyện
+
+##Tác giả
+Tên tác giả
+
+##Thể loại
+Thể loại của truyện
+
+##link gốc
+https://example.com/truyen/
+```
+
+Thông tin chưa có được để trống. Truyện nhập từ file hoặc thư mục Drive không có URL nguồn trong dữ liệu hiện tại nên mục `link gốc` để trống. File được cập nhật tại chỗ, không tạo thêm bản mỗi đợt tải và không được tính là một chương khi nhập thư mục.
+
 | Khóa | Mặc định | Ý nghĩa |
 | --- | --- | --- |
 | `ROOT_FOLDER` | `TRUYEN_DOWNLOADER` | Tên thư mục gốc mặc định |
@@ -128,6 +147,14 @@ Cookie đăng nhập là thông tin nhạy cảm: chỉ nhập trong môi trư�
 ## Kiểm thử và giới hạn
 
 Bản nguồn không kèm bộ test tự động độc lập, cấu hình CI hoặc cấu hình `clasp`. Các kết quả ghi trong `plan_TrinhTaiTruyen.md` là lịch sử của bản nguồn, không chứng minh deployment mới hoạt động.
+
+Repository hiện có 10 kiểm thử cho `info.txt`, chạy bằng Node.js (chỉ cần cho kiểm thử phát triển):
+
+```bash
+node --test tests/book-info.test.js
+```
+
+Các kiểm thử dùng dịch vụ Google giả lập để kiểm tra tạo/cập nhật file, các luồng thêm truyện và tải tiếp, bỏ qua file thông tin khi nhập chương, cùng lỗi ghi Drive. Chúng không thay thế kiểm tra với Drive/Sheets thật.
 
 Sau khi triển khai trên Apps Script, kiểm tra ít nhất:
 

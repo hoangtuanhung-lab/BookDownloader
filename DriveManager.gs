@@ -45,6 +45,20 @@ function childFolder_(parent, name) {
 }
 function genreFolderName_(g) { return cleanName_(String(g || '').split(/[,;\/]/)[0]) || 'Chưa phân loại'; }
 function bookFolder_(name, genre, cfg) { return childFolder_(childFolder_(rootFolder_(cfg), genreFolderName_(genre)), name); }
+
+var BOOK_INFO_NAME_ = 'info.txt';
+function writeBookInfo_(folder, book) {
+  var content = '##Tên truyện\n' + String(book.name || '')
+    + '\n\n##Tác giả\n' + String(book.author || '')
+    + '\n\n##Thể loại\n' + String(book.genre || '')
+    + '\n\n##link gốc\n' + String(book.url || '') + '\n';
+  var it = folder.getFilesByName(BOOK_INFO_NAME_), file = null;
+  while (it.hasNext()) { var candidate = it.next(); if (!candidate.isTrashed()) { file = candidate; break; } }
+  if (!file) return folder.createFile(Utilities.newBlob(content, 'text/plain', BOOK_INFO_NAME_));
+  if (file.getBlob().getDataAsString('UTF-8') !== content) file.setContent(content);
+  return file;
+}
+
 function moveToGenre_(folder, oldGenre, newGenre) {
   var pit = folder.getParents(); if (!pit.hasNext()) return;
   var p = pit.next(), root = p;

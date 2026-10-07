@@ -137,6 +137,7 @@ function createBook_(info, hold) {
   var folder = bookFolder_(name, info.genre, cfg), sb = db_().getSheetByName('BOOKS'), sc = db_().getSheetByName('CHAPTERS');
   var created = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy');
   var status = hold ? 'ANALYZED' : (pipelineBusy_(id, false) ? 'IDLE' : 'DOWNLOADING');
+  writeBookInfo_(folder, { name: name, author: cleanName_(info.author || ''), genre: cleanName_(info.genre || ''), url: info.url });
   sb.getRange(sb.getLastRow() + 1, 1, 1, 13).setValues([[id, name, info.url, info.site, folder.getId(), info.chapters.length, 0, 0, status, created, cleanName_(info.author || ''), cleanName_(info.genre || ''), 'Chương']]);
   var rows = info.chapters.map(function (c) { return [id, c[0], c[1], c[2], 'PENDING', '', 0, '', '', '', c[3] || '', c[4] === undefined ? '' : c[4]]; });
   sc.getRange(sc.getLastRow() + 1, 1, rows.length, 12).setValues(rows);
@@ -289,6 +290,7 @@ function updateBookInfo_(id, f) {
   var s = db_().getSheetByName('BOOKS');
   s.getRange(b.row, 2).setValue(nm);
   s.getRange(b.row, 11, 1, 2).setValues([[au, ge]]);
+  writeBookInfo_(folder || DriveApp.getFolderById(b.folderId), { name: nm, author: au, genre: ge, url: b.url });
 }
 
 function deleteBook_(id, trashFolder) {

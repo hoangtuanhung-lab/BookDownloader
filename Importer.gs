@@ -144,6 +144,7 @@ function insertPendingFileBook_(name, author, genre, label, folder, chapters) {
   var sb = db_().getSheetByName('BOOKS'), sc = db_().getSheetByName('CHAPTERS');
   var created = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy');
   var cfg = getConfig_(), status = pipelineBusy_(id, true) ? 'IDLE' : 'DOWNLOADING';
+  writeBookInfo_(folder, { name: name, author: author, genre: genre, url: '' });
   sb.getRange(sb.getLastRow() + 1, 1, 1, 13).setValues([[id, name, '', 'FILE', folder.getId(), chapters.length, 0, 0, status, created, author, genre, label]]);
   var rows = chapters.map(function (c) { return [id, c.num, c.title || '', '', 'PENDING', '', 0, '', '', c.part || '', c.vol || '', c.dnum == null ? '' : c.dnum]; });
   sc.getRange(sc.getLastRow() + 1, 1, rows.length, 12).setValues(rows);
@@ -301,7 +302,7 @@ function scanFolderChapters_(folder) {
   var found = [], byNum = {}, skipped = 0, it = folder.getFiles();
   while (it.hasNext()) {
     var f = it.next();
-    if (f.isTrashed() || f.getName() === IMPORT_DATA_NAME_) continue;
+    if (f.isTrashed() || f.getName() === IMPORT_DATA_NAME_ || f.getName() === BOOK_INFO_NAME_) continue;
     var p = parseFolderFileName_(f.getName());
     if (!p || byNum[p.num]) { skipped++; continue; }
     byNum[p.num] = 1;
@@ -336,6 +337,7 @@ function createBookFromFolder_(folderInput, meta) {
     var max = books.reduce(function (m, b) { return Math.max(m, +String(b.id).replace(/\D/g, '') || 0); }, 0), bookId = 'BOOK' + pad_(max + 1);
     var sb = db_().getSheetByName('BOOKS'), sc = db_().getSheetByName('CHAPTERS');
     var created = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy'), now = stamp_();
+    writeBookInfo_(folder, { name: name, author: author, genre: genre, url: '' });
     sb.getRange(sb.getLastRow() + 1, 1, 1, 13).setValues([[bookId, name, '', 'FOLDER', fid, found.length, found.length, 0, 'COMPLETED', created, author, genre, label]]);
     var rows = found.map(function (c) { return [bookId, c.num, c.title, '', 'DONE', c.fileId, 0, '', now]; });
     sc.getRange(sc.getLastRow() + 1, 1, rows.length, 9).setValues(rows);

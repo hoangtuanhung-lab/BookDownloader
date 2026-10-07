@@ -6,6 +6,9 @@
 3. Lần đầu chạy, cấp quyền Drive, Sheets, UrlFetch và Trigger.
 4. Mở **Cài đặt** (⚙️), dán ID hoặc link thư mục Drive để đăng ký thư mục gốc, hoặc nhập tên để tạo mới.
 
+## File thông tin truyện
+Khi thêm truyện từ website, file hoặc thư mục Drive, phần mềm tạo `info.txt` ngay trong thư mục truyện. File gồm bốn mục `##Tên truyện`, `##Tác giả`, `##Thể loại`, `##link gốc`, mỗi mục có giá trị ở dòng bên dưới. Thông tin chưa có để trống; truyện thêm từ file/thư mục không có URL nguồn nên link gốc để trống. File được cập nhật khi sửa thông tin truyện và khi tải tiếp; truyện cũ chưa có file sẽ được bổ sung khi tải. File này không được nhập thành chương.
+
 ## Xem hướng dẫn trong ứng dụng
 Mỗi màn hình (Tải sách, Quản lý sách, Đọc truyện) và mỗi hộp thoại có hướng dẫn (Thêm truyện từ file, Thêm từ thư mục, Cài đặt, Sửa chương) có nút **?** cạnh tiêu đề. Bấm để xem hướng dẫn ngắn; bấm **Thoát** của hộp hướng dẫn để đóng, hộp bên dưới vẫn còn. Cách viết file mục lục và truyện, mẫu tên file trong thư mục, ý nghĩa từng tham số và cách viết SITE_RULES đều nằm ở các nút này.
 

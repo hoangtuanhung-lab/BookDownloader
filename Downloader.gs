@@ -50,6 +50,7 @@ function emptyRuns_(rows) {
 
 function runBatch_(b, cfg, deadline) {
   var br = bookRows_(b.id), rows = br.rows, folder = DriveApp.getFolderById(b.folderId), logs = [], todo = 0;
+  writeBookInfo_(folder, b);
   var isFile = b.site === 'FILE', imp = isFile ? loadImportData_(folder) : null;
   for (var i = 0; i < rows.length && todo < cfg.BATCH_SIZE; i++) {
     var r = rows[i];

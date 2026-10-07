@@ -1,5 +1,5 @@
-// V1.59.1 — cập nhật lần cuối: 04/10/2026
-var VERSION = '1.59.1', UPDATED = '04/10/2026';
+// V1.59.2 — cập nhật lần cuối: 08/10/2026
+var VERSION = '1.59.2', UPDATED = '08/10/2026';
 
 function doGet() {
   var out = HtmlService.createTemplateFromFile('Index').evaluate().setTitle('Trình tải truyện')
