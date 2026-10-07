@@ -1,0 +1,32 @@
+<section class="view pad" id="vMg" data-man-hinh="quan-ly-sach">
+  <div class="hdrow"><h2 class="hh"><span class="pgLogo" aria-hidden="true"></span>Quản lý sách</h2><button type="button" class="hlp" data-chuc-nang="tro-giup" data-help="quan-ly-sach" aria-label="Hướng dẫn màn Quản lý sách" title="Hướng dẫn">?</button></div>
+  <div class="row" style="margin-bottom:12px;flex-wrap:wrap">
+    <button class="p" id="bAddFile">➕ Thêm truyện mới từ file</button>
+    <button class="p" id="bAddFolder">📂 Thêm truyện từ thư mục có sẵn</button>
+    <button class="p" id="mgSaveAll" title="Lưu tất cả thay đổi đang chờ vào hệ thống" style="display:none">💾 Lưu tất cả</button>
+  </div>
+  <div class="row" style="margin-bottom:18px;align-items:center">
+    <div class="srchBox">
+      <span class="srchIco">🔍</span>
+      <input id="mgSearch" placeholder="Tìm truyện, tác giả" aria-label="Tìm truyện, tác giả" title="Tìm theo tên truyện hoặc tác giả, không cần dấu, không cần đúng nguyên cụm">
+    </div>
+    <div class="seg" id="mgView" role="group" aria-label="Kiểu hiển thị danh sách">
+      <button type="button" data-view="table" aria-pressed="false" aria-label="Dạng bảng" title="Dạng bảng">☰ Bảng</button>
+      <button type="button" class="on" data-view="grid" aria-pressed="true" aria-label="Dạng lưới" title="Dạng lưới">▦ Lưới</button>
+    </div>
+    <select id="mgSortSel" aria-label="Sắp xếp danh sách">
+      <option value="name|1">Tên truyện A → Z</option><option value="name|-1">Tên truyện Z → A</option>
+      <option value="author|1">Tác giả A → Z</option><option value="author|-1">Tác giả Z → A</option>
+      <option value="genre|1">Thể loại A → Z</option><option value="genre|-1">Thể loại Z → A</option>
+    </select>
+  </div>
+  <div class="wrap" id="mgTableWrap" style="display:none">
+    <table class="tbl">
+      <thead><tr><th class="n">STT</th><th class="srt" data-sort="name">Tên truyện</th><th class="srt" data-sort="author">Tác giả</th><th class="srt" data-sort="genre">Thể loại</th><th class="n">Số chương</th><th class="act">Thao tác</th></tr></thead>
+      <tbody id="mgBody"></tbody>
+    </table>
+  </div>
+  <div id="mgGrid" class="bgrid"></div>
+  <p id="mgEmpty" class="muted"></p>
+  <div class="pgbar" id="mgPage"></div>
+</section>

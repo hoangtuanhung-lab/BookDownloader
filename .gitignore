@@ -1,0 +1,11 @@
+# Local Apps Script bindings and OAuth credentials
+.clasp.json
+.clasprc.json
+.env
+.env.*
+!.env.example
+
+# Local dependencies and editor/OS files
+node_modules/
+.DS_Store
+Thumbs.db

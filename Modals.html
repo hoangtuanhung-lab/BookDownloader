@@ -1,0 +1,127 @@
+<div class="modal" id="mList"><div class="dlg"><div class="hd"><b id="mlT">Danh sách chương</b><button class="x" data-close>Thoát</button></div><div class="bd" id="mlB"></div></div></div>
+<div class="modal" id="mChEdit"><div class="dlg"><div class="hd"><b>Sửa chương</b><button type="button" class="hlp" data-chuc-nang="tro-giup" data-help="sua-chuong" aria-label="Hướng dẫn Sửa chương" title="Hướng dẫn">?</button><button class="x" data-close>Thoát</button></div>
+  <div class="bd">
+    <div class="grid">
+      <div class="cell"><label>Chương</label><div class="v" id="ceNum"></div></div>
+      <div class="cell"><label>Website hiện tại</label><div class="v" id="ceSite"></div></div>
+      <div class="cell wide"><label>Tiêu đề</label><input id="ceTitle"></div>
+      <div class="cell wide"><label>URL chương *</label><input id="ceUrl" placeholder="https://..."></div>
+    </div>
+    <div id="ceMsg" class="muted"></div>
+    <div class="row"><button class="p" id="ceGo">💾 Lưu</button></div>
+  </div></div></div>
+<div class="modal" id="mCfg"><div class="dlg"><div class="hd"><b>Cài đặt</b><button type="button" class="hlp" data-chuc-nang="tro-giup" data-help="cai-dat" aria-label="Hướng dẫn Cài đặt" title="Hướng dẫn">?</button><button class="x" data-close>Thoát</button></div>
+  <div class="bd">
+    <h3>Thư mục lưu truyện</h3>
+    <div class="grid">
+      <div class="cell"><label>Thư mục gốc hiện tại</label><div class="v" id="fName"></div></div>
+      <div class="cell"><label>Folder ID</label><div class="v" id="fId"></div></div>
+      <div class="cell"><label>Đăng ký Folder ID hoặc link</label><input id="fInput" disabled placeholder="Dán ID/link thư mục của bạn"><button class="ico" id="fEdit" title="Sửa">✏️</button></div>
+      <div class="cell"><label>Tạo thư mục gốc mới (My Drive)</label><input id="fNew" placeholder="Tên thư mục"><button class="ico" id="fCreate" title="Tạo thư mục">➕</button></div>
+    </div>
+    <div id="fMsg" class="muted"></div>
+    <h3>Tham số tải <button id="cEdit" title="Sửa">✏️</button></h3>
+    <div class="grid" id="cGrid"></div>
+    <h3>Quản lý thể loại <button id="gEdit" title="Sửa" aria-label="Sửa danh sách thể loại">✏️</button><button type="button" class="hlp" data-chuc-nang="tro-giup" data-help="the-loai" aria-label="Hướng dẫn Quản lý thể loại" title="Hướng dẫn">?</button></h3>
+    <div class="grid" id="gGrid"></div>
+    <div id="gTools" style="display:none">
+      <div class="row"><input id="gNew" placeholder="Tên thể loại mới" aria-label="Tên thể loại mới" style="flex:1;min-width:200px"><button id="gAdd" title="Thêm vào danh sách" aria-label="Thêm thể loại">➕</button><button id="gImport" title="Thêm các thể loại đang có trong Quản lý sách">Nhập từ truyện hiện có</button></div>
+    </div>
+    <div id="gMsg" class="muted"></div>
+  </div></div></div>
+<div class="modal" id="mEdit"><div class="dlg"><div class="hd"><b>Thông tin truyện</b><button id="eBtn" title="Sửa">✏️</button><button type="button" class="hlp" data-chuc-nang="tro-giup" data-help="sua-truyen" aria-label="Hướng dẫn Sửa truyện" title="Hướng dẫn">?</button><button class="x" data-close>Thoát</button></div>
+  <div class="bd"><div class="grid">
+    <div class="cell"><label>Tên truyện</label><input id="eName" disabled></div>
+    <div class="cell"><label>Tác giả</label><input id="eAuthor" disabled placeholder="Chưa rõ"></div>
+    <div class="cell"><label>Thể loại</label><input id="eGenre" class="gpick" disabled readonly placeholder="Chưa rõ" title="Bấm để chọn thể loại" aria-haspopup="dialog" autocomplete="off"></div>
+    <div class="cell"><label>Website</label><div class="v" id="eSite"></div></div>
+    <div class="cell"><label>Số chương</label><div class="v" id="eTotal"></div></div>
+    <div class="cell"><label>Trạng thái</label><div class="v" id="eSt"></div></div>
+  </div><div id="eMsg" class="muted"></div>
+  <h3>Thêm chương</h3>
+  <div class="seg" id="acMode" role="tablist">
+    <button type="button" class="on" data-m="link" role="tab" aria-selected="true">Từ link</button>
+    <button type="button" data-m="file" role="tab" aria-selected="false">Từ file</button>
+    <button type="button" data-m="paste" role="tab" aria-selected="false">Dán nội dung</button>
+  </div>
+  <div class="grid" id="acGroupBox" style="display:none">
+    <div class="cell" id="acPartBox"><label for="acPart">Phần *</label><select id="acPart" data-truong="phan" aria-label="Phần"></select><input id="acPartNew" data-truong="phan_moi" placeholder="Tên Phần mới" aria-label="Tên Phần mới" style="display:none"></div>
+    <div class="cell" id="acVolBox"><label for="acVol">Quyển *</label><select id="acVol" data-truong="quyen" aria-label="Quyển"></select><input id="acVolNew" data-truong="quyen_moi" placeholder="Tên Quyển mới" aria-label="Tên Quyển mới" style="display:none"></div>
+  </div>
+  <div class="grid">
+    <div class="cell"><label for="acNum">Thứ tự chương *</label><input id="acNum" data-truong="thu_tu" inputmode="numeric" placeholder="Số chương"></div>
+    <div class="cell"><label for="acTitle">Tiêu đề</label><input id="acTitle" data-truong="tieu_de" placeholder="Tiêu đề chương"></div>
+    <div class="cell wide" id="acLinkBox"><label for="acUrl">Link chương *</label><input id="acUrl" data-truong="link_chuong" placeholder="https://..."></div>
+    <div class="cell wide" id="acFileBox" style="display:none"><label for="acFile">File nội dung (.txt, .md) *</label><input type="file" id="acFile" data-truong="tep_noi_dung" accept=".txt,.md,.markdown"></div>
+    <div class="cell wide" id="acTextBox" style="display:none"><label for="acText">Nội dung chương *</label><textarea id="acText" data-truong="noi_dung" rows="8" placeholder="Dán nội dung chương"></textarea></div>
+  </div>
+  <div id="acMsg" class="muted"></div>
+  <div class="row"><button class="p" id="acGo" data-chuc-nang="luu" aria-label="Thêm chương">💾 Thêm chương</button></div>
+  </div></div></div>
+<div class="modal" id="mDel"><div class="dlg"><div class="hd"><b>Xóa truyện</b><button class="x" data-close>Thoát</button></div>
+  <div class="bd"><p id="dMsg"></p>
+    <div id="dDecl">
+    <label class="chk"><input type="checkbox" id="dTrash"> Đồng thời đưa thư mục Drive của truyện vào thùng rác</label>
+    <p class="muted">Nếu không chọn, các file TXT vẫn còn trên Drive; chỉ dữ liệu trong bảng bị xóa.</p>
+    <div class="row"><button class="x" id="dGo">🗑 Xóa</button></div>
+    </div>
+    <p id="dProc" class="muted" style="display:none"><span class="chst run">Đang xóa<i></i></span></p>
+  </div></div></div>
+<div class="modal" id="mAddFile"><div class="dlg"><div class="hd"><b>Thêm truyện mới từ file</b><button type="button" class="hlp" data-chuc-nang="tro-giup" data-help="them-file" aria-label="Hướng dẫn Thêm truyện từ file" title="Hướng dẫn">?</button><button class="x" data-close>Thoát</button></div>
+  <div class="bd">
+    <div id="nfDecl">
+    <div class="grid">
+      <div class="cell"><label>Tên truyện *</label><input id="nfName" placeholder="Bắt buộc"></div>
+      <div class="cell"><label>Tác giả</label><input id="nfAuthor" placeholder="Chưa rõ"></div>
+      <div class="cell"><label>Thể loại</label><input id="nfGenre" class="gpick" readonly placeholder="Chưa rõ" title="Bấm để chọn thể loại" aria-haspopup="dialog" autocomplete="off"></div>
+    </div>
+    <div class="grid">
+      <div class="cell"><label>File 1 — Mục lục *</label><input type="file" id="nfToc" accept=".txt,.md,.markdown"></div>
+      <div class="cell"><label>File 2 — Truyện *</label><input type="file" id="nfFile" accept=".txt,.md,.markdown"></div>
+    </div>
+    <div class="row"><button class="p" id="nfGo">Thêm truyện</button></div>
+    </div>
+    <div id="nfProc" class="anaSteps" style="display:none"></div>
+    <div id="nfMsg" class="muted"></div>
+  </div></div></div>
+<div class="modal" id="mDup"><div class="dlg"><div class="hd"><b>Trùng tên truyện</b><button class="x" data-close>Thoát</button></div>
+  <div class="bd">
+    <p id="dupMsg"></p>
+    <div class="row" style="flex-direction:column;align-items:stretch">
+      <button data-dup="cancel">Hủy thêm mới</button>
+      <button class="p" data-dup="overwrite">Ghi đè truyện — xóa truyện cũ khỏi Quản lý sách, giữ nguyên thư mục Drive cũ</button>
+      <button class="x" data-dup="trash">Xóa thư mục cũ — xóa truyện cũ và đưa thư mục Drive cũ vào thùng rác</button>
+    </div>
+    <div id="dupMsg2" class="muted"></div>
+  </div></div></div>
+<div class="modal" id="mAddFolder"><div class="dlg"><div class="hd"><b>Thêm truyện từ thư mục có sẵn</b><button type="button" class="hlp" data-chuc-nang="tro-giup" data-help="them-thu-muc" aria-label="Hướng dẫn Thêm truyện từ thư mục" title="Hướng dẫn">?</button><button class="x" data-close>Thoát</button></div>
+  <div class="bd">
+    <div id="afDecl">
+    <div class="grid">
+      <div class="cell"><label>Folder ID hoặc link thư mục *</label><input id="afFolder" placeholder="ID hoặc link thư mục" aria-label="ID hoặc link thư mục Google Drive"></div>
+      <div class="cell"><label>Tên truyện</label><input id="afName" placeholder="Tên truyện" aria-label="Tên truyện" title="Để trống = lấy theo tên thư mục"></div>
+      <div class="cell"><label>Tác giả</label><input id="afAuthor" placeholder="Chưa rõ"></div>
+      <div class="cell"><label>Thể loại</label><input id="afGenre" class="gpick" readonly placeholder="Chưa rõ" title="Bấm để chọn thể loại" aria-haspopup="dialog" autocomplete="off"></div>
+    </div>
+    <div class="row"><button class="p" id="afGo">Thêm truyện</button></div>
+    </div>
+    <p id="afProc" class="muted" style="display:none"><span class="chst run">Đang xử lý<i></i></span></p>
+    <div id="afMsg" class="muted"></div>
+  </div></div></div>
+<div class="modal" id="mGenre"><div class="dlg"><div class="hd"><b>Chọn thể loại</b><button class="x" data-close>Thoát</button></div>
+  <div class="bd">
+    <input id="gpFilter" placeholder="Lọc thể loại" aria-label="Lọc thể loại" autocomplete="off" style="width:100%;margin-bottom:8px">
+    <div class="gp-head"><span></span><span>Thể loại</span><span>Thể loại chính</span></div>
+    <div id="gpList" class="gp-list"></div>
+    <div id="gpMsg" class="muted"></div>
+    <div class="row" style="margin-top:10px"><button class="p" id="gpOk">Áp dụng</button></div>
+  </div></div></div>
+<div class="modal" id="mAsk" role="alertdialog" aria-modal="true" aria-labelledby="amTitle" aria-describedby="amBody"><div class="dlg">
+  <div class="hd"><b id="amTitle"></b><button type="button" class="amx" id="amClose" aria-label="Đóng" title="Đóng">&times;</button></div>
+  <div class="bd" id="amBody"></div>
+  <div class="ft"><button type="button" id="amCancel" data-chuc-nang="huy">Hủy</button><button type="button" class="p" id="amOk" data-chuc-nang="xac-nhan">Xác nhận</button></div>
+</div></div>
+<div class="modal" id="mHelp"><div class="dlg"><div class="hd"><b id="hlpT">Hướng dẫn</b><button class="x" data-close>Thoát</button></div>
+  <div class="bd" id="hlpB"></div></div></div>
+<div id="bye"><b>Đã thoát giao diện</b><span class="muted">Các truyện đang tải vẫn chạy nền nếu bật tự động tiếp tục.</span><button class="p" id="bBack">Mở lại</button></div>
+<div id="toastContainer" aria-live="polite"></div>

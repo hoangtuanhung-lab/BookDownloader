@@ -1,0 +1,1019 @@
+<script>
+var S=null,INFO=null,busy=false,gone=false,cfgEdit=false,cur='dl';
+var $=function(i){return document.getElementById(i)};
+var ST={NEW:'Mới',ANALYZING:'Đang phân tích',ANALYZED:'Đã phân tích',READY:'Sẵn sàng',IDLE:'Đang chờ',DOWNLOADING:'Đang tải',PAUSED:'Tạm dừng',ERROR:'Có chương lỗi',COMPLETED:'Hoàn thành'};
+var STC_={PENDING:'Đang chờ',DOWNLOADING:'Đang tải',DONE:'Đã tải',ERROR:'Lỗi'};
+var thoatHtml=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var hostOf=function(u){var m=String(u==null?'':u).match(/^https?:\/\/([^\/?#]+)/i);return m?m[1].toLowerCase().replace(/^www\./,''):''};
+var CA_VERB_={retry:'Đã tải lại chương ',cancel:'Đã hủy chương ',pause:'Đã tạm dừng chương ',delete:'Đã xóa chương '};
+
+var ANA_STEPS_=['Kiểm tra trùng','Sinh mã truyện','Tạo/mở thư mục Drive','Thêm vào danh sách đã phân tích'];
+function stepsRender_(box,steps,activeIdx){
+  box.textContent='';
+  steps.forEach(function(t,i){
+    var cls=i<activeIdx?'done':(i===activeIdx?'active':''),d=document.createElement('div'),dot=document.createElement('span');
+    d.className='anaStep'+(cls?' '+cls:'');dot.className='dot';d.appendChild(dot);d.appendChild(document.createTextNode(t));
+    if(i<activeIdx){var tk=document.createElement('span');tk.className='tick';tk.textContent='✓';d.appendChild(document.createTextNode(' '));d.appendChild(tk)}
+    box.appendChild(d);
+  });
+  box.style.display='flex';
+}
+function anaStepsRender_(activeIdx){stepsRender_($('anaSteps'),ANA_STEPS_,activeIdx)}
+function anaStepsHide_(){var b=$('anaSteps');b.style.display='none';b.textContent=''}
+function sleep_(ms){return new Promise(function(res){setTimeout(res,ms)})}
+function anaStepsAnimate_(){
+  anaStepsRender_(0);
+  var i=0;
+  return setInterval(function(){
+    i++;
+    if(i>=ANA_STEPS_.length-1){anaStepsRender_(ANA_STEPS_.length-1);return}
+    anaStepsRender_(i);
+  },450);
+}
+function call(fn){
+  var a=[].slice.call(arguments,1);
+  function attempt(n){
+    return new Promise(function(res){
+      google.script.run.withSuccessHandler(function(r){
+        if(r&&r.busy&&n<40){setTimeout(function(){res(attempt(n+1))},500);return}
+        res(r);
+      }).withFailureHandler(function(e){res({error:e.message})})[fn].apply(google.script.run,a);
+    });
+  }
+  return attempt(0);
+}
+function say(t,bad){var m=$('msg');m.textContent=t||'';m.className=bad?'err':'muted'}
+var TOAST_ICON_={success:'✓',error:'!',info:'i'},TOAST_MAX_=4;
+function toastDrop_(n){
+  if(!n.parentNode||n.classList.contains('out'))return;
+  clearTimeout(n.tm);n.classList.add('out');
+  setTimeout(function(){if(n.parentNode)n.parentNode.removeChild(n)},300);
+}
+function toastArm_(n){
+  clearTimeout(n.tm);
+  n.tm=setTimeout(function(){toastDrop_(n)},n.classList.contains('error')?7000:3500);
+}
+function showToast(message,type){
+  var box=$('toastContainer'),kind=TOAST_ICON_[type]?type:'info',text=String(message==null?'':message),key=kind+'|'+text;
+  var same=[].slice.call(box.children).filter(function(n){return n.dataset.key===key&&!n.classList.contains('out')})[0];
+  if(same){toastArm_(same);return same}
+  var n=document.createElement('div'),ic=document.createElement('span'),tx=document.createElement('span'),x=document.createElement('button');
+  n.className='toast '+kind;n.dataset.key=key;n.setAttribute('role',kind==='error'?'alert':'status');
+  ic.className='ti';ic.setAttribute('aria-hidden','true');ic.textContent=TOAST_ICON_[kind];
+  tx.className='tm';tx.textContent=text;
+  x.type='button';x.className='tx';x.setAttribute('aria-label','Đóng thông báo');x.textContent='×';
+  x.onclick=function(){toastDrop_(n)};
+  n.onmouseenter=function(){clearTimeout(n.tm)};
+  n.onmouseleave=function(){toastArm_(n)};
+  n.appendChild(ic);n.appendChild(tx);n.appendChild(x);box.appendChild(n);
+  var live=[].slice.call(box.children).filter(function(k){return !k.classList.contains('out')});
+  while(live.length>TOAST_MAX_)toastDrop_(live.shift());
+  toastArm_(n);
+  return n;
+}
+function toast(t,bad){
+  var s=String(t==null?'':t).replace(/^✅\s*/,'');
+  showToast(s,bad===true||bad==='error'?'error':(bad==='success'||(!bad&&/^Đã /.test(s)))?'success':'info');
+}
+var AM_={fn:null,done:null,prev:null,busy:false,down:null};
+function amFinish_(ok){
+  if(AM_.busy)return;
+  $('mAsk').classList.remove('on');
+  var d=AM_.done;AM_.fn=null;AM_.done=null;
+  var p=AM_.prev;AM_.prev=null;
+  if(p&&p.focus)p.focus();
+  if(d)d(ok);
+}
+function closeModal(){amFinish_(false)}
+function openModal(title,content,onConfirm,opt){
+  opt=opt||{};
+  if(AM_.done){var d0=AM_.done;AM_.done=null;d0(false)}
+  $('amTitle').textContent=title||'';
+  var body=$('amBody');body.textContent='';
+  if(content&&content.nodeType)body.appendChild(content);
+  else String(content==null?'':content).split('\n').forEach(function(t){var p=document.createElement('p');p.textContent=t;body.appendChild(p)});
+  var ok=$('amOk'),no=$('amCancel');
+  ok.textContent=opt.okText||'Xác nhận';
+  ok.className=opt.danger?'x':'p';
+  no.textContent=opt.cancelText||'Hủy';
+  no.style.display=opt.hideCancel?'none':'';
+  AM_.fn=onConfirm||null;AM_.done=opt.done||null;
+  AM_.prev=document.activeElement;
+  $('mAsk').classList.add('on');
+  (opt.danger&&!opt.hideCancel?no:ok).focus();
+}
+function askConfirm(message,opt){
+  return new Promise(function(res){
+    openModal((opt&&opt.title)||'Xác nhận',message,null,Object.assign({},opt,{done:res}));
+  });
+}
+$('amOk').onclick=async function(){
+  var fn=AM_.fn;
+  if(fn){
+    var btn=this,keep=false;
+    AM_.busy=true;btn.disabled=true;$('amCancel').disabled=true;
+    try{keep=(await fn())===false}catch(e){toast('Không thực hiện được: '+(e&&e.message||e),true);keep=true}
+    AM_.busy=false;btn.disabled=false;$('amCancel').disabled=false;
+    if(keep)return;
+  }
+  amFinish_(true);
+};
+$('amCancel').onclick=closeModal;
+$('amClose').onclick=closeModal;
+$('mAsk').onmousedown=function(e){AM_.down=e.target};
+$('mAsk').onclick=function(e){if(e.target===this&&AM_.down===this)closeModal()};
+document.addEventListener('keydown',function(e){
+  if(!$('mAsk').classList.contains('on'))return;
+  if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeModal();return}
+  if(e.key!=='Tab')return;
+  var f=[$('amClose'),$('amCancel'),$('amOk')].filter(function(b){return b.style.display!=='none'&&!b.disabled});
+  var i=f.indexOf(document.activeElement);
+  if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}
+  else if(!e.shiftKey&&(i<0||i===f.length-1)){e.preventDefault();f[0].focus()}
+});
+function take(r){
+  if(!r)return false;
+  if(r.busy){var m='Hệ thống đang bận, vui lòng thử lại.';say(m,true);toast(m,true);return false}
+  if(r.error){say(r.error,true);toast(r.error,true);return false}
+  var st=r.state||(r.books?r:null);
+  if(st){S=st;STATE_SEQ_++;$('ver').textContent='v'+S.v+' · '+S.u;checkErrorTransitions_();draw();anaResume_()}
+  return true;
+}
+var STATE_SEQ_=0;
+
+var PREV_ST_={},ERR_SHOWN_={};
+function checkErrorTransitions_(){
+  if(!S)return;
+  S.books.forEach(function(b){
+    var prev=PREV_ST_[b.id];
+    if(b.status==='ERROR'){
+      if(prev&&prev!=='ERROR'&&!ERR_SHOWN_[b.id]&&typeof openErrorChapters==='function'){ERR_SHOWN_[b.id]=true;openErrorChapters(b.id)}
+    }else ERR_SHOWN_[b.id]=false;
+    if(b.site==='FILE'&&b.status==='COMPLETED'&&prev&&prev!=='COMPLETED')
+      toast('Đã thêm xong truyện "'+b.name+'" ('+b.total+' '+(b.label==='Hồi'?'hồi':'chương')+').');
+    PREV_ST_[b.id]=b.status;
+  });
+}
+
+var VW={dl:'vDl',mg:'vMg',rd:'vRd'};
+function show(v){
+  cur=v;
+  Object.keys(VW).forEach(function(k){$(VW[k]).classList.toggle('on',k===v)});
+  document.querySelectorAll('.mi').forEach(function(m){m.classList.toggle('on',m.dataset.v===v)});
+  if(v==='rd'&&typeof rdEnter==='function')rdEnter();
+  if(v==='mg'&&S&&typeof drawMgr==='function')drawMgr();
+  else if(v==='mg'&&!S&&typeof mgSkeleton_==='function')mgSkeleton_();
+  window.scrollTo(0,0);
+  if(typeof rdScrollFloat==='function')rdScrollFloat();
+}
+document.querySelectorAll('.mi').forEach(function(m){m.onclick=function(){show(m.dataset.v)}});
+function sideSet_(col){
+  var sd=$('appSide'),b=$('sTog');
+  sd.classList.toggle('col',col);
+  b.textContent=col?'»':'«';b.setAttribute('aria-expanded',col?'false':'true');
+  b.title=b.ariaLabel=col?'Mở rộng thanh điều hướng':'Thu gọn thanh điều hướng';b.setAttribute('aria-label',b.title);
+}
+$('sTog').onclick=function(){
+  var col=!$('appSide').classList.contains('col');sideSet_(col);
+  try{localStorage.setItem('tttSideCol',col?'1':'0')}catch(e){}
+};
+try{if(localStorage.getItem('tttSideCol')==='1')sideSet_(true)}catch(e){}
+
+document.querySelectorAll('#segMode button').forEach(function(b){
+  b.onclick=function(){
+    document.querySelectorAll('#segMode button').forEach(function(x){x.classList.toggle('on',x===b);x.setAttribute('aria-selected',x===b?'true':'false')});
+    var man=b.dataset.m==='man';
+    $('modeAuto').style.display=man?'none':'';$('modeMan').style.display=man?'':'none';
+    say('');$('info').style.display='none';INFO=null;
+  };
+});
+
+function gname(g){return String(g||'').split(/[,;\/]/)[0].trim()||'Chưa phân loại'}
+function dirPath(){return '/'+INFO.root+'/'+gname(INFO.genre)+'/'+INFO.name}
+
+function addUrlRow_(v){
+  var d=document.createElement('div');d.className='row urlx-row';
+  var ix=document.createElement('input');ix.className='urlx';ix.placeholder='URL truyện';ix.setAttribute('aria-label','URL truyện');ix.title='Địa chỉ khác chờ phân tích';
+  var bx=document.createElement('button');bx.type='button';bx.className='x';bx.dataset.rm='1';bx.title='Bỏ dòng này';bx.textContent='✕';
+  d.appendChild(ix);d.appendChild(bx);
+  d.querySelector('.urlx').value=v||'';
+  d.querySelector('[data-rm]').onclick=function(){d.remove()};
+  $('urlExtra').appendChild(d);
+  return d;
+}
+$('bAddUrl').onclick=function(){addUrlRow_().querySelector('.urlx').focus()};
+function clearUrlRows_(){$('urlExtra').textContent=''}
+function collectUrls_(){
+  var out=[];
+  [$('url')].concat(Array.prototype.slice.call(document.querySelectorAll('.urlx'))).forEach(function(inp){
+    String(inp.value||'').split(';').forEach(function(s){s=s.trim();if(s)out.push(s)});
+  });
+  return out;
+}
+
+var ANA_RUN_=false,ANA_CUR_='',ANA_TRIED_={},DRAW_ANA_KEY_='',ANA_ADDING_=[];
+function elNew_(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined&&text!==null)e.textContent=text;return e}
+function clipLink_(url,label){
+  var a=elNew_('a','clip','📎');
+  a.title=label;a.setAttribute('aria-label',label);a.dataset.chucNang='dinh-kem';
+  if(/^https?:\/\//i.test(String(url||''))){a.href=url;a.target='_blank';a.rel='noopener'}
+  return a;
+}
+function iconBtn_(text,label,attr,id,cls){
+  var b=elNew_('button',cls||'',text);
+  b.type='button';b.title=label;b.setAttribute('aria-label',label);b.dataset[attr]='1';b.dataset.id=id;
+  return b;
+}
+function anaTable_(title,heads,rows,tool){
+  var box=elNew_('div'),hd=elNew_('div','hdrow'),wrap=elNew_('div','wrap'),t=elNew_('table','tbl'),th=elNew_('thead'),tr=elNew_('tr'),tb=elNew_('tbody');
+  hd.appendChild(elNew_('h2','',title));
+  if(tool)hd.appendChild(tool);
+  heads.forEach(function(h){
+    var th=elNew_('th',h[1]);
+    if(h[2]){var gb=elNew_('button','thbtn',h[0]+' ▾');gb.type='button';gb.dataset[h[2]]='1';gb.title=h[3];gb.setAttribute('aria-label',h[3]);th.appendChild(gb)}
+    else th.textContent=h[0];
+    tr.appendChild(th);
+  });
+  th.appendChild(tr);t.appendChild(th);
+  rows.forEach(function(r){tb.appendChild(r)});
+  t.appendChild(tb);wrap.appendChild(t);box.appendChild(hd);box.appendChild(wrap);
+  return box;
+}
+function anaHeldRows_(){
+  var h=(S&&S.hang&&S.hang.h)||[],byId={};
+  S.books.forEach(function(b){byId[b.id]=b});
+  return h.map(function(x){var b=byId[x.id];return b?{id:b.id,name:b.name,author:b.author||'',genre:b.genre||'',total:b.total,url:x.url||b.url,folderId:b.folderId||''}:null}).filter(Boolean);
+}
+function anaDirPath_(b){return '/'+((S&&S.cfg&&S.cfg.ROOT_FOLDER)||'')+'/'+gname(b.genre)+'/'+b.name}
+function anaRows_(){
+  var hang=(S&&S.hang)||{},rows=[];
+  anaHeldRows_().forEach(function(b){rows.push({k:'ok',id:b.id,name:b.name,author:b.author,genre:b.genre,url:b.url,total:b.total,folderId:b.folderId,dir:anaDirPath_(b)})});
+  (hang.w||[]).forEach(function(u){rows.push({k:u===ANA_CUR_?'run':'wait',url:u})});
+  (hang.e||[]).forEach(function(x){rows.push({k:'err',url:x.u,msg:x.m})});
+  var seen={};
+  rows.forEach(function(r){seen[r.url]=1});
+  ANA_ADDING_.forEach(function(u){if(!seen[u]){seen[u]=1;rows.push({k:'add',url:u})}});
+  return rows;
+}
+function anaUrlBtn_(text,label,attr,url,cls){
+  var b=elNew_('button',cls||'',text);
+  b.type='button';b.title=label;b.setAttribute('aria-label',label);b.dataset[attr]='1';b.dataset.url=url;
+  return b;
+}
+function anaRow_(r,i){
+  var tr=elNew_('tr'),ok=r.k==='ok',st=elNew_('td'),dir=elNew_('td'),ta=elNew_('td','act'),tl=elNew_('td'),chip;
+  tr.appendChild(elNew_('td','n',String(i+1)));
+  tr.appendChild(elNew_('td','',ok?r.name:''));
+  tr.appendChild(elNew_('td','',ok?(r.author||'—'):''));
+  tr.appendChild(elNew_('td','',ok?(r.genre||'—'):''));
+  tl.appendChild(clipLink_(r.url,'Mở link truyện'));tr.appendChild(tl);
+  if(ok){
+    var sp=elNew_('span','anaDir',r.dir);sp.title=r.dir;dir.appendChild(sp);
+    if(r.folderId){dir.appendChild(document.createTextNode(' '));dir.appendChild(clipLink_('https://drive.google.com/drive/folders/'+r.folderId,'Mở thư mục truyện trên Drive'))}
+  }
+  tr.appendChild(dir);
+  if(ok){st.appendChild(elNew_('span','chst ok','Đã phân tích'));st.appendChild(elNew_('span','muted',r.total+' chương'))}
+  else if(r.k==='run'){chip=elNew_('span','chst run','Đang phân tích');chip.appendChild(document.createElement('i'));st.appendChild(chip)}
+  else if(r.k==='wait'||r.k==='add')st.appendChild(elNew_('span','muted','Chờ phân tích'));
+  else{st.appendChild(elNew_('span','chst bad','Lỗi'));if(r.msg)st.appendChild(elNew_('div','err anaMsg',r.msg))}
+  tr.appendChild(st);
+  if(ok){
+    ta.appendChild(iconBtn_('✏️','Sửa thông tin truyện','anaEdit',r.id));ta.appendChild(document.createTextNode(' '));
+    ta.appendChild(iconBtn_('⬇️','Chuyển xuống tải','anaMove',r.id));ta.appendChild(document.createTextNode(' '));
+    ta.appendChild(iconBtn_('🗑','Xóa truyện đã phân tích','anaDel',r.id,'x'));
+  }else if(r.k==='wait'){
+    ta.appendChild(anaUrlBtn_('🗑','Bỏ URL khỏi bảng phân tích','anaDrop',r.url,'x'));
+  }else if(r.k==='err'){
+    ta.appendChild(anaUrlBtn_('🔁','Phân tích lại URL này','anaRetry',r.url));ta.appendChild(document.createTextNode(' '));
+    ta.appendChild(anaUrlBtn_('🗑','Bỏ URL khỏi bảng phân tích','anaDrop',r.url,'x'));
+  }
+  tr.appendChild(ta);
+  return tr;
+}
+function drawAna_(){
+  drawMon_();
+  var box=$('anaBox'),rows=anaRows_(),held=rows.filter(function(r){return r.k==='ok'}),root=(S&&S.cfg&&S.cfg.ROOT_FOLDER)||'',key=JSON.stringify([rows,root]);
+  if(key===DRAW_ANA_KEY_)return;
+  DRAW_ANA_KEY_=key;box.textContent='';
+  if(!rows.length)return;
+  var all=null;
+  if(held.length){
+    all=elNew_('button','p','⬇️ Chuyển tất cả xuống tải');
+    all.type='button';all.dataset.anaAll='1';all.title='Chuyển mọi truyện đã phân tích xuống luồng tải';all.setAttribute('aria-label','Chuyển tất cả xuống tải');
+  }
+  var genreHead=held.length?['Thể loại','','anaGenre','Chọn thể loại áp dụng cho tất cả truyện đã phân tích']:['Thể loại',''];
+  box.appendChild(anaTable_('Bảng phân tích truyện ('+rows.length+')',[['STT','n'],['Tên truyện',''],['Tác giả',''],genreHead,['Url',''],['Thư mục',''],['Trạng thái',''],['Thao tác','act']],rows.map(anaRow_),all));
+}
+function anaPickGenre_(){
+  var held=anaHeldRows_();if(!held.length)return;
+  var first=held[0].genre,same=held.every(function(b){return b.genre===first});
+  $('anaGenre').value=same?first:'';
+  openGenrePick_($('anaGenre'),{requireOne:true,note:'Áp dụng cho '+held.length+' truyện đã phân tích. Thể loại đầu tiên (thể loại chính) quyết định thư mục Drive của truyện.',onOk:anaApplyGenre_});
+}
+async function anaApplyGenre_(genre){
+  var ids=anaHeldRows_().map(function(b){return b.id});if(!ids.length)return;
+  var r=await call('api_setGenreMany',ids,genre);
+  if(!take(r))return;
+  var bad=Object.keys(r.errors||{}),m='Đã áp dụng thể loại "'+genre+'" cho '+r.ok+' truyện'+(bad.length?'; '+bad.length+' truyện lỗi: '+bad.map(function(id){var b=S.books.filter(function(x){return x.id===id})[0];return (b?b.name:id)+' — '+r.errors[id]}).join('; '):'')+'.';
+  say(m,!!bad.length);toast(m,!!bad.length);
+}
+$('anaBox').onclick=async function(e){
+  var gn=e.target.closest('button[data-ana-genre]');
+  if(gn){anaPickGenre_();return}
+  var dr=e.target.closest('button[data-ana-drop]'),rt=e.target.closest('button[data-ana-retry]');
+  if(dr||rt){
+    var bt=dr||rt,u=bt.dataset.url;
+    if(bt.disabled)return;
+    if(dr){
+      if(u===ANA_CUR_){toast('URL đang được phân tích, không thể bỏ lúc này.',true);return}
+      if(!(await askConfirm('Bỏ URL này khỏi bảng phân tích?\n'+u,{title:'Bỏ khỏi bảng phân tích',okText:'Bỏ',danger:true})))return;
+      if(u===ANA_CUR_){toast('URL đang được phân tích, không thể bỏ lúc này.',true);return}
+      bt.disabled=true;
+      if(take(await call('api_dropPending',u)))toast('Đã bỏ URL khỏi bảng phân tích.');else bt.disabled=false;
+      return;
+    }
+    bt.disabled=true;
+    if(take(await call('api_retryAnalyze',u))){delete ANA_TRIED_[u];toast('Đã đưa URL vào lại danh sách chờ phân tích.');anaResume_()}
+    else bt.disabled=false;
+    return;
+  }
+  var all=e.target.closest('button[data-ana-all]'),mv=e.target.closest('button[data-ana-move]'),ed=e.target.closest('button[data-ana-edit]'),dl=e.target.closest('button[data-ana-del]');
+  if(ed){if(typeof openEdit==='function')openEdit(ed.dataset.id);return}
+  if(dl){if(typeof openDel==='function')openDel(dl.dataset.id);return}
+  var btn=all||mv;if(!btn||btn.disabled)return;
+  var ids=all?anaHeldRows_().map(function(b){return b.id}):[btn.dataset.id];
+  if(!ids.length)return;
+  btn.disabled=true;
+  var r=await call('api_moveToDownload',ids);
+  if(take(r)){
+    var m='Đã chuyển '+r.moved+' truyện xuống tải'+(r.started?': '+r.started+' vào luồng tải':'')+(r.queued?(r.started?', ':': ')+r.queued+' vào hàng chờ tải':'')+'.';
+    say(m);toast(m);
+  }
+  btn.disabled=false;
+};
+function anaResume_(){
+  if(ANA_RUN_||gone||!S||!S.hang)return;
+  var next=(S.hang.w||[]).filter(function(u){return !ANA_TRIED_[u]});
+  if(next.length)anaRun_();
+}
+async function anaRun_(){
+  if(ANA_RUN_)return;
+  ANA_RUN_=true;$('info').style.display='none';INFO=null;
+  var added=[],updated=[],same=[],failed=[],warns=[],done=0;
+  try{
+    for(;;){
+      var left=((S&&S.hang&&S.hang.w)||[]).filter(function(x){return !ANA_TRIED_[x]});
+      if(!left.length)break;
+      var u=left[0];
+      ANA_TRIED_[u]=1;ANA_CUR_=u;drawAna_();
+      say('Đang phân tích truyện '+(done+1)+'/'+(done+left.length)+' ('+hostOf(u)+')…');
+      var timer=anaStepsAnimate_(),r=await call('api_analyzeAndHold',u);
+      clearInterval(timer);anaStepsRender_(ANA_STEPS_.length);
+      await sleep_(250);anaStepsHide_();
+      ANA_CUR_='';done++;
+      if(r&&r.busy){failed.push(hostOf(u)+' — Hệ thống đang bận, chưa phân tích được.');continue}
+      if(!r||r.error){failed.push(hostOf(u)+' — '+(r&&r.error||'Không rõ lỗi'));take(await call('api_getState'));continue}
+      take(r);
+      var b=r.existing&&S.books.filter(function(x){return x.id===r.existing})[0];
+      if(r.existing){if(r.added)updated.push((b?b.name:r.existing)+' (+'+r.added+' chương)');else same.push(b?b.name:r.existing)}
+      else{added.push(r.created);if(r.warn)warns.push(r.created+': '+r.warn)}
+    }
+  }finally{
+    ANA_RUN_=false;ANA_CUR_='';drawAna_();
+  }
+  var parts=[];
+  if(added.length)parts.push('phân tích xong '+added.length+' truyện mới, đang ở bảng phân tích');
+  if(updated.length)parts.push('cập nhật '+updated.length+' truyện có chương mới: '+updated.join(', '));
+  if(same.length)parts.push(same.length+' truyện không có gì thay đổi');
+  if(failed.length)parts.push(failed.length+' lỗi (còn trong bảng phân tích, bấm 🔁 để phân tích lại): '+failed.join('; '));
+  var sum=(parts.length?'Đã '+parts.join('; '):'Không có truyện nào được xử lý')+'.';
+  say(sum+(warns.length?' Cảnh báo: '+warns.join(' '):''),!!failed.length);toast(failed.length?failed.length+' truyện phân tích lỗi.':sum,!!failed.length);
+}
+$('bAna').onclick=async function(){
+  var urls=collectUrls_();if(!urls.length){say('Nhập URL truyện trước khi phân tích.',true);return}
+  var bad=urls.filter(function(u){return !/^https?:\/\/[^\/\s]+/i.test(u)})[0];
+  if(bad){say('URL phải bắt đầu bằng http:// hoặc https:// — kiểm tra lại: '+bad,true);return}
+  var batch=urls.slice();
+  this.disabled=true;
+  batch.forEach(function(u){delete ANA_TRIED_[u]});
+  ANA_ADDING_=ANA_ADDING_.concat(batch);
+  $('url').value='';clearUrlRows_();
+  say('Đã thêm '+batch.length+' URL vào bảng, đang lưu danh sách chờ…');
+  if(S)drawAna_();
+  var r=await call('api_queueAnalyze',batch);
+  ANA_ADDING_=ANA_ADDING_.filter(function(u){return batch.indexOf(u)<0});
+  if(take(r)){
+    var m=r.dup?'Đã thêm '+r.added+' URL, bỏ qua '+r.dup+' URL đã có trong danh sách.':'Đã thêm '+r.added+' URL, đang phân tích lần lượt.';
+    say(m);anaResume_();
+  }else{
+    var cur=$('url').value.trim();
+    $('url').value=(cur?cur+';':'')+batch.join(';');
+    if(S)drawAna_();
+  }
+  this.disabled=false;
+};
+$('bMan').onclick=async function(){
+  var u=$('manUrl').value.trim(),t=+$('manTotal').value;
+  if(!u){say('Nhập URL chương mẫu trước khi thêm thủ công.',true);return}
+  if(!t||t<1){say('Nhập tổng số chương hợp lệ.',true);return}
+  this.disabled=true;say('Đang sinh danh sách chương theo mẫu URL…');$('info').style.display='none';INFO=null;
+  var r=await call('api_manualAnalyze',u,t);this.disabled=false;
+  if(r.error){say(r.error,true);return}
+  if(r.existing){take(r);var b=S.books.filter(function(x){return x.id===r.existing})[0];
+    var m=r.added?('Truyện "'+(b?b.name:r.existing)+'" đã tồn tại — đã thêm thủ công '+r.added+' chương còn thiếu vào hàng chờ tải.')
+      :('Truyện đã tồn tại: '+(b?b.name:r.existing)+' — không có chương nào mới theo mẫu vừa nhập.');
+    say(m);return}
+  INFO=r.info;say('Đã sinh '+INFO.chapters.length+' chương theo mẫu URL — điền tên truyện rồi bấm Bắt đầu tải.');
+  $('info').style.display='block';
+  $('iName').value=INFO.name;$('iAuthor').value=INFO.author||'';$('iGenre').value=INFO.genre||'';
+  $('iSite').textContent=INFO.site;$('iTotal').textContent=INFO.chapters.length;$('iDir').textContent=dirPath();
+  $('iName').disabled=$('iAuthor').disabled=$('iGenre').disabled=false;$('iEdit').textContent='💾';$('iName').focus();
+};
+function applyInfoEdit_(){
+  var n=$('iName'),au=$('iAuthor'),ge=$('iGenre');
+  INFO.author=au.value.trim();INFO.genre=ge.value.trim();INFO.name=n.value.trim()||INFO.name;n.value=INFO.name;
+  n.disabled=au.disabled=ge.disabled=true;$('iEdit').textContent='✏️';$('iDir').textContent=dirPath();
+}
+$('iEdit').onclick=function(){
+  var n=$('iName'),on=n.disabled;
+  if(on){n.disabled=$('iAuthor').disabled=$('iGenre').disabled=false;this.textContent='💾';n.focus();}
+  else applyInfoEdit_();
+};
+$('bGo').onclick=async function(){
+  if(!$('iName').disabled)applyInfoEdit_();
+  var url=INFO.url;
+  this.disabled=true;say('');
+  var stepTimer=anaStepsAnimate_();
+  var r=await call('api_createAndStart',INFO);
+  clearInterval(stepTimer);anaStepsRender_(ANA_STEPS_.length);
+  this.disabled=false;
+  await sleep_(250);anaStepsHide_();
+  if(take(r)){
+    var nb=S.books.filter(function(b){return b.url===url})[0];
+    var m=nb&&nb.status==='IDLE'?'Đã thêm vào hàng chờ — sẽ tự động tải khi có truyện khác xong/tạm dừng.':'Đã bắt đầu tải.';
+    say(m);toast(m);
+    $('info').style.display='none';INFO=null;$('url').value='';$('manUrl').value='';$('manTotal').value='';clearUrlRows_();
+    take(await call('api_getState'));
+  }
+};
+
+function renderActiveChapters_(rows){
+  if(!rows||!rows.length)return '';
+  return '<div class="ch-title">📖 <b>Chương đang tải</b></div><div class="wrap"><table class="tbl tbl-ch"><thead><tr><th>Tên chương</th><th>Tiêu đề</th><th>Link</th><th>Trạng thái</th></tr></thead><tbody>'
+    +rows.map(function(r){
+      var num=r[0],title=r[1],url=r[2],isErr=r[3]==='ERROR',err=r[4],dn=r[5]==null?'':r[5];
+      var badge=isErr?'<span class="chst bad">Lỗi</span>':'<span class="chst run">Đang tải<i></i></span>';
+      var icons=isErr
+        ?'<button class="icb ok" data-ca="retry" title="Tải lại chương này">✓</button><button class="icb bad" data-ca="delete" title="Xóa hẳn chương này">✕</button>'
+        :'<button class="icb warn" data-ca="pause" title="Tạm dừng chương này">❚❚</button><button class="icb bad" data-ca="delete" title="Xóa hẳn chương này">✕</button>';
+      return '<tr data-num="'+thoatHtml(num)+'"><td>Chương '+thoatHtml(chDispNum_(num,dn))+'</td>'
+      +'<td>'+(thoatHtml(title)||'<span class="muted">(chưa rõ)</span>')+(isErr&&err?'<div class="err">'+thoatHtml(err)+'</div>':'')+'</td>'
+      +'<td class="lk">'+(url?'<a href="'+thoatHtml(url)+'" target="_blank" rel="noopener" title="'+thoatHtml(url)+'">'+thoatHtml(url)+'</a>':'<span class="muted">—</span>')+'</td>'
+      +'<td>'+badge+icons+'</td></tr>';
+    }).join('')+'</tbody></table></div>';
+}
+var DRAW_BOOKS_KEY_='',DRAW_QUEUE_KEY_='';
+function draw(){
+  var list=S.books.filter(function(b){return b.status!=='COMPLETED'&&b.status!=='IDLE'&&b.status!=='READY'&&b.status!=='ANALYZED'});
+  var key=JSON.stringify(list.map(function(b){return [b.id,b.status,b.done,b.err,b.total,b.name]}))+'|'+JSON.stringify(S.active||[]);
+  if(key!==DRAW_BOOKS_KEY_){
+    DRAW_BOOKS_KEY_=key;
+    $('books').innerHTML=list.map(function(b){
+      var pct=b.total?Math.round(b.done*100/b.total):0,rem=b.total-b.done-b.err,dl=b.status==='DOWNLOADING';
+      return '<div class="box bk" data-id="'+thoatHtml(b.id)+'"><div class="top"><span class="bname">'+thoatHtml(b.name)+'</span><span class="st '+thoatHtml(b.status)+'">'+(ST[b.status]||thoatHtml(b.status))+'</span></div>'
+      +(dl?'<div class="batchslot"></div>':'')
+      +(dl?renderActiveChapters_((S.active&&S.active.filter(function(a){return a.id===b.id})[0]||{}).chapters):'')
+      +'<div class="bar"><i style="width:'+pct+'%"></i></div>'
+      +'<div class="grid"><div class="cell"><label>Tổng chương</label><div class="v">'+b.total+'</div></div><div class="cell"><label>Đã tải</label><div class="v">'+b.done+' ('+pct+'%)</div></div><div class="cell"><label>Lỗi</label><div class="v '+(b.err?'err':'')+'">'+b.err+'</div></div><div class="cell"><label>Còn lại</label><div class="v">'+rem+'</div></div></div>'
+      +'<div class="row">'+(dl?'<button data-a="pause">Tạm dừng</button><button data-a="refresh" title="Làm mới tiến độ ngay, không chờ tự động cập nhật">🔄 Làm mới</button>':(rem>0?'<button class="p" data-a="start">'+(b.done?'Tiếp tục':'Bắt đầu tải')+'</button>':''))
+      +(b.err?'<button data-a="retry">Tải lại chương lỗi</button>':'')+'<button data-a="verify">Kiểm tra file</button>'
+      +'<button class="x" data-a="del">🗑 Xóa truyện</button>'
+      +'<a href="https://drive.google.com/drive/folders/'+thoatHtml(b.folderId)+'" target="_blank"><button>Mở thư mục Drive</button></a><button data-a="list">Danh sách chương</button></div></div>';
+    }).join('')||(S.books.some(function(b){return b.status==='IDLE'||b.status==='ANALYZED'})?'':'<p class="muted">Chưa có truyện.</p>');
+  }
+  var dlBook=list.filter(function(b){return b.status==='DOWNLOADING'})[0],slot=dlBook&&document.querySelector('.bk[data-id="'+dlBook.id+'"] .batchslot');
+  if(slot){slot.appendChild($('batchCtl'));$('batchCtl').style.display='block'}else $('batchCtl').style.display='none';
+  drawAna_();drawMon_();drawQueue();drawBatch();
+  if(cur==='mg'&&typeof drawMgr==='function')drawMgr();
+  if(typeof rdSync==='function')rdSync();
+}
+$('books').onclick=async function(e){
+  var ct=e.target.closest('button[data-ca]');
+  if(ct){
+    var bkid=ct.closest('.bk').dataset.id,num=+ct.closest('[data-num]').dataset.num,act=ct.dataset.ca;
+    if(act==='delete'&&!(await askConfirm('Xóa hẳn chương '+num+' khỏi danh sách truyện? Thao tác này không hoàn tác được.',{title:'Xóa chương '+num,okText:'🗑 Xóa',danger:true})))return;
+    ct.disabled=true;
+    var rc=await call('api_chapterAction',bkid,num,act);
+    if(take(rc))toast((CA_VERB_[act]||'Đã xử lý chương ')+num+'.');
+    ct.disabled=false;
+    return;
+  }
+  var t=e.target.closest('button[data-a]');if(!t)return;
+  var a=t.dataset.a,id=t.closest('.bk').dataset.id;
+  if(a==='list'){openChapterList(id);return}
+  if(a==='del'){if(typeof openDel==='function')openDel(id);return}
+  if(a==='refresh'){
+    if(busy){toast('Đang có 1 lượt cập nhật khác chạy dở, vui lòng đợi giây lát.',true);return}
+    busy=true;t.disabled=true;
+    take(await call('api_getState'));
+    busy=false;t.disabled=false;
+    toast('Đã làm mới tiến độ truyện đang tải.');
+    return;
+  }
+  t.disabled=true;take(await call('api_setStatus',id,a));t.disabled=false;
+};
+
+var LIST_ID_=null,LIST_MODE_='all';
+var LIST_SEL_={};
+var LIST_ERRFIRST_=false;
+async function openChapterList(id){
+  LIST_ID_=id;LIST_MODE_='all';LIST_SEL_={};LIST_ERRFIRST_=false;LIST_TREE_ON_=false;LIST_TREE_OPEN_={};$('mlT').textContent='Danh sách chương';$('mlB').textContent='Đang tải…';$('mList').classList.add('on');
+  renderChapterList_(await call('api_chapters',id));
+}
+function chTreeNode_(items,isOpen){
+  var nodes=[],curP=null,curV=null;
+  items.forEach(function(it){
+    var pn=it.part||'',vn=it.vol||'',holder=nodes;
+    if(pn){if(!curP||curP.name!==pn){curP={g:1,lv:'part',name:pn,key:pn,kids:[]};nodes.push(curP);curV=null}holder=curP.kids}
+    else curP=null;
+    if(vn){
+      if(!curV||curV.name!==vn||curV.parent!==curP){curV={g:1,lv:'vol',name:vn,key:(pn?pn+'›':'')+vn,kids:[],parent:curP};holder.push(curV)}
+      curV.kids.push({it:it});
+    }else{curV=null;holder.push({it:it})}
+  });
+  function count(n){return n.g?n.kids.reduce(function(a,k){return a+count(k)},0):1}
+  function hasCur(n){return n.g?n.kids.some(hasCur):!!n.it.cur}
+  function str(v){return v==null?'':String(v)}
+  function el(tag,cls){var e=document.createElement(tag);if(cls)e.className=cls;return e}
+  function build(n){
+    if(!n.g){var it=n.it,b=el('button','ct-c'+(it.cls?' '+it.cls:'')+(it.cur?' cur':''));b.setAttribute('type','button');b.setAttribute('data-ctid',str(it.id));b.textContent=str(it.text);return b}
+    var hc=hasCur(n),d=el('details','ct-g ct-'+n.lv),sm=document.createElement('summary'),sn=document.createElement('small'),kids=el('div','ct-k');
+    d.setAttribute('data-k',str(n.key));if(isOpen(n.key,hc))d.setAttribute('open','');
+    sm.appendChild(document.createTextNode(str(n.name)+' '));sn.textContent='('+count(n)+')';sm.appendChild(sn);d.appendChild(sm);
+    n.kids.forEach(function(k){kids.appendChild(build(k))});d.appendChild(kids);return d;
+  }
+  var root=el('div','ct-tree');nodes.forEach(function(n){root.appendChild(build(n))});return root;
+}
+function chTreeHtml_(items,isOpen){var w=document.createElement('div');w.appendChild(chTreeNode_(items,isOpen));return w.innerHTML}
+function chHasHier_(rows,pi,vi){return rows.some(function(r){return r[pi]||r[vi]})}
+function chDispNum_(num,dnum){return dnum==='*'?'—':(dnum!==''&&dnum!=null?dnum:num)}
+var LIST_TREE_ON_=false,LIST_TREE_OPEN_={};
+function renderChapterList_(c){
+  if(c.error){$('mlB').innerHTML='<span class="err">'+thoatHtml(c.error)+'</span>';return}
+  LIST_ROWS_=c.rows;
+  var errN=c.rows.filter(function(r){return r[2]==='ERROR'}).length;
+  var errSel=errN>0&&c.rows.filter(function(r){return r[2]==='ERROR'}).every(function(r){return LIST_SEL_[r[0]]});
+  var selNums=Object.keys(LIST_SEL_).filter(function(k){return LIST_SEL_[k]});
+  var dispRows=c.rows;
+  if(LIST_ERRFIRST_)dispRows=c.rows.slice().sort(function(a,b){
+    var ae=a[2]==='ERROR'?0:1,be=b[2]==='ERROR'?0:1;
+    return ae!==be?ae-be:a[0]-b[0];
+  });
+  var hier=chHasHier_(c.rows,6,7),bk=S&&S.books?S.books.filter(function(b){return b.id===LIST_ID_})[0]:null,lbl=(bk&&bk.label)||'Chương';
+  var treeHtml='';
+  if(hier){
+    treeHtml='<div class="row" style="margin-bottom:8px"><button type="button" id="mlTreeBtn">🌳 '+(LIST_TREE_ON_?'Ẩn':'Hiện')+' sơ đồ chọn chương</button></div>';
+    if(LIST_TREE_ON_)treeHtml+='<div class="ct-box" id="mlTree">'+chTreeHtml_(c.rows.map(function(r){
+      var d=chDispNum_(r[0],r[8]);
+      return {id:r[0],part:r[6],vol:r[7],text:(r[8]==='*'?'':lbl+' '+d+(r[1]?': ':''))+(r[1]||''),cls:r[2]==='ERROR'?'err':(r[2]==='DONE'?'ok':'')};
+    }),function(k){return !!LIST_TREE_OPEN_[k]})+'</div>';
+  }
+  var lastGrp=null;
+  $('mlB').innerHTML=treeHtml+(errN?'<p class="err">Có '+errN+' chương lỗi — bấm 🔁 để tải lại từng chương, hoặc 🚫 để hủy (coi như chương đó đã tải, bỏ qua nội dung).</p>':'')
+    +'<div class="row" id="mlBulk" style="align-items:center;margin-bottom:8px">'
+    +'<button type="button" data-bulk="retry"'+(selNums.length?'':' disabled')+'>🔁 Tải lại đã chọn</button>'
+    +' <button type="button" data-bulk="cancel"'+(selNums.length?'':' disabled')+'>🚫 Hủy đã chọn</button>'
+    +' <button type="button" class="x" data-bulk="delete"'+(selNums.length?'':' disabled')+'>🗑 Xóa đã chọn</button>'
+    +' <span class="muted">'+(selNums.length?'Đã chọn '+selNums.length+' chương':'Tick chọn chương để xử lý hàng loạt')+'</span></div>'
+    +'<table class="tbl"><tr><th class="n"><input type="checkbox" id="mlSelAll"'+(c.rows.length&&selNums.length===c.rows.length?' checked':'')+'></th><th class="n">Chương</th><th>Tiêu đề</th><th>Trạng thái</th>'
+    +'<th class="srt'+(LIST_ERRFIRST_?' on':'')+'" id="mlErrSort" title="Bấm để đưa chương lỗi lên đầu, bấm lại để trả về thứ tự chương">Lỗi<span>'+(LIST_ERRFIRST_?'▲':'⇅')+'</span> '
+    +'<button type="button" id="mlSelErr"'+(errN?'':' disabled')+' title="'+(errSel?'Bỏ chọn tất cả chương lỗi':'Chọn tất cả chương lỗi')+'">'+(errSel?'☑':'☐')+'</button></th>'
+    +'<th>Website</th><th>Link</th><th class="act">Thao tác</th></tr>'
+    +dispRows.map(function(r){
+      var isErr=r[2]==='ERROR',gh='';
+      if(hier&&!LIST_ERRFIRST_){var g=(r[6]||'')+'›'+(r[7]||'');if(g!==lastGrp){var prevG=lastGrp;lastGrp=g;if(r[6]||r[7])gh='<tr class="ct-gh"><td colspan="8">'+thoatHtml([r[6],r[7]].filter(Boolean).join(' › '))+'</td></tr>';else if(prevG)gh='<tr class="ct-gh"><td colspan="8">Không thuộc quyển nào</td></tr>'}}
+      return gh+'<tr data-num="'+thoatHtml(r[0])+'"><td class="n"><input type="checkbox" class="mlChk"'+(LIST_SEL_[r[0]]?' checked':'')+'></td><td class="n">'+thoatHtml(chDispNum_(r[0],r[8]))+'</td><td>'+thoatHtml(r[1])+'</td><td>'+(STC_[r[2]]||thoatHtml(r[2]))+'</td><td class="err">'+thoatHtml(r[4])+'</td>'
+      +'<td>'+(thoatHtml(hostOf(r[5]))||'<span class="muted">—</span>')+'</td>'
+      +'<td>'+(r[5]?'<a href="'+thoatHtml(r[5])+'" target="_blank" rel="noopener" title="Mở link chương gốc">🔗</a>':'<span class="muted">—</span>')+'</td>'
+      +'<td class="act">'+(isErr?'<button data-ca="retry" title="Tải lại chương này">🔁</button> <button class="x" data-ca="cancel" title="Hủy tải, coi như chương đã tải">🚫</button> ':'')
+      +'<button data-ca="edit" data-url="'+thoatHtml(r[5])+'" data-title="'+thoatHtml(r[1])+'" title="Sửa link/tiêu đề chương (dùng khi bị bắt nhầm loại chương/link sai)">✏️</button></td></tr>';
+    }).join('')+'</table>';
+}
+$('mlB').addEventListener('toggle',function(e){var d=e.target;if(d&&d.classList&&d.classList.contains('ct-g'))LIST_TREE_OPEN_[d.dataset.k]=d.open},true);
+var LIST_ROWS_=null;
+$('mlB').addEventListener('change',function(e){
+  if(e.target.id==='mlSelAll'){
+    var on=e.target.checked;
+    (LIST_ROWS_||[]).forEach(function(r){if(on)LIST_SEL_[r[0]]=true;else delete LIST_SEL_[r[0]]});
+    renderChapterList_({rows:LIST_ROWS_||[]});return;
+  }
+  if(e.target.classList.contains('mlChk')){
+    var num=+e.target.closest('[data-num]').dataset.num;
+    if(e.target.checked)LIST_SEL_[num]=true;else delete LIST_SEL_[num];
+    renderChapterList_({rows:LIST_ROWS_||[]});
+  }
+});
+async function bulkChapterAction_(action){
+  var nums=Object.keys(LIST_SEL_).filter(function(k){return LIST_SEL_[k]}).map(Number);
+  if(!nums.length)return;
+  var verb=action==='retry'?'tải lại':action==='cancel'?'hủy tải (coi như đã tải xong)':'xóa hẳn';
+  if(!(await askConfirm('Xác nhận '+verb+' '+nums.length+' chương đã chọn?',{title:'Xử lý '+nums.length+' chương',danger:action!=='retry'})))return;
+  var bar=$('mlBulk');if(bar)bar.querySelectorAll('button').forEach(function(b){b.disabled=true});
+  var failed=[];
+  for(var i=0;i<nums.length;i++){
+    var r=await call('api_chapterAction',LIST_ID_,nums[i],action);
+    if(!r||r.error)failed.push(nums[i]+(r&&r.error?' — '+r.error:''));
+  }
+  LIST_SEL_={};
+  var r2=await call('api_chapters',LIST_ID_);
+  renderChapterList_(r2);
+  var m='Đã xử lý '+(nums.length-failed.length)+'/'+nums.length+' chương'+(failed.length?'; lỗi: '+failed.join(', '):'.');
+  toast(m,!!failed.length);
+}
+$('mlB').addEventListener('click',function(e){
+  if(e.target.closest('#mlSelErr')){
+    var errRows=(LIST_ROWS_||[]).filter(function(r){return r[2]==='ERROR'});
+    var allOn=errRows.length&&errRows.every(function(r){return LIST_SEL_[r[0]]});
+    errRows.forEach(function(r){if(allOn)delete LIST_SEL_[r[0]];else LIST_SEL_[r[0]]=true});
+    renderChapterList_({rows:LIST_ROWS_||[]});return;
+  }
+  if(e.target.closest('#mlErrSort')){LIST_ERRFIRST_=!LIST_ERRFIRST_;renderChapterList_({rows:LIST_ROWS_||[]});return}
+  if(e.target.closest('#mlTreeBtn')){LIST_TREE_ON_=!LIST_TREE_ON_;renderChapterList_({rows:LIST_ROWS_||[]});return}
+  var ct=e.target.closest('button[data-ctid]');
+  if(ct){var tr=$('mlB').querySelector('tr[data-num="'+ct.dataset.ctid+'"]');if(tr){tr.scrollIntoView({block:'center',behavior:'smooth'});tr.classList.add('ct-flash');setTimeout(function(){tr.classList.remove('ct-flash')},1600)}return}
+  var t=e.target.closest('button[data-bulk]');if(!t||t.disabled)return;
+  bulkChapterAction_(t.dataset.bulk);
+});
+
+async function openErrorChapters(id){
+  LIST_ID_=id;LIST_MODE_='error';$('mlT').textContent='Chương lỗi';$('mlB').textContent='Đang tải…';$('mList').classList.add('on');
+  renderErrorGrid_(await call('api_errorChapters',id));
+}
+function renderErrorGrid_(c){
+  if(c.error){$('mlB').innerHTML='<span class="err">'+thoatHtml(c.error)+'</span>';return}
+  if(!c.rows.length){var pe=document.createElement('p');pe.className='muted';pe.textContent='Không còn chương lỗi.';$('mlB').replaceChildren(pe);return}
+  $('mlB').innerHTML='<p class="err">Có '+c.rows.length+' chương lỗi — bấm 🔁 để tải lại từng chương, hoặc 🚫 để hủy (coi như chương đó đã tải, bỏ qua nội dung).</p>'
+    +'<div class="errgrid">'+c.rows.map(function(r){
+      return '<div class="errcard" data-num="'+thoatHtml(r[0])+'"><div class="ecn">Chương '+thoatHtml(chDispNum_(r[0],r[5]||''))+'</div><div class="ect">'+(thoatHtml(r[1])||'<span class="muted">(chưa rõ tiêu đề)</span>')+'</div>'
+      +'<div class="ece">'+thoatHtml(r[3])+'</div><div class="muted" style="font-size:12px;margin-bottom:6px">Website: '+(thoatHtml(hostOf(r[4]))||'—')+'</div>'
+      +'<div class="ecrow"><button data-ca="retry" title="Tải lại chương này">🔁 Tải lại</button> <button class="x" data-ca="cancel" title="Hủy tải, coi như chương đã tải">🚫 Hủy</button> '
+      +'<button data-ca="edit" data-url="'+thoatHtml(r[4])+'" data-title="'+thoatHtml(r[1])+'" title="Sửa link/tiêu đề chương">✏️ Sửa</button></div></div>';
+    }).join('')+'</div>';
+}
+
+$('mlB').onclick=async function(e){
+  var t=e.target.closest('button[data-ca]');if(!t)return;
+  var num=+t.closest('[data-num]').dataset.num,act=t.dataset.ca;
+  if(act==='edit'){openChEdit(LIST_ID_,num,t.dataset.title||'',t.dataset.url||'');return}
+  if(act==='cancel'&&!(await askConfirm('Hủy tải chương '+num+'? Chương này sẽ được coi như đã tải xong (bỏ qua, không có nội dung) và không thể tải lại tự động nữa.',{title:'Hủy tải chương '+num,okText:'Hủy tải',cancelText:'Giữ lại',danger:true})))return;
+  t.disabled=true;
+  var r=await call('api_chapterAction',LIST_ID_,num,act);
+  if(!take(r)){t.disabled=false;return}
+  toast((CA_VERB_[act]||'Đã xử lý chương ')+num+'.');
+  if(LIST_MODE_==='error')renderErrorGrid_(await call('api_errorChapters',LIST_ID_));
+  else renderChapterList_(await call('api_chapters',LIST_ID_));
+};
+
+var CH_EDIT_=null;
+function openChEdit(id,num,title,url){
+  CH_EDIT_={id:id,num:num};
+  $('ceNum').textContent='Chương '+num;
+  $('ceSite').textContent=hostOf(url)||'—';
+  $('ceTitle').value=title||'';
+  $('ceUrl').value=url||'';
+  $('ceMsg').className='muted';$('ceMsg').textContent='';
+  $('mChEdit').classList.add('on');
+}
+$('ceGo').onclick=async function(){
+  var url=$('ceUrl').value.trim();
+  if(!/^https?:\/\//i.test(url)){$('ceMsg').className='err';$('ceMsg').textContent='URL phải bắt đầu bằng http:// hoặc https://';return}
+  this.disabled=true;$('ceMsg').className='muted';$('ceMsg').textContent='Đang lưu…';
+  var r=await call('api_editChapter',CH_EDIT_.id,CH_EDIT_.num,url,$('ceTitle').value.trim());
+  this.disabled=false;
+  if(take(r)){
+    $('mChEdit').classList.remove('on');toast('Đã sửa chương '+CH_EDIT_.num+'.');
+    if(LIST_MODE_==='error')renderErrorGrid_(await call('api_errorChapters',LIST_ID_));
+    else renderChapterList_(await call('api_chapters',LIST_ID_));
+  }else{$('ceMsg').className='err';$('ceMsg').textContent=r.error||'Không lưu được.'}
+};
+
+var Q1_={};
+function drawQueue(){
+  var queue=S.books.filter(function(b){return b.status==='IDLE'});
+  if(!queue.length){if(DRAW_QUEUE_KEY_){DRAW_QUEUE_KEY_='';$('queueBox').textContent=''}return}
+  var key=queue.map(function(b){return b.id+':'+b.name+':'+b.total}).join('|');
+  if(key!==DRAW_QUEUE_KEY_){DRAW_QUEUE_KEY_=key;renderQueue_(queue)}
+  var missing=queue.map(function(b){return b.id}).filter(function(id){return !(id in Q1_)});
+  if(missing.length)call('api_firstChapterUrls',missing).then(function(r){
+    if(r&&!r.error)Object.keys(r).forEach(function(id){Q1_[id]=r[id]});
+    var q2=S.books.filter(function(b){return b.status==='IDLE'});
+    if(q2.length)renderQueue_(q2);
+  });
+}
+function renderQueue_(queue){
+  $('queueBox').innerHTML='<h2>Hàng chờ tải ('+queue.length+')</h2><div class="wrap"><table class="tbl"><thead><tr><th>STT</th><th>Tên truyện</th><th class="n">Số chương</th><th>Link chương 1</th><th class="act">Thao tác</th></tr></thead><tbody>'+queue.map(function(b,i){
+    var u=Q1_[b.id];
+    return '<tr><td>'+(i+1)+'</td><td>'+thoatHtml(b.name)+'</td><td class="n">'+b.total+'</td>'
+    +'<td>'+(u?'<a href="'+thoatHtml(u)+'" target="_blank" rel="noopener">Mở link</a>':'<span class="muted">—</span>')+'</td>'
+    +'<td class="act"><button data-qedit="1" data-id="'+thoatHtml(b.id)+'" title="Sửa thông tin truyện">✏️</button> '
+    +'<button data-q="up" data-id="'+thoatHtml(b.id)+'"'+(i===0?' disabled':'')+' title="Lên">▲</button> '
+    +'<button data-q="down" data-id="'+thoatHtml(b.id)+'"'+(i===queue.length-1?' disabled':'')+' title="Xuống">▼</button> '
+    +'<button data-qa="start" data-id="'+thoatHtml(b.id)+'" title="Tải truyện này">▶️</button> '
+    +'<button data-qa="pause" data-id="'+thoatHtml(b.id)+'" title="Bỏ khỏi hàng chờ">⏸</button> '
+    +'<button class="x" data-qdel="1" data-id="'+thoatHtml(b.id)+'" title="Xóa hẳn truyện này">🗑</button></td></tr>';
+  }).join('')+'</tbody></table></div>';
+}
+$('queueBox').onclick=async function(e){
+  var t4=e.target.closest('button[data-qedit]');
+  if(t4){if(typeof openEdit==='function')openEdit(t4.dataset.id);return}
+  var t=e.target.closest('button[data-q]');
+  if(t){t.disabled=true;take(await call('api_reorderQueue',t.dataset.id,t.dataset.q));return}
+  var t2=e.target.closest('button[data-qa]');
+  if(t2){t2.disabled=true;take(await call('api_setStatus',t2.dataset.id,t2.dataset.qa));return}
+  var t3=e.target.closest('button[data-qdel]');
+  if(t3&&typeof openDel==='function')openDel(t3.dataset.id);
+};
+
+var TM_={f:'all',struct:''};
+var TM_GRP_={DOWNLOADING:'run',READY:'run',IDLE:'wait',PAUSED:'pause',ERROR:'err'};
+var TM_FILTERS_=[['all','Tất cả'],['run','Đang chạy'],['wait','Chờ'],['pause','Tạm dừng'],['err','Lỗi']];
+var TM_ICON_={run:'⏳',wait:'🕒',pause:'⏸',err:'⚠️'};
+var TM_BTN_={
+  pause:['⏸','Tạm dừng',''],start:['▶️','Tải tiếp / tải ngay',''],retry:['🔁','Tải lại chương lỗi',''],
+  del:['🗑','Xóa truyện','x'],drop:['🗑','Bỏ khỏi hàng chờ phân tích','x']
+};
+function tmItems_(){
+  var out=[],w=(S&&S.hang&&S.hang.w)||[];
+  w.forEach(function(u){
+    var on=u===ANA_CUR_;
+    out.push({k:'a:'+u,grp:on?'run':'wait',title:hostOf(u)||u,sub:u,label:on?'Đang phân tích':'Chờ phân tích',pct:null,acts:on?[]:['drop'],url:u});
+  });
+  (S?S.books:[]).forEach(function(b){
+    var g=TM_GRP_[b.status];if(!g)return;
+    var pct=b.total?Math.round(b.done*100/b.total):0,prog=b.done+'/'+b.total+' '+(b.label||'chương').toLowerCase();
+    var label,acts;
+    if(b.status==='DOWNLOADING'){label='Đang tải ('+prog+')';acts=['pause','del']}
+    else if(b.status==='READY'){label='Đang chuẩn bị ('+prog+')';acts=['pause','del']}
+    else if(b.status==='IDLE'){label='Chờ tải ('+prog+')';acts=['start','pause','del']}
+    else if(b.status==='PAUSED'){label='Tạm dừng ('+prog+')';acts=['start','del']}
+    else{label=(b.err?b.err+' chương lỗi':'Có lỗi')+' ('+prog+')';acts=['retry','del']}
+    out.push({k:'b:'+b.id,grp:g,title:b.name,sub:'',label:label,pct:b.total?pct:null,acts:acts,id:b.id});
+  });
+  return out;
+}
+function tmBtn_(a,it){
+  var d=TM_BTN_[a],t=a==='pause'&&it.grp==='wait'?'Bỏ khỏi hàng chờ tải':d[1];
+  return '<button type="button" class="tm-btn'+(d[2]?' '+d[2]:'')+'" data-tm="'+a+'"'+(it.id?' data-id="'+thoatHtml(it.id)+'"':'')+(it.url?' data-url="'+thoatHtml(it.url)+'"':'')+' title="'+thoatHtml(t)+'" aria-label="'+thoatHtml(t+': '+it.title)+'">'+d[0]+'</button>';
+}
+function drawMon_(){
+  if(!S||!$('taskMon'))return;
+  var all=tmItems_(),box=$('taskMon'),done=S.books.filter(function(b){return b.status==='COMPLETED'}).length;
+  box.style.display=all.length?'':'none';
+  if(!all.length){TM_.struct='';return}
+  var cnt={all:all.length};
+  all.forEach(function(it){cnt[it.grp]=(cnt[it.grp]||0)+1});
+  if(!cnt[TM_.f]&&TM_.f!=='all')TM_.f='all';
+  $('tmCount').textContent='('+all.length+(done?' · '+done+' đã hoàn thành':'')+')';
+  var fk=TM_FILTERS_.map(function(f){return f[0]+(cnt[f[0]]||0)}).join('|')+TM_.f;
+  if($('tmFilter').dataset.k!==fk){
+    $('tmFilter').dataset.k=fk;
+    $('tmFilter').innerHTML=TM_FILTERS_.filter(function(f){return f[0]==='all'||cnt[f[0]]}).map(function(f){
+      return '<button type="button" data-f="'+f[0]+'" class="'+(TM_.f===f[0]?'on':'')+'" aria-pressed="'+(TM_.f===f[0])+'">'+f[1]+' '+(cnt[f[0]]||0)+'</button>';
+    }).join('');
+  }
+  var list=all.filter(function(it){return TM_.f==='all'||it.grp===TM_.f});
+  var sk=TM_.f+'#'+list.map(function(it){return it.k+'|'+it.grp+'|'+it.title+'|'+it.acts.join(',')+'|'+(it.pct===null?'n':'p')}).join('~'),host=$('tmList');
+  if(sk===TM_.struct){
+    list.forEach(function(it){
+      var row=host.querySelector('[data-k="'+(window.CSS&&CSS.escape?CSS.escape(it.k):it.k)+'"]');if(!row)return;
+      var st=row.querySelector('.tm-st'),bar=row.querySelector('.bar i');
+      if(st&&st.textContent!==it.label)st.textContent=it.label;
+      if(bar&&bar.style.width!==it.pct+'%')bar.style.width=it.pct+'%';
+    });
+    return;
+  }
+  TM_.struct=sk;
+  var focusKey=document.activeElement&&host.contains(document.activeElement)?document.activeElement.closest('[data-k]').dataset.k+'|'+document.activeElement.dataset.tm:'';
+  host.innerHTML=list.length?list.map(function(it){
+    return '<div class="tm-item g-'+it.grp+'" data-k="'+thoatHtml(it.k)+'"><div class="tm-info"><span class="tm-title" title="'+thoatHtml(it.sub||it.title)+'">'+thoatHtml(it.title)+'</span>'
+      +'<span class="tm-stl"><span class="tm-ic" aria-hidden="true">'+TM_ICON_[it.grp]+'</span><span class="tm-st">'+thoatHtml(it.label)+'</span></span>'
+      +(it.pct!==null?'<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+it.pct+'"><i style="width:'+it.pct+'%"></i></div>':'')+'</div>'
+      +'<div class="tm-acts">'+it.acts.map(function(a){return tmBtn_(a,it)}).join('')+'</div></div>';
+  }).join(''):'<p class="muted" style="margin:6px 2px">Không có tác vụ nào ở mục này.</p>';
+  if(focusKey){var p=focusKey.split('|'),rows=host.querySelectorAll('[data-k]'),f;[].forEach.call(rows,function(r){if(r.dataset.k===p[0])f=r.querySelector('button[data-tm="'+p[1]+'"]')});if(f)f.focus()}
+}
+$('tmFilter').onclick=function(e){var b=e.target.closest('button[data-f]');if(!b)return;TM_.f=b.dataset.f;TM_.struct='';$('tmFilter').dataset.k='';drawMon_()};
+$('tmRefresh').onclick=async function(){
+  if(busy){toast('Đang có 1 lượt cập nhật khác chạy dở, vui lòng đợi giây lát.',true);return}
+  busy=true;this.disabled=true;
+  take(await call('api_getState'));
+  busy=false;this.disabled=false;
+  toast('Đã làm mới trạng thái hàng chờ.');
+};
+var TM_MSG_={pause:'Đã tạm dừng tác vụ.',start:'Đã đưa tác vụ vào luồng tải.',retry:'Đã đưa các chương lỗi vào tải lại.'};
+$('tmList').onclick=async function(e){
+  var b=e.target.closest('button[data-tm]');if(!b||b.disabled)return;
+  var a=b.dataset.tm,id=b.dataset.id;
+  if(a==='del'){if(typeof openDel==='function')openDel(id);return}
+  if(a==='drop'){
+    var u=b.dataset.url;
+    if(!(await askConfirm('Bỏ URL này khỏi hàng chờ phân tích?\n'+u,{title:'Bỏ khỏi hàng chờ',okText:'Bỏ',danger:true})))return;
+    if(u===ANA_CUR_){toast('URL đang được phân tích, không thể bỏ lúc này.',true);return}
+    b.disabled=true;
+    if(take(await call('api_dropPending',u)))toast('Đã bỏ URL khỏi hàng chờ phân tích.');
+    else b.disabled=false;
+    return;
+  }
+  if(!TM_MSG_[a])return;
+  b.disabled=true;
+  if(take(await call('api_setStatus',id,a)))toast(TM_MSG_[a]);else b.disabled=false;
+};
+
+function drawBatch(){ if(document.activeElement!==$('batchSize'))$('batchSize').value=S.cfg.BATCH_SIZE; }
+$('bBatch').onclick=async function(){
+  var v=Math.max(1,parseInt($('batchSize').value,10)||5);$('batchSize').value=v;
+  this.disabled=true;take(await call('api_saveConfig',{BATCH_SIZE:v}));this.disabled=false;
+  toast('Đã lưu số chương tải đồng thời: '+v);
+};
+
+var CK=['BATCH_SIZE','DELAY_MS','MAX_RETRY','MAX_CONCURRENT','AUTO_RESUME','JUNK_WORDS','SITE_COOKIES','SITE_RULES'];
+var CWIDE={JUNK_WORDS:1,SITE_COOKIES:1,SITE_RULES:1};
+function drawCfg(){$('cGrid').innerHTML=CK.map(function(k){var v=S.cfg[k];if(k==='AUTO_RESUME')v=v?'TRUE':'FALSE';return'<div class="cell'+(CWIDE[k]?' wide':'')+'"><label>'+k+'</label><input data-k="'+k+'" value="'+thoatHtml(v)+'" '+(cfgEdit?'':'disabled')+'></div>'}).join('')}
+function drawFolder(){
+  var id=S.cfg.ROOT_FOLDER_ID;
+  $('fName').innerHTML=id?'<a href="https://drive.google.com/drive/folders/'+thoatHtml(id)+'" target="_blank">'+thoatHtml(S.cfg.ROOT_FOLDER)+'</a>':thoatHtml(S.cfg.ROOT_FOLDER)+' <span class="muted">(chưa đăng ký: tự tạo trong My Drive khi tải)</span>';
+  $('fId').textContent=id||'—';
+}
+$('bCfg').onclick=function(){
+  if(!S)return;cfgEdit=false;$('cEdit').textContent='✏️';drawCfg();drawFolder();GN.edit=false;gmsg('');drawGenres_();
+  $('fInput').value='';$('fInput').disabled=true;$('fEdit').textContent='✏️';$('fNew').value='';$('fMsg').textContent='';
+  $('mCfg').classList.add('on');
+};
+function fmsg(t,bad){$('fMsg').textContent=t;$('fMsg').className=bad?'err':'muted'}
+$('fEdit').onclick=async function(){
+  var i=$('fInput');
+  if(i.disabled){i.disabled=false;i.focus();this.textContent='💾';return}
+  if(!i.value.trim()){fmsg('Dán Folder ID hoặc link thư mục.',true);return}
+  this.disabled=true;fmsg('Đang kiểm tra thư mục…');
+  var r=await call('api_registerRoot',i.value.trim());this.disabled=false;
+  if(take(r)){drawFolder();i.value='';i.disabled=true;this.textContent='✏️';fmsg('Đã đăng ký thư mục gốc: '+r.name)}else fmsg(r.error||'Không đăng ký được.',true);
+};
+$('fCreate').onclick=async function(){
+  var n=$('fNew').value.trim();if(!n){fmsg('Nhập tên thư mục cần tạo.',true);return}
+  this.disabled=true;fmsg('Đang tạo thư mục…');
+  var r=await call('api_createRoot',n);this.disabled=false;
+  if(take(r)){drawFolder();$('fNew').value='';fmsg('Đã tạo và đăng ký thư mục gốc: '+r.name)}else fmsg(r.error||'Không tạo được.',true);
+};
+$('cEdit').onclick=async function(){
+  if(!cfgEdit){cfgEdit=true;this.textContent='💾';drawCfg();return}
+  var c={};document.querySelectorAll('#cGrid input').forEach(function(i){c[i.dataset.k]=i.value.trim()});
+  this.disabled=true;take(await call('api_saveConfig',c));this.disabled=false;cfgEdit=false;this.textContent='✏️';drawCfg();
+};
+
+var GN={edit:false,list:[]};
+function gmsg(t,bad){$('gMsg').textContent=t||'';$('gMsg').className=bad?'err':'muted'}
+function gnKey_(s){return normVi_(s).replace(/\s+/g,' ')}
+function gnSort_(a){return a.sort(function(x,y){return x.localeCompare(y,'vi',{sensitivity:'base'})})}
+function gnClean_(s){return String(s||'').replace(/[,;\/\\:*?"<>|]/g,' ').replace(/\s+/g,' ').trim().slice(0,120)}
+function gnAddNames_(names){
+  var have={},added=0,dup=0;
+  GN.list.forEach(function(g){have[gnKey_(g)]=1});
+  names.forEach(function(n){
+    n=gnClean_(n);if(!n)return;
+    var k=gnKey_(n);if(have[k]){dup++;return}
+    have[k]=1;GN.list.push(n);added++;
+  });
+  gnSort_(GN.list);
+  return {added:added,dup:dup};
+}
+function drawGenres_(){
+  var box=$('gGrid'),list=GN.edit?GN.list:((S&&S.cfg&&S.cfg.GENRES)||[]);
+  box.textContent='';
+  list.forEach(function(g,i){
+    var c=document.createElement('div');c.className='cell';
+    var v=document.createElement('div');v.className='v';v.textContent=g;c.appendChild(v);
+    if(GN.edit){var b=document.createElement('button');b.type='button';b.className='ico';b.dataset.i=String(i);b.title='Bỏ thể loại này';b.setAttribute('aria-label','Bỏ thể loại '+g);b.textContent='✕';c.appendChild(b)}
+    box.appendChild(c);
+  });
+  if(!list.length){var p=document.createElement('p');p.className='muted';p.style.gridColumn='1/-1';p.textContent='Chưa có thể loại nào. Bấm ✏️ để thêm, hoặc \"Nhập từ truyện hiện có\".';box.appendChild(p)}
+  $('gTools').style.display=GN.edit?'':'none';
+  $('gEdit').textContent=GN.edit?'💾':'✏️';
+  $('gEdit').title=GN.edit?'Lưu':'Sửa';
+}
+$('gGrid').onclick=function(e){
+  var b=e.target.closest('button[data-i]');if(!b||!GN.edit)return;
+  GN.list.splice(+b.dataset.i,1);drawGenres_();
+};
+function gnAddFromInput_(){
+  var r=gnAddNames_($('gNew').value.split(/[,;\n]/));
+  $('gNew').value='';drawGenres_();
+  gmsg(r.added?('Đã thêm '+r.added+' thể loại'+(r.dup?', bỏ '+r.dup+' tên trùng':'')+'. Bấm 💾 để lưu.'):(r.dup?'Thể loại đã có trong danh sách.':''),false);
+  $('gNew').focus();
+}
+$('gAdd').onclick=gnAddFromInput_;
+$('gNew').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();gnAddFromInput_()}};
+$('gImport').onclick=function(){
+  var r=gnAddNames_(genreOptions_());drawGenres_();
+  gmsg(r.added?('Đã nhập '+r.added+' thể loại từ các truyện hiện có. Bấm 💾 để lưu.'):'Không có thể loại mới nào trong các truyện hiện có.',false);
+};
+$('gEdit').onclick=async function(){
+  if(!GN.edit){GN.edit=true;GN.list=((S.cfg.GENRES)||[]).slice();gmsg('');drawGenres_();$('gNew').focus();return}
+  this.disabled=true;gmsg('Đang lưu…');
+  var r=await call('api_saveGenres',GN.list);
+  this.disabled=false;
+  if(take(r)){GN.edit=false;drawGenres_();gmsg('Đã lưu '+((S.cfg.GENRES||[]).length)+' thể loại.');toast('Đã lưu danh sách thể loại.')}
+  else gmsg(r&&r.error||'Không lưu được.',true);
+};
+document.querySelectorAll('[data-close]').forEach(function(b){b.onclick=function(){b.closest('.modal').classList.remove('on')}});
+var HELP_={
+  'tai-sach':{t:'Hướng dẫn: Tải sách',s:[
+    'Dán URL truyện vào ô rồi bấm Phân tích. Nhiều URL thì cách nhau bằng dấu ; hoặc bấm ➕ để thêm từng dòng. Các URL hiện ngay trong Bảng phân tích truyện ở trạng thái Chờ phân tích rồi được phân tích tự động lần lượt từng truyện; đang phân tích vẫn thêm URL mới được. Danh sách lưu trên máy chủ nên đóng hoặc tải lại trang vẫn phân tích tiếp. Máy chủ từ chối (ví dụ hàng chờ đầy) thì các dòng vừa thêm biến mất và URL trả lại ô nhập.',
+    'Bảng phân tích truyện có các cột STT, Tên truyện, Tác giả, Thể loại, Url, Thư mục, Trạng thái, Thao tác. Tên, tác giả, thể loại và thư mục chỉ có sau khi phân tích xong. URL chờ phân tích: 🗑 bỏ khỏi bảng. URL phân tích lỗi: trạng thái Lỗi kèm lý do; 🔁 phân tích lại hoặc 🗑 bỏ.',
+    'Truyện phân tích xong có trạng thái Đã phân tích và không tự tải. Ở đó: ✏️ sửa tên, tác giả, thể loại; ⬇️ chuyển xuống tải (vào luồng tải nếu còn chỗ, hết chỗ thì vào Hàng chờ tải); 🗑 xóa truyện; ⬇️ Chuyển tất cả xuống tải. Bấm tiêu đề cột Thể loại để chọn thể loại áp dụng cho tất cả truyện đã phân tích (cần chọn ít nhất một; thể loại đầu tiên quyết định thư mục Drive). Bấm 📎 ở cột Thư mục để mở thư mục truyện trên Drive.',
+    'Nếu Phân tích báo lỗi nhưng URL các chương tăng dần theo số, chọn chế độ Thủ công: nhập URL một chương mẫu và tổng số chương.',
+    'Theo dõi tiến độ ở thẻ từng truyện: Tạm dừng, Tiếp tục, Tải lại chương lỗi, Kiểm tra file, Xóa truyện, Danh sách chương.',
+    'Chương lỗi: mở Danh sách chương, bấm 🔁 để tải lại hoặc 🚫 để bỏ qua. Chương mà trang web không có nội dung, hoặc báo "Nội dung chương quá ngắn", sẽ tự bị xóa khỏi danh sách khi hai bên là chương đã tải xong (ghi trong sheet LOG, hành động REMOVE, và ghi vào file \"_Chương lỗi đã xóa.txt\" trong thư mục truyện trên Drive kèm link và lý do); từ 4 chương liên tiếp hoặc chương ở cuối truyện thì giữ lại để bạn xử lý.',
+    'Website chưa nhận diện được: thêm quy tắc cho website đó ở ⚙️ Cài đặt, mục SITE_RULES.',
+    'Số chương tải đồng thời là số chương xử lý trong mỗi lượt tải, mặc định 5; sửa xong bấm 💾, áp dụng cho lượt tải kế tiếp.',
+    'Thư mục Drive lưu truyện được đăng ký trong ⚙️ Cài đặt.']},
+  'quan-ly-sach':{t:'Hướng dẫn: Quản lý sách',s:[
+    'Danh sách mặc định hiện dạng lưới; nút ☰ Bảng và ▦ Lưới đổi cách hiển thị và được nhớ trên trình duyệt này. Dạng lưới hiện thẻ truyện: bìa tạo từ tên truyện, trạng thái tải, tiến độ đọc (Đã đọc X / N chương, lấy từ chương bạn đang đọc trên trình duyệt này) và nút Đọc tiếp; chọn kiểu sắp xếp ở ô bên cạnh. Tìm kiếm, phân trang, sửa, xóa dùng chung cho cả hai dạng.',
+    'Gõ vào ô tìm để lọc theo tên truyện hoặc tác giả, không cần dấu.',
+    'Bấm tiêu đề cột Tên truyện, Tác giả, Thể loại để sắp xếp; bấm số trang hoặc nút ‹ › để chuyển trang.',
+    'Trên mỗi dòng: ✏️ sửa thông tin truyện và thêm chương từ link hoặc text, 🗑 xóa truyện (có xác nhận), 👁 đọc truyện.',
+    'Bấm ➕ để thêm truyện từ hai file .txt hoặc .md (mục lục và truyện), hoặc 📂 để thêm từ thư mục Drive có sẵn.',
+    'Sửa tên/tác giả/thể loại (✏️ → 💾 trong khung sửa) chỉ lưu TẠM trên trình duyệt — truyện có dấu ● vàng là đang chờ lưu. Bấm nút 💾 "Lưu tất cả" ở đầu trang để ghi hết các thay đổi đang chờ vào hệ thống (Sheet + Drive) trong 1 lần; tải lại trang trước khi bấm sẽ mất các thay đổi chưa lưu.',
+    'Tên truyện không được trùng, kể cả khi khác dấu hoặc khác chữ hoa thường.']},
+  'them-file':{t:'Hướng dẫn: Thêm truyện từ file',u:1,s:[
+    'Chỉ dùng cho truyện mới; trùng tên sẽ báo lỗi.',
+    'Cần 2 file .txt hoặc .md: File 1 là mục lục (cấu trúc và tên chương), File 2 là nội dung.',
+    'Mỗi ký hiệu một dòng riêng, dùng chung cho cả hai file:',
+    '00 Lời nói đầu — chương mở đầu, không đánh số.',
+    '###@ Phần I — Phần (tùy chọn).',
+    '##@ Quyển thứ nhất — Quyển (tùy chọn).',
+    '#@ Chương 1 (hoặc #@ Hồi thứ nhất) — một chương.',
+    '@Tên chương — dòng ngay sau dòng #@.',
+    'Có Phần và Quyển là 3 cấp, chỉ có Quyển là 2 cấp, chỉ có Chương hoặc Hồi là 1 cấp.',
+    'File mục lục chỉ cần các dòng ký hiệu; chương ghép với File 2 theo Phần, Quyển, số chương.']},
+  'them-thu-muc':{t:'Hướng dẫn: Thêm truyện từ thư mục',u:1,s:[
+    'Dùng khi đã có sẵn thư mục Drive chứa file txt từng chương. Ứng dụng chỉ đăng ký thư mục thành truyện mới, không tải mạng, không ghi file, không di chuyển hay sao chép.',
+    'Mỗi file là một chương; số và tên đọc từ tên file: "Chương 12: Tên", "Chương 12 - Tên" (nhận cả Chapter, Chap, Hồi), "12 - Tên" hoặc "12".',
+    'File không khớp mẫu bị bỏ qua và được báo số lượng.',
+    'Để trống tên truyện thì lấy theo tên thư mục.']},
+  'cai-dat':{t:'Hướng dẫn: Cài đặt',u:1,s:[
+    'Thư mục lưu: Thư mục gốc / Thể loại / Tên truyện. Thể loại lấy mục đầu trong ô Thể loại, để trống vào "Chưa phân loại". Đổi thư mục gốc chỉ áp dụng cho truyện thêm sau.',
+    'Tham số tải: bấm ✏️ để sửa, 💾 để lưu; áp dụng cho các lần tải sau.',
+    'BATCH_SIZE: số chương mỗi lượt của mỗi truyện. MAX_CONCURRENT: số truyện tải cùng lúc (mặc định 2, tối đa 10); truyện dư xếp vào "Đang chờ".',
+    'DELAY_MS: nghỉ giữa hai lần tải (mili giây). MAX_RETRY: số lần thử lại. AUTO_RESUME: TRUE thì tự tải nền khi đóng giao diện.',
+    'JUNK_WORDS: từ khóa rác cách nhau dấu phẩy, không phân biệt hoa thường ("truyen full" khớp cả "truyenfull", tự bắt đuôi .vn, .com). Dòng ngắn chứa từ rác bị bỏ cả dòng, dòng dài chỉ xóa từ đó; áp dụng cả khi đọc, không sửa file Drive. Để trống là không lọc.',
+    'Quản lý thể loại: danh sách thể loại dùng để chọn khi sửa thể loại của truyện. Bấm ✏️ để thêm (ô nhập, nhiều tên cách nhau dấu phẩy) hoặc bấm ✕ để bỏ, rồi bấm 💾 để lưu một lần. "Nhập từ truyện hiện có" thêm các thể loại đang có ở Quản lý sách. Bỏ một thể loại khỏi danh sách không đổi thể loại của truyện đã có.',
+    'SITE_COOKIES: dùng khi trang báo 403 hoặc yêu cầu đăng nhập. Copy header Cookie từ trình duyệt (F12 → Network), dán dạng domain=cookie, ví dụ xtruyen.vn=PHPSESSID=abc123. Hết hạn thì dán lại. Để trống là không gửi cookie.',
+    'SITE_RULES: quy tắc riêng khi website không nhận diện được, dạng domain: content=tên; title=tên; link=đường-dẫn, nhiều website ngăn cách bằng |. Ví dụ abc.com: content=reading-content; link=/c-. content, title là tên class hoặc id (chữ, số, gạch nối, gạch dưới; nhiều tên cách nhau dấu phẩy); link là đoạn đường dẫn có trong mọi link chương, số chương lấy từ chữ số ngay sau đó. Để trống là tự nhận diện. Tối đa 2000 ký tự.']},
+  'the-loai':{t:'Hướng dẫn: Chọn và quản lý thể loại',s:[
+    'Ở Cài đặt, mục Quản lý thể loại: bấm ✏️ để thêm hoặc bớt thể loại, bấm 💾 để lưu.',
+    'Khi sửa thể loại của truyện (màn Tải sách sau khi Phân tích, Quản lý sách, Thêm truyện từ file, Thêm từ thư mục), bấm vào ô Thể loại để mở danh sách chọn.',
+    'Tích ô chọn cạnh nhiều thể loại; chọn một thể loại làm Thể loại chính ở cột bên phải. Ô đã có giá trị thì các thể loại đó tự được tích sẵn.',
+    'Bấm Áp dụng: Thể loại chính đứng đầu ô, các thể loại còn lại theo sau, cách nhau dấu phẩy. Thư mục Drive của truyện lấy theo Thể loại chính.']},
+  'sua-truyen':{t:'Hướng dẫn: Sửa truyện',u:1,s:[
+    'Bấm ✏️ để sửa tên, tác giả, thể loại, rồi bấm 💾 để lưu TẠM trên trình duyệt (chưa ghi vào hệ thống). Mở lại khung sửa sẽ thấy đúng bản nháp vừa lưu tạm. Bấm 💾 "Lưu tất cả" ở đầu trang Quản lý sách để ghi thật — có thể sửa nhiều truyện rồi lưu chung 1 lần. Tên, tác giả, thể loại, tiêu đề và tên Phần, Quyển mới không được bắt đầu bằng ký tự = + - hoặc @ (Google Sheets sẽ hiểu là công thức).',
+    'Thêm chương: bắt buộc điền Thứ tự chương; truyện chia Phần, Quyển thì bắt buộc chọn Phần, Quyển trong danh sách (hoặc chọn ＋ Tạo mới để tạo). Thứ tự chương là số chương trong Quyển, chương mới được chèn đúng vị trí; số đã có trong Quyển bị từ chối. Truyện không chia Phần, Quyển thì không có mục chọn.',
+    'Từ link: dán link chương; chương vào hàng tải và tải như các chương khác, tiêu đề lấy khi tải nếu để trống. Truyện thêm từ file không dùng được cách này.',
+    'Từ file: chọn file .txt hoặc .md chứa nội dung chương (tối đa 2 MB, mã hóa UTF-8). Dán nội dung: dán thẳng nội dung vào ô. Cả hai cách lưu chương thành file trong thư mục truyện và tính là đã tải; tối đa 300000 ký tự.',
+    'Với file hoặc nội dung dán: dòng đầu dạng \"Chương 5: Tên\" được bóc làm tiêu đề khi để trống ô Tiêu đề, từ khóa rác theo JUNK_WORDS bị lọc như chương tải về.',
+    'Dùng để thêm lại chương đã bị xóa: Phần, Quyển, số chương, link và lý do nằm trong file \"_Chương lỗi đã xóa.txt\" ở thư mục truyện trên Drive.']},
+  'sua-chuong':{t:'Hướng dẫn: Sửa chương',u:1,s:[
+    'Tiêu đề chương không được bắt đầu bằng ký tự = + - hoặc @.',
+    'Dùng khi chương bị gán sai link (ví dụ chương thêm từ file bị nhận nhầm là chương tải web, báo NETWORK_ERROR kèm url).',
+    'Sửa đúng URL rồi lưu; chương lỗi tự chuyển sang chờ tải lại.']},
+  'doc-truyen':{t:'Hướng dẫn: Đọc truyện',s:[
+    'Khi chưa có truyện đang đọc, ô tìm truyện hiện sẵn: gõ tên hoặc tác giả rồi chọn truyện. Bấm 🔍 để tìm truyện khác, hoặc bấm 👁 ở màn Quản lý sách.',
+    'Chọn chương trong danh sách chọn chương, dùng nút chương trước và chương sau ở cuối trang.',
+    'Bấm 🌳 để xem sơ đồ Phần › Quyển › Chương khi truyện có nhiều cấp.',
+    'Bấm ⚙️ để chỉnh cỡ chữ (A-, A+), phông chữ (F), chủ đề Ngày hoặc Đêm và lọc ánh sáng xanh.',
+    'Trong ⚙️, nút 📖 Lật trang chuyển sang đọc từng trang: bấm mép trái hoặc phải màn hình, vuốt ngang, bấm nút ‹ ›, hoặc dùng phím ← → (PageUp, PageDown) để lật; hết chương thì lật tiếp sang chương kế. Bấm 📜 Cuộn dọc để quay lại cuộn như cũ; lựa chọn được nhớ trên trình duyệt này.']}
+};
+function openHelp_(key){
+  var h=HELP_[key];if(!h)return;
+  var ol=document.createElement(h.u?'ul':'ol'),box=$('hlpB');
+  $('hlpT').textContent=h.t;
+  h.s.forEach(function(x){var li=document.createElement('li');li.textContent=x;ol.appendChild(li)});
+  box.textContent='';box.appendChild(ol);$('mHelp').classList.add('on');
+}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-help]');if(b)openHelp_(b.dataset.help)});
+
+$('bExit').onclick=async function(){if(await askConfirm('Thoát giao diện? Truyện đang tải vẫn chạy nền nếu bật tự động tiếp tục.',{title:'Thoát giao diện',okText:'Thoát'})){gone=true;$('bye').style.display='flex'}};
+$('bBack').onclick=function(){gone=false;$('bye').style.display='none';loop()};
+
+async function loop(){
+  if(gone)return;
+  if(!busy){busy=true;
+    var dl=S&&S.books.some(function(b){return b.status==='DOWNLOADING'||b.status==='READY'||b.status==='IDLE'});
+    var seq=STATE_SEQ_,r=await call(S===null||!dl?'api_getState':'api_tick');
+    if(seq!==STATE_SEQ_){}
+    else if(r&&r.busy){take(r)}else if(r&&r.error){say(r.error,true)}else take(r);
+    busy=false}
+  setTimeout(loop,S&&S.books.some(function(b){return b.status==='DOWNLOADING'||b.status==='READY'||b.status==='IDLE'})?1200:5000);
+}
+loop();
+
+</script>

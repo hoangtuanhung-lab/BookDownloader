@@ -1,0 +1,59 @@
+<section class="view pad on" id="vDl" data-man-hinh="tai-sach">
+  <div class="box" style="margin-bottom:18px">
+    <div class="hdrow"><h2 class="hh"><span class="pgLogo" aria-hidden="true"></span>Tải sách — URL truyện</h2><button type="button" class="hlp" data-chuc-nang="tro-giup" data-help="tai-sach" aria-label="Hướng dẫn màn Tải sách" title="Hướng dẫn">?</button></div>
+    <div class="seg" id="segMode" role="tablist">
+      <button type="button" class="on" data-m="auto" role="tab" aria-selected="true">Tự động</button>
+      <button type="button" data-m="man" role="tab" aria-selected="false">Thủ công</button>
+    </div>
+    <div id="modeAuto">
+      <div class="row"><input id="url" placeholder="URL truyện" aria-label="URL truyện" title="Nhập nhiều URL cách nhau bằng dấu ;"><button class="p" id="bAna">Phân tích</button><button type="button" id="bAddUrl" title="Thêm 1 dòng địa chỉ khác chờ phân tích">➕</button></div>
+      <div id="urlExtra"></div>
+    </div>
+    <div id="modeMan" style="display:none">
+      <div class="row">
+        <input id="manUrl" placeholder="URL chương mẫu" aria-label="URL chương mẫu" title="1 URL chương mẫu, ví dụ .../chuong-1">
+        <input id="manTotal" type="number" min="1" step="1" style="width:130px" placeholder="Tổng số chương">
+        <button id="bMan">Thêm thủ công</button>
+      </div>
+    </div>
+    <div id="msg" class="muted"></div>
+    <div id="anaSteps" class="anaSteps" style="display:none"></div>
+    <div id="info" style="display:none">
+      <div class="wrap">
+        <table class="tbl tinfo">
+          <thead><tr>
+            <th>Tên truyện</th><th>Tác giả</th><th>Thể loại</th><th>Website</th><th>Tổng chương</th><th>Thư mục</th>
+          </tr></thead>
+          <tbody><tr>
+            <td class="ename"><input id="iName" disabled><button class="ico" id="iEdit" title="Sửa">✏️</button></td>
+            <td><input id="iAuthor" disabled placeholder="Chưa rõ"></td>
+            <td><input id="iGenre" class="gpick" disabled readonly placeholder="Chưa rõ" title="Bấm để chọn thể loại" aria-haspopup="dialog" autocomplete="off"></td>
+            <td id="iSite"></td>
+            <td id="iTotal"></td>
+            <td id="iDir"></td>
+          </tr></tbody>
+        </table>
+      </div>
+      <button class="p" id="bGo">Bắt đầu tải</button>
+    </div>
+  </div>
+  <div id="anaBox" style="margin-bottom:18px"></div>
+  <input type="hidden" id="anaGenre">
+  <div id="batchCtl" style="display:none">
+    <div class="row" style="align-items:center;margin:10px 0 2px">
+      <label style="align-self:center;font-weight:600">Số chương tải đồng thời</label>
+      <input id="batchSize" type="number" min="1" step="1" style="width:70px" value="5">
+      <button id="bBatch">💾</button>
+    </div>
+  </div>
+  <div id="taskMon" class="box tm" style="margin-bottom:18px;display:none">
+    <div class="tm-head">
+      <h2 class="hh">📋 Giám sát tác vụ <span class="tm-count" id="tmCount"></span></h2>
+      <button type="button" id="tmRefresh" title="Làm mới trạng thái ngay, không chờ tự động cập nhật">🔄 Làm mới</button>
+    </div>
+    <div class="seg" id="tmFilter" role="group" aria-label="Lọc tác vụ"></div>
+    <div class="tm-list" id="tmList" aria-live="polite"></div>
+  </div>
+  <div id="queueBox" style="margin-bottom:18px"></div>
+  <h2>Tiến độ tải</h2><div id="books"></div>
+</section>

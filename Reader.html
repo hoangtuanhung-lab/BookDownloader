@@ -1,0 +1,50 @@
+<section class="view" id="vRd" data-man-hinh="doc-truyen">
+<div id="rd" class="rd" data-theme="day">
+  <div class="rd-top">
+    <span class="pgLogo rdLogo" aria-hidden="true"></span>
+    <div class="rd-tt">
+      <b id="rdTitle">Đọc truyện</b>
+      <i id="rdAuthor">Chưa chọn truyện</i>
+      <span id="rdChap" class="rd-chap"></span>
+    </div>
+    <div class="rd-top-btns">
+      <button id="rdSearchBtn" aria-label="Tìm truyện" aria-expanded="false">🔍</button>
+      <button id="rdTreeBtn" class="rdTreeBtn" aria-label="Sơ đồ chọn chương" aria-expanded="false" style="display:none">🌳</button>
+      <button id="rdGearBtn" aria-label="Cài đặt đọc" aria-expanded="false">⚙️</button>
+      <button type="button" class="hlp" data-chuc-nang="tro-giup" data-help="doc-truyen" aria-label="Hướng dẫn màn Đọc truyện" title="Hướng dẫn">?</button>
+    </div>
+  </div>
+  <div class="rd-find" id="rdFindWrap">
+    <input id="rdFind" placeholder="🔍 Tìm truyện…" autocomplete="off" aria-label="Tìm truyện">
+    <div id="rdRes" class="rd-res"></div>
+  </div>
+  <div class="rd-pop" id="rdPop">
+    <button id="rdMinus" aria-label="Giảm cỡ chữ">A-</button>
+    <button id="rdPlus" aria-label="Tăng cỡ chữ">A+</button>
+    <button id="rdFontBtn" aria-label="Chọn phông chữ" aria-expanded="false" title="Phông chữ">F</button>
+    <button id="rdTheme"></button>
+    <button id="rdMode" type="button"></button>
+    <select id="rdBlueSel" aria-label="Giảm ánh sáng xanh">
+      <option value="0">Lọc xanh: Tắt</option><option value="1">Lọc xanh: Nhẹ</option>
+      <option value="2">Lọc xanh: Vừa</option><option value="3">Lọc xanh: Mạnh</option>
+    </select>
+    <div class="rd-fonts" id="rdFonts" role="radiogroup" aria-label="Phông chữ đọc">
+      <button type="button" data-f="tnr" role="radio">Times New Roman</button>
+      <button type="button" data-f="mer" role="radio">Merriweather</button>
+      <button type="button" data-f="rob" role="radio">Roboto</button>
+      <button type="button" data-f="gar" role="radio">Garamond</button>
+    </div>
+  </div>
+  <div class="rd-tree" id="rdTree"></div>
+  <div class="rd-main" id="rdMain"><article id="rdText"></article></div>
+  <div id="rdBlue"></div>
+  <div class="rd-float" id="rdFloat">
+    <span class="rd-pg"><button id="rdPgPrev" type="button" aria-label="Trang trước" title="Trang trước" disabled>‹</button><span id="rdPgInfo" class="rd-pginfo" aria-live="polite"></span><button id="rdPgNext" type="button" aria-label="Trang sau" title="Trang sau" disabled>›</button></span>
+    <button id="rdBack" aria-label="Chương trước" disabled>◀</button>
+    <select id="rdSel" aria-label="Chọn chương"></select>
+    <button id="rdNext" aria-label="Chương sau" disabled>▶</button>
+    <button id="rdTreeBtn2" class="rdTreeBtn" aria-label="Sơ đồ chọn chương" style="display:none">🌳</button>
+    <button id="rdGearBtn2" aria-label="Cài đặt đọc">⚙️</button>
+  </div>
+</div>
+</section>
