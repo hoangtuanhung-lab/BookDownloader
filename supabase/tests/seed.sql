@@ -1,6 +1,7 @@
 -- Synthetic identities/content; runner always rolls this transaction back.
 insert into auth.users(id) select ('00000000-0000-4000-8000-00000000000'||n)::uuid from generate_series(1,6) n;
-insert into public.profiles(id,display_name,status) select id,'Synthetic user',case when id::text like '%6' then 'blocked' else 'active' end from auth.users where id::text like '00000000-0000-4000-8000-00000000000%';
+insert into public.profiles(id,display_name,status) select id,'Synthetic user',case when id::text like '%6' then 'blocked' else 'active' end from auth.users where id::text like '00000000-0000-4000-8000-00000000000%' on conflict(id) do update set display_name=excluded.display_name,status=excluded.status;
+delete from public.user_permissions where user_id::text like '00000000-0000-4000-8000-00000000000%';
 insert into public.user_permissions(user_id,permission) values
  ('00000000-0000-4000-8000-000000000001','read'),('00000000-0000-4000-8000-000000000002','read'),
  ('00000000-0000-4000-8000-000000000003','download'),('00000000-0000-4000-8000-000000000004','manage'),

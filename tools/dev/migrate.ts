@@ -8,6 +8,7 @@ export async function migrate() {
  try {
   await db.query("select pg_advisory_lock(610080001)");
   if (!(await db.query("select to_regclass('auth.users') as name")).rows[0].name) await db.query(await readFile('tools/dev/local-auth.sql','utf8'));
+  await db.query(await readFile('tools/dev/local-auth-upgrade.sql','utf8'));
   await db.query('create table if not exists public.schema_migrations(name text primary key, checksum text not null, applied_at timestamptz not null default now())');
   await db.query('revoke all on public.schema_migrations from public,anon,authenticated');
   for(const name of (await readdir('supabase/migrations')).filter(n=>n.endsWith('.sql')).sort()) {

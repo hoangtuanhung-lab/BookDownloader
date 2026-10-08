@@ -1,8 +1,8 @@
 # Kế hoạch chuyển Trình tải truyện sang web app Netlify
 
-- Bản kế hoạch: 0.3 — 08/10/2026 (Phase 0 và nền local Phase 1; staging còn mở).
+- Bản kế hoạch: 0.4 — 08/10/2026 (Phase 0, nền Phase 1 và Phase 2 local; staging còn mở).
 - Baseline: Apps Script V1.59.2 tại commit `aae3c570286edac1db5ca355cbce40f5108d0a10` (mã info.txt được thêm ở `18d1b1e`); đọc `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md`, 29 file mã nguồn và bộ kiểm thử `tests/book-info.test.js` để đối chiếu khi triển khai.
-- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2–9 chưa triển khai; chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
+- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3–9 chưa triển khai. Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
 - Mục tiêu: giữ toàn bộ hành vi nghiệp vụ đang có, thêm đăng nhập Google, phân quyền nhiều người và ảnh bìa; Google Drive chỉ lưu file, PostgreSQL là nguồn dữ liệu chính.
 - Cách làm: trước mỗi thay đổi mã, đọc plan cũ và plan này, xác định mã chức năng/phase, cập nhật checklist và bằng chứng kiểm thử sau khi làm. Tài liệu có nội dung lệch mã thì đối chiếu mã thật và ghi rõ chênh lệch, không lấy kết quả lịch sử làm kết quả mới.
 
@@ -262,7 +262,7 @@ Mutation idempotent bằng request_id/dedupe key. Bulk trả kết quả từng 
 
 ## 7. Kế hoạch các phase và tiêu chí hoàn thành
 
-Phase 0 đã có bằng chứng bên dưới; Phase 1 có nền local bên dưới; các checklist triển khai Phase 2–9 đang chưa làm. Mỗi phase phải có code, migration/schema khi cần, tests, hướng dẫn chạy, kết quả và lỗi còn mở. Không đánh dấu hoàn thành bằng việc build thành công hoặc ảnh chụp một màn hình.
+Phase 0 đã có bằng chứng bên dưới; Phase 1 có nền local bên dưới; Phase 2 có code/kiểm chứng local; các checklist Phase 3–9 đang chưa làm. Mỗi phase phải có code, migration/schema khi cần, tests, hướng dẫn chạy, kết quả và lỗi còn mở. Không đánh dấu hoàn thành bằng việc build thành công hoặc ảnh chụp một màn hình.
 
 ### Phase 0 — Chốt baseline và bộ đối chiếu
 
@@ -298,13 +298,16 @@ Phase 0 đã có bằng chứng bên dưới; Phase 1 có nền local bên dư�
 
 **Phụ thuộc:** 1. **Đầu ra:** user đăng nhập tới `/read`, admin quản lý quyền.
 
-- [ ] Cấu hình Google OAuth/Supabase redirect cho local/staging/production; allowlist callback và return URL, không redirect tùy ý.
-- [ ] Tạo profile/read permission tự động một lần; session refresh/logout; blocked account; bootstrap admin server-side.
-- [ ] Bổ sung menu/routes theo quyền, trang quản lý tài khoản/cấp quyền có audit, không tự nâng quyền.
-- [ ] API và RLS cho progress/preferences theo user; xử lý logout/đổi user xóa cache/private state, draft riêng.
-- [ ] Test reader/download/manage/admin và các tổ hợp, direct URL, gọi API trực tiếp, token hết hạn, revoked/blocked user, ID của người khác.
+- [x] Luồng Google OAuth/PKCE trong SDK, callback cố định `/auth/callback`, bỏ qua next/return URL tùy ý; hướng dẫn cấu hình theo từng môi trường.
+- [!] Cấu hình provider/site/redirect thật và Google OAuth staging chưa có credentials/project/site; chưa chạy gate dịch vụ thật.
+- [x] Tạo profile/read permission tự động một lần; session refresh/logout; blocked account; bootstrap admin server-side.
+- [x] Bổ sung menu/routes theo quyền, trang quản lý tài khoản/cấp quyền có audit, không tự nâng quyền.
+- [x] API và RLS cho progress/preferences theo user; xử lý logout/đổi user xóa cache/private state, draft riêng.
+- [x] Test reader/download/manage/admin và các tổ hợp, direct URL, gọi API trực tiếp, token hết hạn, revoked/blocked user, ID của người khác.
 
-**Gate:** Google đăng nhập thật ở staging; reader vào đọc ngay không cần setup Drive; không truy cập màn/API tải/quản lý/admin và không đọc progress người khác. Chưa cấp OAuth thật thì phase chưa đạt gate, dù mock tests qua.
+**Bằng chứng local:** [hướng dẫn](docs/phase-2/README.md), [report](docs/phase-2/REPORT.md). Code auth/admin/progress/preferences, service-only RPC/session checks, 256/256 tests legacy/domain/auth/SQL/concurrency/browser đạt. Người dùng chọn hoàn tất local trước, chưa tạo staging. Reader/library thật thuộc Phase 3–4, chưa truy cập Drive.
+
+**Gate còn mở:** Google đăng nhập thật ở staging; reader vào đọc ngay không cần setup Drive; không truy cập màn/API tải/quản lý/admin và không đọc progress người khác. Chưa cấp OAuth thật thì phase chưa đạt gate, dù mock tests qua.
 
 ### Phase 3 — Drive adapter, dữ liệu mẫu và migration chỉ đọc
 

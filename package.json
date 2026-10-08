@@ -1,6 +1,6 @@
 {
   "name": "bookdownloader",
-  "version": "2.0.0-phase.1",
+  "version": "2.0.0-phase.2",
   "private": true,
   "type": "module",
   "engines": {
@@ -20,7 +20,7 @@
     "build:web": "vite build --config apps/web/vite.config.ts",
     "build:server": "node tools/dev/build.mjs",
     "test:legacy": "node --test tests/book-info.test.js tests/baseline/*.test.cjs",
-    "test": "tsx --test tests/phase-1/*.test.ts",
+    "test": "tsx --test tests/phase-1/*.test.ts tests/phase-2/*.test.ts",
     "test:db": "node --env-file-if-exists=.env --import tsx tools/dev/db-tests.ts",
     "db:migrate": "node --env-file-if-exists=.env --import tsx tools/dev/migrate.ts",
     "db:up": "docker compose up -d --wait db",
@@ -28,9 +28,14 @@
     "worker": "node --env-file-if-exists=.env --import tsx apps/worker/src/main.ts",
     "check": "npm run typecheck && npm run test:legacy && npm test && npm run build",
     "test:browser": "playwright test --config tests/phase-1/playwright.config.ts",
-    "test:bundle": "node tools/dev/check-bundle.mjs"
+    "test:bundle": "node tools/dev/check-bundle.mjs",
+    "bootstrap:admin": "node --env-file-if-exists=.env --import tsx tools/dev/bootstrap-admin.ts",
+    "test:auth:db": "node --env-file-if-exists=.env --import tsx tools/dev/auth-db-tests.ts",
+    "test:auth:browser": "playwright test --config tests/phase-2/playwright.config.ts",
+    "test:auth:concurrency": "node --env-file-if-exists=.env --import tsx tools/dev/auth-concurrency-tests.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.117.3",
     "csv-parse": "7.0.3",
     "pg": "8.16.3",
     "react": "19.2.0",

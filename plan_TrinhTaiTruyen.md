@@ -2,7 +2,7 @@
 
 > File này là **plan và mô tả dự án hợp nhất** (thay `MO_TA_DU_AN.md`). Trước khi làm bất kỳ việc gì, đọc mục "Cách làm việc ở các phiên sau" trong MÔ TẢ PHẦN MỀM.
 
-> Web rewrite: Phase 1 có nền local và kiểm thử; staging còn mở. Theo [PLAN_WEB_APP.md](PLAN_WEB_APP.md) và [báo cáo Phase 1](docs/phase-1/REPORT.md). Mã Apps Script vẫn V1.59.2, không đổi baseline.
+> Web rewrite: Phase 1 có nền local; Phase 2 có auth/phân quyền và kiểm thử local, Google OAuth staging còn mở. Theo [PLAN_WEB_APP.md](PLAN_WEB_APP.md) và [báo cáo Phase 2](docs/phase-2/REPORT.md). Mã Apps Script vẫn V1.59.2, không đổi baseline.
 
 ## CHECKLIST TIẾN ĐỘ
 Trạng thái: ĐANG MỞ | Phiên bản hiện tại: V1.59.2 | Cập nhật: 2026-10-08 | Cỡ đợt này: S

@@ -24,5 +24,5 @@ test('missing DB configuration cannot report ready',async()=>{
  const res=await handleApi(new Request('https://app.test/api/health'),{});assert.equal(res.status,503);
 });
 test('unimplemented/mutation endpoints do not report success',async()=>{
- for(const [path,method] of [['/api/books','GET'],['/api/health','POST']])assert.equal((await handleApi(new Request('https://app.test'+path,{method}),{})).status,501);
+ for(const [path,method] of [['/api/books','GET'],['/api/health','POST']])assert.equal((await handleApi(new Request('https://app.test'+path,{method}),{})).status,path==='/api/health'?501:401);
 });

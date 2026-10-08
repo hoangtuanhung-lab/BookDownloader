@@ -4,11 +4,11 @@
 
 Mã nguồn ban đầu được nhập từ `TrinhTaiTruyen_V1.59.1.zip`. Phiên bản hiện tại trong `Code.gs`: **1.59.2**, cập nhật **08/10/2026**.
 
-## Web app mới — Phase 1
+## Web app mới — Phase 2
 
-Đã thêm nền **React/TypeScript/Vite + Netlify Functions + PostgreSQL/Supabase + Node worker** bên cạnh ứng dụng Apps Script. Có khung giao diện, domain/contracts, schema/RLS, CI và bộ kiểm thử local; đăng nhập Google, tải/đọc/quản lý sách thật sẽ triển khai theo các phase tiếp theo. Google Drive sẽ lưu file, database lưu metadata và trạng thái.
+Đã thêm nền **React/TypeScript/Vite + Netlify Functions + PostgreSQL/Supabase + Node worker** bên cạnh ứng dụng Apps Script. Có khung giao diện, domain/contracts, schema/RLS, CI, luồng Google OAuth/PKCE và quản trị phân quyền. Auth/API/SQL/browser đã kiểm thử local; Google OAuth thật còn chờ cấu hình staging. Đọc nội dung, quản lý và tải sách thật triển khai ở Phase 3–7. Google Drive sẽ lưu file, database lưu metadata và trạng thái.
 
-Xem [hướng dẫn chạy Phase 1](docs/phase-1/README.md), [kết quả kiểm chứng](docs/phase-1/REPORT.md) và [plan triển khai](PLAN_WEB_APP.md). Ưu tiên gói miễn phí; chưa provision staging hoặc bật billing. Các hướng dẫn Apps Script bên dưới vẫn áp dụng cho V1.59.2.
+Xem [setup nền Phase 1](docs/phase-1/README.md), [hướng dẫn Google OAuth/Phase 2](docs/phase-2/README.md), [kết quả kiểm chứng](docs/phase-2/REPORT.md) và [plan triển khai](PLAN_WEB_APP.md). Ưu tiên gói miễn phí; chưa provision staging hoặc bật billing. Các hướng dẫn Apps Script bên dưới vẫn áp dụng cho V1.59.2.
 
 ## Chức năng chính
 
