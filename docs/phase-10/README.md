@@ -2,7 +2,7 @@
 
 Plan ban đầu gồm Phase 0–9. Phase 10 bổ sung bước kiểm dịch vụ thật đã hoãn theo yêu cầu local-first, dùng bản đóng code Phase 9. Đây là staging với project/database/thư mục Drive riêng; production và nghiệm thu chuyển thư viện vẫn thuộc gate Phase 9.
 
-**Trạng thái:** đã chuẩn bị kế hoạch và hướng dẫn. Chưa có URL/bindings Supabase, Netlify hoặc Drive trong môi trường được kiểm tra; chưa deploy hay chạy kiểm thử cloud. Kết quả 495/495 của Phase 9 là bằng chứng local, không phải kết quả Phase 10. Không thay version ứng dụng hoặc mã đã đóng chỉ để thêm tài liệu.
+**Trạng thái 09/10/2026:** chủ dự án đã cung cấp site `https://bookdownloader.netlify.app` và project `https://ofgqwopjncdvrpeynuhf.supabase.co`, báo đã cấu hình Google provider. Truy vấn schema trả NULL; đã chuẩn bị bootstrap SQL cho database mới. Chưa xác minh đăng nhập hoặc deploy/API end-to-end; proxy workspace đang chặn domain và đề xuất allowlist mới chỉ được lưu trong draft. Không dùng lỗi proxy để kết luận website bị lỗi. Drive/server credentials chưa được kiểm chứng. Kết quả 495/495 của Phase 9 là bằng chứng local, không phải kết quả Phase 10. Không thay version ứng dụng hoặc mã đã đóng chỉ để thêm tài liệu.
 
 ## 10A — Tạo staging và cấu hình
 
@@ -23,6 +23,19 @@ Plan ban đầu gồm Phase 0–9. Phase 10 bổ sung bước kiểm dịch vụ
 | NETLIFY_AUTH_TOKEN / NETLIFY_SITE_ID | CLI deploy staging nếu cần | Token ở Environment Settings, site ID phải đúng staging |
 
 Đối với biến của workspace Codex, nhập trong Environment Settings; đối với build/functions/worker, nhập tại dashboard hoặc secret manager tương ứng. Workspace có biến không đồng nghĩa Netlify/worker đã nhận cấu hình. Không bật production acceptance checkbox để deploy staging.
+
+## Chạy schema lần đầu bằng SQL Editor
+
+Khi `public.profiles`, `public.books`, `public.schema_migrations` đều NULL, dùng [staging-bootstrap.sql](staging-bootstrap.sql). Đây là bản gộp đủ 23 migrations nguyên gốc, kèm filename/SHA-256 ledger, dành riêng cho schema ứng dụng chưa cài.
+
+1. Mở file trên GitHub, chọn **Raw**, sao chép **toàn bộ** nội dung.
+2. Trong đúng project Supabase `ofgqwopjncdvrpeynuhf`, vào **SQL Editor → New query**, chọn role `postgres`.
+3. Dán nguyên file và bấm **Run**. File tạo schema/RLS/functions và ledger trong một transaction; nếu có lỗi, dừng và gửi thông báo lỗi (không kèm khóa), không chạy các đoạn còn lại riêng lẻ.
+4. Kết quả cuối cần `migration_count = 23`, `profiles = profiles`, `books = books`, `maintenance_table = private.runtime_control`.
+5. Không chạy lại bootstrap sau khi thành công. Nếu báo schema đã tồn tại, kiểm ledger trước; không drop bảng để ép chạy.
+6. Netlify → Deploys → Trigger deploy → Deploy site, sau khi các environment variables đã lưu. Thử `/api/health` và Google login → `/read`; tài khoản mới vẫn chỉ quyền đọc, bootstrap admin riêng sau đăng nhập thành công.
+
+File không tạo Auth schema/users/sessions giả, không chứa khóa và không ghi Drive. Migration 003 giữ/backfill hồ sơ quyền đọc cho Auth users đã có. 4/4 kiểm tra PostgreSQL local đạt: đủ original checksum/ledger không browser-readable, giữ Auth user/read-only, chặn rerun và rollback app+ledger khi lỗi cuối batch. Đây chưa phải kết quả chạy trên Supabase thật. SQL đóng băng theo 23 migration đang có; dùng migrations mới theo quy trình upgrade riêng, không thêm tay vào file để bypass ledger.
 
 ## 10B — Schema và Google login
 
