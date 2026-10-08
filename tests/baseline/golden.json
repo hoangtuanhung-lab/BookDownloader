@@ -1,0 +1,575 @@
+{
+  "baselineCommit": "aae3c570286edac1db5ca355cbce40f5108d0a10",
+  "provenance": "Executed original .gs from git show at pinned commit. Original synthetic fixtures; no live Google services or websites.",
+  "cases": {
+    "normalize-vietnamese": {
+      "value": "dau pha"
+    },
+    "sanitize-filename": {
+      "value": "Tên truyện mẫu"
+    },
+    "relative-url": {
+      "value": "https://fiction.test/truyen/chuong-2/?x=1"
+    },
+    "normalize-book-url": {
+      "value": "https://fiction.test/truyen/"
+    },
+    "invalid-book-url": {
+      "error": {
+        "type": "INVALID_URL",
+        "message": "URL phải bắt đầu bằng http:// hoặc https://"
+      }
+    },
+    "decode-entities": {
+      "value": "A & B  'x'"
+    },
+    "formula-input-rejected": {
+      "error": {
+        "type": "INVALID_INPUT",
+        "message": "Tên truyện không được bắt đầu bằng ký tự = + - hoặc @."
+      }
+    },
+    "ordinal-7": {
+      "value": 21
+    },
+    "ordinal-8": {
+      "value": 105
+    },
+    "ordinal-9": {
+      "value": 1234
+    },
+    "ordinal-10": {
+      "value": null
+    },
+    "hoi-heading-inline": {
+      "value": {
+        "num": 1,
+        "ordinal": "nhất",
+        "inline": "Khởi đầu"
+      }
+    },
+    "strip-toolbar-and-junk": {
+      "value": {
+        "num": "1",
+        "title": "Mở đầu",
+        "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+      }
+    },
+    "junk-inline": {
+      "value": "Tên mẫu"
+    },
+    "title-two-level": {
+      "value": "Phi lộ"
+    },
+    "metadata-jsonld": {
+      "value": {
+        "name": "Hành trình mẫu",
+        "author": "Nguyễn Văn An",
+        "genre": "Phiêu lưu, Kỳ ảo"
+      }
+    },
+    "metadata-fallback": {
+      "value": {
+        "name": "Truyện mẫu",
+        "author": "Lê Bình",
+        "genre": "Kiếm hiệp, Kỳ ảo"
+      }
+    },
+    "nested-html-block": {
+      "value": "<div>Trong</div>Ngoài"
+    },
+    "clean-html-no-scripts": {
+      "value": "A & B"
+    },
+    "chapter-explicit-selector": {
+      "value": {
+        "title": "Chương 1: Buổi sớm",
+        "text": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.",
+        "auto": false
+      }
+    },
+    "chapter-auto-selector": {
+      "value": {
+        "title": "Chương 1",
+        "text": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.",
+        "auto": true
+      }
+    },
+    "chapter-too-short": {
+      "error": {
+        "type": "TOO_SHORT",
+        "message": "Nội dung chương quá ngắn, có thể lấy sai."
+      }
+    },
+    "chapter-no-content": {
+      "error": {
+        "type": "NO_CONTENT",
+        "message": "Không thấy nội dung chương."
+      }
+    },
+    "site-rules-custom": {
+      "value": {
+        "content": [
+          "reading-area",
+          "chapter-c",
+          "chapter-content",
+          "chapter-content-detail",
+          "content"
+        ],
+        "title": [
+          "chapter-heading",
+          "chapter-title",
+          "chapter-name"
+        ],
+        "link": "/c-"
+      }
+    },
+    "site-rules-invalid-selector": {
+      "value": {
+        "content": [
+          "safe"
+        ],
+        "title": [],
+        "link": "/c-"
+      }
+    },
+    "legacy-domain-substring": {
+      "value": {
+        "content": [
+          "reading-area"
+        ],
+        "title": [],
+        "link": ""
+      }
+    },
+    "legacy-cookie-substring": {
+      "value": "synthetic-cookie-not-a-credential"
+    },
+    "chapter-number-27": {
+      "value": 1001.002
+    },
+    "chapter-number-28": {
+      "value": 95.002
+    },
+    "chapter-number-29": {
+      "value": null
+    },
+    "volume-display-number": {
+      "value": {
+        "vol": "Quyển 1",
+        "dnum": "1-2"
+      }
+    },
+    "discover-paged": {
+      "value": {
+        "chapters": [
+          {
+            "url": "https://fiction.test/truyen/chuong-1",
+            "title": "Chương 1: Bắt đầu",
+            "n": 1,
+            "vol": "",
+            "dnum": ""
+          },
+          {
+            "url": "https://fiction.test/truyen/chuong-2",
+            "title": "Chương 2: Tiếp bước",
+            "n": 2,
+            "vol": "",
+            "dnum": ""
+          },
+          {
+            "url": "https://fiction.test/truyen/chuong-3",
+            "title": "Chương 3: Kết thúc",
+            "n": 3,
+            "vol": "",
+            "dnum": ""
+          }
+        ],
+        "notes": [],
+        "fetched": [
+          "https://fiction.test/truyen/?page=2"
+        ]
+      }
+    },
+    "discover-mixed": {
+      "value": {
+        "chapters": [
+          {
+            "url": "https://fiction.test/truyen/quyen-1-chuong-1-2",
+            "title": "Quyển 1 Chương 1-2",
+            "n": -998998.998,
+            "vol": "Quyển 1",
+            "dnum": "1-2"
+          },
+          {
+            "url": "https://fiction.test/truyen/quyen-1-chuong-2",
+            "title": "Quyển 1 Chương 2",
+            "n": -998998,
+            "vol": "Quyển 1",
+            "dnum": 2
+          },
+          {
+            "url": "https://fiction.test/truyen/chuong-1",
+            "title": "Chương 1 liền số",
+            "n": 1,
+            "vol": "",
+            "dnum": ""
+          },
+          {
+            "url": "https://fiction.test/truyen/chuong-2",
+            "title": "Chương 2 liền số",
+            "n": 2,
+            "vol": "",
+            "dnum": ""
+          }
+        ],
+        "notes": [
+          "Truyện trộn hai kiểu link (Quyển/Chương và Chương liền số): 2 chương theo Quyển được xếp trước các chương liền số."
+        ],
+        "fetched": []
+      }
+    },
+    "discover-broken-pagination": {
+      "error": {
+        "type": "PARSER_ERROR",
+        "message": "Có phân trang nhưng không xác định được trang kế tiếp. Nhờ hỗ trợ thêm hoặc dùng chế độ Thủ công."
+      }
+    },
+    "discover-missing-chapters": {
+      "error": {
+        "type": "PARSER_ERROR",
+        "message": "Không tìm thấy link chương. Thêm quy tắc cho website này ở Cài đặt → SITE_RULES (ví dụ: link=/c-)."
+      }
+    },
+    "verified-gap-template": {
+      "value": {
+        "chapters": [
+          {
+            "n": 1,
+            "url": "https://fiction.test/truyen/chuong-1"
+          },
+          {
+            "url": "https://fiction.test/truyen/chuong-2",
+            "title": "",
+            "n": 2
+          },
+          {
+            "n": 3,
+            "url": "https://fiction.test/truyen/chuong-3"
+          }
+        ],
+        "notes": [
+          "Mục lục chỉ thấy 2/3 chương; đã bổ sung 1 chương theo mẫu URL https://fiction.test/truyen/chuong-1 — kiểm tra lại tổng số chương trước khi tải."
+        ]
+      }
+    },
+    "inconsistent-gap-template": {
+      "value": {
+        "chapters": [
+          {
+            "n": 1,
+            "url": "https://fiction.test/truyen/chuong-1-a"
+          },
+          {
+            "n": 3,
+            "url": "https://fiction.test/truyen/chuong-3-b"
+          }
+        ],
+        "notes": [
+          "Mục lục chỉ thấy 2/3 chương và URL các chương không theo một mẫu chung (ví dụ https://fiction.test/truyen/chuong-3-b); chương thiếu không được bổ sung. Dùng chế độ Thủ công nếu chắc chắn URL theo mẫu."
+        ]
+      }
+    },
+    "import-chapters.txt": {
+      "value": {
+        "label": "Chương",
+        "chapters": [
+          {
+            "num": 1,
+            "title": "Bắt đầu",
+            "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+          },
+          {
+            "num": 2,
+            "title": "Bản cập nhật",
+            "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật. phiên bản sau."
+          }
+        ]
+      }
+    },
+    "import-chapters.md": {
+      "value": {
+        "label": "Chương",
+        "chapters": [
+          {
+            "num": 1,
+            "title": "Bắt đầu",
+            "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+          },
+          {
+            "num": 2,
+            "title": "Next",
+            "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+          }
+        ]
+      }
+    },
+    "import-chapters.csv": {
+      "value": {
+        "label": "Chương",
+        "chapters": [
+          {
+            "num": 1,
+            "title": "Mở đầu",
+            "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+          },
+          {
+            "num": 2,
+            "title": "Tên, có dấu phẩy",
+            "body": "Dòng một\nDòng hai có \"ngoặc kép\"."
+          }
+        ]
+      }
+    },
+    "import-hoi.txt": {
+      "value": {
+        "label": "Hồi",
+        "chapters": [
+          {
+            "num": 0,
+            "title": "",
+            "ordinal": "Lời tựa",
+            "preamble": true,
+            "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+          },
+          {
+            "num": 1,
+            "title": "Dòng thơ thứ nhất / Dòng thơ thứ hai",
+            "ordinal": "nhất",
+            "preamble": false,
+            "body": "Dòng thơ thứ nhất\nDòng thơ thứ hai\nNội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+          },
+          {
+            "num": 2,
+            "title": "Dòng thơ tiếp theo / Dòng thơ cuối",
+            "ordinal": "hai",
+            "preamble": false,
+            "body": "Dòng thơ tiếp theo\nDòng thơ cuối\nNội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+          }
+        ]
+      }
+    },
+    "import-no-headings": {
+      "error": {
+        "type": "PARSER_ERROR",
+        "message": "Không nhận diện được chương nào trong file. Mỗi chương cần 1 dòng riêng dạng \"Chương 1: Tên chương\" (cũng nhận \"Chapter\"/\"Chap\", có hoặc không có tên)."
+      }
+    },
+    "marked-paired-merge": {
+      "value": {
+        "levels": 3,
+        "label": "Chương",
+        "missing": 0,
+        "extra": 0,
+        "chapters": [
+          {
+            "num": 0,
+            "title": "Lời nói đầu",
+            "ordinal": "Lời nói đầu",
+            "preamble": true,
+            "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.",
+            "part": "",
+            "vol": "",
+            "dnum": "*",
+            "marked": true
+          },
+          {
+            "num": 1,
+            "title": "Khởi đầu",
+            "ordinal": "1",
+            "preamble": false,
+            "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.",
+            "part": "Phần 1",
+            "vol": "Quyển 1",
+            "dnum": 1,
+            "marked": true
+          },
+          {
+            "num": 2,
+            "title": "Thiếu nội dung",
+            "ordinal": "2",
+            "preamble": false,
+            "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.",
+            "part": "Phần 1",
+            "vol": "Quyển 1",
+            "dnum": 2,
+            "marked": true
+          },
+          {
+            "num": 3,
+            "title": "Quyển tiếp",
+            "ordinal": "1",
+            "preamble": false,
+            "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.",
+            "part": "Phần 1",
+            "vol": "Quyển 2",
+            "dnum": 1,
+            "marked": true
+          }
+        ]
+      }
+    },
+    "marked-malformed": {
+      "error": {
+        "type": "PARSER_ERROR",
+        "message": "Không nhận diện được chương nào trong truyện. Mỗi chương cần 1 dòng \"#@ Chương 1\" (hoặc \"#@ Hồi thứ nhất\") và dòng \"@Tên chương\" ngay sau; Quyển: \"##@ Quyển ...\", Phần: \"###@ Phần ...\"; chương mở đầu: \"00 Lời nói đầu\"."
+      }
+    },
+    "folder-name-44": {
+      "value": {
+        "num": 1,
+        "title": "Mở đầu",
+        "label": "Chương"
+      }
+    },
+    "folder-name-45": {
+      "value": {
+        "num": 12,
+        "title": "Tiếp tục",
+        "label": "Hồi"
+      }
+    },
+    "folder-name-46": {
+      "value": {
+        "num": 12,
+        "title": "",
+        "label": "Chương"
+      }
+    },
+    "folder-name-47": {
+      "value": null
+    },
+    "folder-name-48": {
+      "value": null
+    },
+    "folder-name-49": {
+      "value": null
+    },
+    "folder-name-50": {
+      "value": null
+    },
+    "insert-between-group-chapters": {
+      "value": {
+        "num": 2,
+        "dnum": 2
+      }
+    },
+    "duplicate-group-display-number": {
+      "error": {
+        "type": "DUPLICATE_CHAPTER",
+        "message": "Phần 1 › Quyển 1 đã có chương 1. Chọn số khác hoặc xóa chương đó trước."
+      }
+    },
+    "flat-chapter-inside-volume": {
+      "error": {
+        "type": "DUPLICATE_CHAPTER",
+        "message": "Thứ tự 2 rơi vào giữa Phần 1 › Quyển 1. Chọn số khác."
+      }
+    },
+    "invalid-chapter-order": {
+      "error": {
+        "type": "INVALID_CHAPTER",
+        "message": "Thứ tự chương phải là số nguyên từ 1 đến 99999."
+      }
+    },
+    "max-chapter-order": {
+      "value": 99999
+    },
+    "filename-56": {
+      "value": "Chương 001-002 - Phi lộ.txt"
+    },
+    "filename-57": {
+      "value": "Hồi 012 - Hồi 12 Hành trình.txt"
+    },
+    "filename-58": {
+      "value": "Chương 001 - Tên khó.txt"
+    },
+    "chapter-document": {
+      "value": "Truyện mẫu\n\nChương 001: Khởi đầu\n\nNội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+    },
+    "preamble-document": {
+      "value": "Truyện mẫu\n\nLời tựa\n\nNội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+    },
+    "reader-strip-generated-header": {
+      "value": {
+        "headTitle": "Khởi đầu",
+        "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+      }
+    },
+    "reader-preserve-unmatched-folder-header": {
+      "value": {
+        "headTitle": "",
+        "body": "Tựa ngoài\n\nChương 1: Khởi đầu\n\nNội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+      }
+    },
+    "empty-runs-63": {
+      "value": [
+        1
+      ]
+    },
+    "empty-runs-64": {
+      "value": []
+    },
+    "empty-runs-65": {
+      "value": []
+    },
+    "removed-log-line": {
+      "value": "08/10/2026 09:00:00 | Chương 1-2 | Phần 1 › Quyển 1 | Tiêu đề xuống dòng | https://fiction.test/1 | Không có nội dung"
+    },
+    "removed-log-empty-fields": {
+      "value": "08/10/2026 09:00:00 | Chương 1 | (không có) | (chưa rõ) | (không có) | Xóa thủ công"
+    },
+    "info-full": {
+      "value": [
+        {
+          "name": "info.txt",
+          "content": "##Tên truyện\nTruyện mẫu\n\n##Tác giả\nLê Bình\n\n##Thể loại\nPhiêu lưu, Kỳ ảo\n\n##link gốc\nhttps://fiction.test/truyen/\n",
+          "writes": 0
+        }
+      ]
+    },
+    "info-file-source-blank": {
+      "value": [
+        {
+          "name": "info.txt",
+          "content": "##Tên truyện\nTruyện file\n\n##Tác giả\n\n\n##Thể loại\n\n\n##link gốc\n\n",
+          "writes": 0
+        }
+      ]
+    },
+    "info-update-no-duplicate": {
+      "value": [
+        {
+          "name": "info.txt",
+          "content": "##Tên truyện\nTruyện mẫu\n\n##Tác giả\nNguyễn Văn An\n\n##Thể loại\nPhiêu lưu, Kỳ ảo\n\n##link gốc\nhttps://fiction.test/truyen/\n",
+          "writes": 1
+        }
+      ]
+    },
+    "genre-normalization": {
+      "value": [
+        "Kiếm hiệp",
+        "Phiêu lưu Kỳ ảo"
+      ]
+    },
+    "utf8-size-unicode": {
+      "value": 13
+    },
+    "legacy-cache-before-file-permission": {
+      "value": {
+        "text": "Nội dung mẫu riêng",
+        "title": "Riêng"
+      }
+    }
+  }
+}

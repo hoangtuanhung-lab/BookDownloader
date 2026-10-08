@@ -376,7 +376,7 @@ Trạng thái: ĐANG MỞ | Phiên bản hiện tại: V1.59.2 | Cập nhật: 2
 
 ## MÔ TẢ PHẦN MỀM
 
-**Kế hoạch chuyển sang web app:** xem [PLAN_WEB_APP.md](PLAN_WEB_APP.md), bản 0.1 ngày 08/10/2026. Kế hoạch gồm 10 phase (0–9), bảng đối chiếu chức năng/API V1.59.2, tái sử dụng module và các mục của plan này, Netlify + database + Drive lưu file, đăng nhập Google/phân quyền/ảnh bìa, migration và rollback. Đây là kế hoạch chưa triển khai; tài liệu này vẫn là baseline và lịch sử Apps Script V1.59.2. Mọi sửa mã phải đọc cả phần baseline liên quan và phase tương ứng trước khi làm.
+**Kế hoạch chuyển sang web app:** xem [PLAN_WEB_APP.md](PLAN_WEB_APP.md), bản 0.2 ngày 08/10/2026. Kế hoạch gồm 10 phase (0–9), bảng đối chiếu chức năng/API V1.59.2, tái sử dụng module và các mục của plan này, Netlify + database + Drive lưu file, đăng nhập Google/phân quyền/ảnh bìa, migration và rollback. Phase 0 đã khóa baseline và đạt 98/98 kiểm thử đối chiếu, xem [báo cáo](docs/phase-0/REPORT.md); khảo sát thư viện thật còn mở, Phase 1–9 chưa triển khai. Tài liệu này vẫn là baseline và lịch sử Apps Script V1.59.2. Mọi sửa mã phải đọc cả phần baseline liên quan và phase tương ứng trước khi làm.
 
 Trình tải truyện: web app Google Apps Script, Google Sheet làm cơ sở dữ liệu, Google Drive lưu file TXT của truyện. Ba chức năng: tải truyện từ website, quản lý sách, đọc truyện. Dùng riêng một mình (Chủ dự án xác nhận ngày 2026-09-30), không phân quyền theo người dùng; bảo vệ bằng cách triển khai Web App chỉ cho chính chủ script. Nền tảng: Google Apps Script Web App, giao diện tiếng Việt.
 
@@ -669,7 +669,7 @@ Các nhãn tiếng Việt tương ứng nằm ở `ST` và `STC_` trong `JS.html
 - `include(name)`: hàm để template `<?!= include('X') ?>` nhúng file HTML khác.
 - Hàm `api_*` về tiến độ đọc (`api_saveReadingProgress`, `api_getReadingProgress`) và `api_dropPending` (V1.57.0), `api_retryAnalyze` (V1.59.0) cũng có trong bảng ở mục 6.3.
 - Toàn bộ hàm `api_*` (xem bảng ở mục 6.3). Mỗi hàm bọc `safe_()`; hàm ghi dữ liệu bọc thêm `withLock_()` (kể cả `api_saveConfig` từ 1.42.0), trừ các hàm tự khóa nêu ở mục 2.
-- Dòng 1 là `// V1.57.0`, tiếp theo là `VERSION` và `UPDATED` (hiện `1.57.0`, 03/10/2026). Hai chỗ này phải nâng cùng lúc. Mã nguồn không có chú thích; lịch sử thay đổi nằm ở `plan_TrinhTaiTruyen.md` và mục 10.
+- Dòng 1 là `// V1.59.2`, tiếp theo là `VERSION` và `UPDATED` (hiện `1.59.2`, 08/10/2026). Hai chỗ này phải nâng cùng lúc. Lịch sử thay đổi nằm ở `plan_TrinhTaiTruyen.md` và mục 10.
 
 ##### `Config.gs` — Cấu hình
 - `DEFAULTS`, `BOOK_H`, `CH_H`, `LOG_H`, `UA` (User-Agent), `DB_NAME`.
@@ -722,7 +722,7 @@ Các nhãn tiếng Việt tương ứng nằm ở `ST` và `STC_` trong `JS.html
 - **Hàng chờ & trạng thái:** `pipelineBusy_` (còn chỗ trống hay phải xếp hàng, tính riêng theo loại FILE/mạng), `setBookStatus_` (`pause`/`start`/`retry`/`verify`), `reorderQueue_`, `promoteIdle_`, `startReady_`.
 - **Thao tác từng chương:** `retryChapterRow_`, `cancelChapterRow_`, `pauseChapterRow_`, `deleteChapterRow_`, `editChapterRow_`.
 - **Trùng tên:** `assertUniqueName_(name, excludeId)` so `normName_` với mọi truyện, trùng thì ném `DUPLICATE_NAME`; được `createBook_`, `updateBookInfo_` và các hàm thêm truyện ở `Importer.gs` dùng chung. Tên truyện là duy nhất trên toàn Quản lý sách ("Đấu Phá" và "dau pha" là một).
-- **Sửa/xóa truyện:** `updateBookInfo_` (kiểm trùng tên; đổi tên → đổi tên thư mục Drive; đổi thể loại → chuyển thư mục; Drive làm trước, lỗi thì trả lại tên cũ, ném `DRIVE_ERROR` và không ghi Sheet; chỉ sửa tác giả thì không chạm Drive), `deleteBook_` (xóa dòng, tùy chọn bỏ thư mục vào thùng rác, xóa mục khỏi JSON bằng `anaDrop_`).
+- **Sửa/xóa truyện:** `updateBookInfo_` (kiểm trùng tên; đổi tên → đổi tên thư mục Drive; đổi thể loại → chuyển thư mục; Drive làm trước, lỗi thì trả lại tên cũ, ném `DRIVE_ERROR` và không ghi Sheet; từ V1.59.2, sửa tác giả cũng cập nhật `info.txt` sau khi ghi Sheet; việc ghi Sheet/Drive không nguyên tử), `deleteBook_` (xóa dòng, tùy chọn bỏ thư mục vào thùng rác, xóa mục khỏi JSON bằng `anaDrop_`).
 
 ##### `ChapterManager.gs` — Danh sách chương
 - Dò chương: `discover_` (đi qua các trang phân trang; mục lục trộn link Quyển và link liền số thì tách khóa loại trùng theo kiểu và dịch số chương Quyển đi 1000000 bằng `mixShift_` để không trùng và xếp đúng chiều đọc), `hasPager_`, `nextPage_`, `pageNum_`, `pageBase_`; sinh URL chương thiếu theo mẫu: `chapterUrlTemplate_`, `fillSequentialGap_`.

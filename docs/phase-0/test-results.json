@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-08",
+  "timezone": "Asia/Saigon",
+  "node": "v24.19.0",
+  "baselineCommit": "aae3c570286edac1db5ca355cbce40f5108d0a10",
+  "command": "node --test tests/book-info.test.js tests/baseline/golden.test.cjs tests/baseline/inventory.test.cjs tests/baseline/profile.test.cjs",
+  "results": {
+    "tests": 98,
+    "pass": 98,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "executedAgainst": "actual pinned legacy source with synthetic mocks; no live services",
+  "goldenCases": 74,
+  "legacyInfoCases": 10,
+  "otherChecks": 14
+}

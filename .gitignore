@@ -7,5 +7,7 @@
 
 # Local dependencies and editor/OS files
 node_modules/
+# Private offline Sheets/Drive exports used by the migration profiler
+.local-library/
 .DS_Store
 Thumbs.db

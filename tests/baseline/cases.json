@@ -1,0 +1,1217 @@
+[
+  {
+    "id": "normalize-vietnamese",
+    "features": [
+      "F23",
+      "F24"
+    ],
+    "call": "normName_",
+    "args": [
+      "  Đấu   Phá  "
+    ]
+  },
+  {
+    "id": "sanitize-filename",
+    "features": [
+      "F24"
+    ],
+    "call": "cleanName_",
+    "args": [
+      "Tên: truyện / mẫu*?"
+    ]
+  },
+  {
+    "id": "relative-url",
+    "features": [
+      "F06"
+    ],
+    "call": "abs_",
+    "args": [
+      "chuong-2/?x=1#top",
+      "https://fiction.test/truyen/"
+    ]
+  },
+  {
+    "id": "normalize-book-url",
+    "features": [
+      "F01"
+    ],
+    "call": "normUrl_",
+    "args": [
+      "https://fiction.test/truyen/quyen-1-chuong-1-2/#top"
+    ]
+  },
+  {
+    "id": "invalid-book-url",
+    "features": [
+      "F01"
+    ],
+    "call": "normUrl_",
+    "args": [
+      "file:///etc/passwd"
+    ]
+  },
+  {
+    "id": "decode-entities",
+    "features": [
+      "F05"
+    ],
+    "call": "decode_",
+    "args": [
+      "A &amp; B &#x1F331; &#39;x&#39;"
+    ]
+  },
+  {
+    "id": "formula-input-rejected",
+    "features": [
+      "F24"
+    ],
+    "call": "assertNoFormula_",
+    "args": [
+      "=SUM(1,2)",
+      "Tên truyện"
+    ]
+  },
+  {
+    "id": "ordinal-7",
+    "features": [
+      "F17"
+    ],
+    "call": "vnOrdinalToNum_",
+    "args": [
+      "hai mươi mốt"
+    ]
+  },
+  {
+    "id": "ordinal-8",
+    "features": [
+      "F17"
+    ],
+    "call": "vnOrdinalToNum_",
+    "args": [
+      "một trăm linh năm"
+    ]
+  },
+  {
+    "id": "ordinal-9",
+    "features": [
+      "F17"
+    ],
+    "call": "vnOrdinalToNum_",
+    "args": [
+      "một nghìn hai trăm ba mươi tư"
+    ]
+  },
+  {
+    "id": "ordinal-10",
+    "features": [
+      "F17"
+    ],
+    "call": "vnOrdinalToNum_",
+    "args": [
+      "không hợp lệ"
+    ]
+  },
+  {
+    "id": "hoi-heading-inline",
+    "features": [
+      "F17"
+    ],
+    "call": "parseHoiHead_",
+    "args": [
+      "Hồi thứ nhất: Khởi đầu"
+    ]
+  },
+  {
+    "id": "strip-toolbar-and-junk",
+    "features": [
+      "F17",
+      "F31"
+    ],
+    "call": "tidyChapter_",
+    "args": [
+      "Chương 1: Mở đầu\nChữ to\nNội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.\ntruyen full.vn",
+      "truyen full"
+    ]
+  },
+  {
+    "id": "junk-inline",
+    "features": [
+      "F36"
+    ],
+    "call": "stripJunkInline_",
+    "args": [
+      "Tên truyen full.vn mẫu",
+      "truyen full"
+    ]
+  },
+  {
+    "id": "title-two-level",
+    "features": [
+      "F07"
+    ],
+    "call": "titleOnly_",
+    "args": [
+      "Quyển 1 - Chương 1-2: Phi lộ"
+    ]
+  },
+  {
+    "id": "metadata-jsonld",
+    "features": [
+      "F05"
+    ],
+    "args": [
+      {
+        "fixture": "metadata.html"
+      }
+    ],
+    "driver": "metadata"
+  },
+  {
+    "id": "metadata-fallback",
+    "features": [
+      "F05"
+    ],
+    "args": [
+      {
+        "fixture": "metadata-fallback.html"
+      }
+    ],
+    "driver": "metadata"
+  },
+  {
+    "id": "nested-html-block",
+    "features": [
+      "F05"
+    ],
+    "call": "block_",
+    "args": [
+      "<div class=\"chapter-content\"><div>Trong</div>Ngoài</div>",
+      [
+        "chapter-content"
+      ]
+    ]
+  },
+  {
+    "id": "clean-html-no-scripts",
+    "features": [
+      "F05"
+    ],
+    "call": "clean_",
+    "args": [
+      "<p>A &amp; B</p><script>bad()</script><div class=\"ads\">quảng cáo</div>"
+    ]
+  },
+  {
+    "id": "chapter-explicit-selector",
+    "features": [
+      "F05"
+    ],
+    "call": "getChapter_",
+    "args": [
+      "https://fiction.test/chapter",
+      {
+        "JUNK_WORDS": "",
+        "SITE_RULES": ""
+      },
+      1
+    ],
+    "pages": {
+      "https://fiction.test/chapter": "chapter.html"
+    }
+  },
+  {
+    "id": "chapter-auto-selector",
+    "features": [
+      "F05"
+    ],
+    "call": "getChapter_",
+    "args": [
+      "https://fiction.test/chapter",
+      {
+        "JUNK_WORDS": "",
+        "SITE_RULES": ""
+      },
+      1
+    ],
+    "pages": {
+      "https://fiction.test/chapter": "chapter-auto.html"
+    }
+  },
+  {
+    "id": "chapter-too-short",
+    "features": [
+      "F05",
+      "F15"
+    ],
+    "call": "getChapter_",
+    "args": [
+      "https://fiction.test/chapter",
+      {
+        "JUNK_WORDS": "",
+        "SITE_RULES": ""
+      },
+      1
+    ],
+    "pages": {
+      "https://fiction.test/chapter": "chapter-short.html"
+    }
+  },
+  {
+    "id": "chapter-no-content",
+    "features": [
+      "F05",
+      "F15"
+    ],
+    "call": "getChapter_",
+    "args": [
+      "https://fiction.test/chapter",
+      {
+        "JUNK_WORDS": "",
+        "SITE_RULES": ""
+      },
+      1
+    ],
+    "pages": {
+      "https://fiction.test/chapter": "chapter-missing.html"
+    }
+  },
+  {
+    "id": "site-rules-custom",
+    "features": [
+      "F05",
+      "F36"
+    ],
+    "call": "adapter_",
+    "args": [
+      "https://fiction.test/truyen/",
+      {
+        "SITE_RULES": "fiction.test: content=reading-area; title=chapter-heading; link=/c-"
+      }
+    ]
+  },
+  {
+    "id": "site-rules-invalid-selector",
+    "features": [
+      "F36"
+    ],
+    "call": "siteRule_",
+    "args": [
+      "https://fiction.test/",
+      {
+        "SITE_RULES": "fiction.test: content=div > p,safe; title=#invalid; link=/c-"
+      }
+    ]
+  },
+  {
+    "id": "legacy-domain-substring",
+    "features": [
+      "F36"
+    ],
+    "call": "siteRule_",
+    "args": [
+      "https://notfiction.test/",
+      {
+        "SITE_RULES": "fiction.test: content=reading-area"
+      }
+    ],
+    "known_issue": "ADR-006: domain substring matching must change in port"
+  },
+  {
+    "id": "legacy-cookie-substring",
+    "features": [
+      "F11"
+    ],
+    "call": "siteCookie_",
+    "args": [
+      "https://notfiction.test/",
+      {
+        "SITE_COOKIES": "fiction.test=synthetic-cookie-not-a-credential"
+      }
+    ],
+    "known_issue": "ADR-006: cookie host boundary must change in port"
+  },
+  {
+    "id": "chapter-number-27",
+    "features": [
+      "F07"
+    ],
+    "call": "chNum_",
+    "args": [
+      {
+        "url": "https://fiction.test/truyen/quyen-1-chuong-1-2/",
+        "title": ""
+      }
+    ]
+  },
+  {
+    "id": "chapter-number-28",
+    "features": [
+      "F07"
+    ],
+    "call": "chNum_",
+    "args": [
+      {
+        "url": "https://fiction.test/truyen/chuong-95-2/",
+        "title": ""
+      }
+    ]
+  },
+  {
+    "id": "chapter-number-29",
+    "features": [
+      "F07"
+    ],
+    "call": "chNum_",
+    "args": [
+      {
+        "url": "https://fiction.test/truyen/unknown/",
+        "title": ""
+      }
+    ]
+  },
+  {
+    "id": "volume-display-number",
+    "features": [
+      "F07"
+    ],
+    "call": "volInfo_",
+    "args": [
+      {
+        "url": "https://fiction.test/truyen/quyen-1-chuong-1-2/",
+        "title": ""
+      }
+    ]
+  },
+  {
+    "id": "discover-paged",
+    "features": [
+      "F06"
+    ],
+    "args": [
+      "https://fiction.test/truyen/",
+      {
+        "fixture": "book-page-1.html"
+      },
+      {
+        "SITE_RULES": "",
+        "DELAY_MS": 0
+      }
+    ],
+    "driver": "discover",
+    "pages": {
+      "https://fiction.test/truyen/?page=2": "book-page-2.html"
+    }
+  },
+  {
+    "id": "discover-mixed",
+    "features": [
+      "F07"
+    ],
+    "args": [
+      "https://fiction.test/truyen/",
+      {
+        "fixture": "book-mixed.html"
+      },
+      {
+        "SITE_RULES": "",
+        "DELAY_MS": 0
+      }
+    ],
+    "driver": "discover"
+  },
+  {
+    "id": "discover-broken-pagination",
+    "features": [
+      "F06"
+    ],
+    "args": [
+      "https://fiction.test/truyen/",
+      {
+        "fixture": "book-broken-pager.html"
+      },
+      {
+        "SITE_RULES": "",
+        "DELAY_MS": 0
+      }
+    ],
+    "driver": "discover"
+  },
+  {
+    "id": "discover-missing-chapters",
+    "features": [
+      "F06"
+    ],
+    "args": [
+      "https://fiction.test/truyen/",
+      "<h1>Không có link</h1>",
+      {
+        "SITE_RULES": "",
+        "DELAY_MS": 0
+      }
+    ],
+    "driver": "discover"
+  },
+  {
+    "id": "verified-gap-template",
+    "features": [
+      "F06"
+    ],
+    "args": [
+      [
+        {
+          "n": 1,
+          "url": "https://fiction.test/truyen/chuong-1"
+        },
+        {
+          "n": 3,
+          "url": "https://fiction.test/truyen/chuong-3"
+        }
+      ]
+    ],
+    "driver": "gap"
+  },
+  {
+    "id": "inconsistent-gap-template",
+    "features": [
+      "F06"
+    ],
+    "args": [
+      [
+        {
+          "n": 1,
+          "url": "https://fiction.test/truyen/chuong-1-a"
+        },
+        {
+          "n": 3,
+          "url": "https://fiction.test/truyen/chuong-3-b"
+        }
+      ]
+    ],
+    "driver": "gap"
+  },
+  {
+    "id": "import-chapters.txt",
+    "features": [
+      "F17"
+    ],
+    "call": "parseImportFile_",
+    "args": [
+      "txt",
+      {
+        "fixture": "chapters.txt"
+      }
+    ]
+  },
+  {
+    "id": "import-chapters.md",
+    "features": [
+      "F17"
+    ],
+    "call": "parseImportFile_",
+    "args": [
+      "md",
+      {
+        "fixture": "chapters.md"
+      }
+    ]
+  },
+  {
+    "id": "import-chapters.csv",
+    "features": [
+      "F17"
+    ],
+    "call": "parseImportFile_",
+    "args": [
+      "csv",
+      {
+        "fixture": "chapters.csv"
+      }
+    ]
+  },
+  {
+    "id": "import-hoi.txt",
+    "features": [
+      "F17"
+    ],
+    "call": "parseImportFile_",
+    "args": [
+      "txt",
+      {
+        "fixture": "hoi.txt"
+      }
+    ]
+  },
+  {
+    "id": "import-no-headings",
+    "features": [
+      "F17"
+    ],
+    "call": "splitChapters_",
+    "args": [
+      {
+        "fixture": "malformed.txt"
+      }
+    ]
+  },
+  {
+    "id": "marked-paired-merge",
+    "features": [
+      "F18"
+    ],
+    "args": [
+      {
+        "fixture": "marked-toc.md"
+      },
+      {
+        "fixture": "marked-story.md"
+      }
+    ],
+    "driver": "paired-import"
+  },
+  {
+    "id": "marked-malformed",
+    "features": [
+      "F18"
+    ],
+    "call": "parseMarkedFile_",
+    "args": [
+      {
+        "fixture": "malformed.txt"
+      },
+      "truyện"
+    ]
+  },
+  {
+    "id": "folder-name-44",
+    "features": [
+      "F19",
+      "F37"
+    ],
+    "call": "parseFolderFileName_",
+    "args": [
+      "Chương 001 - Mở đầu.txt"
+    ]
+  },
+  {
+    "id": "folder-name-45",
+    "features": [
+      "F19",
+      "F37"
+    ],
+    "call": "parseFolderFileName_",
+    "args": [
+      "Hồi 12 - Tiếp tục.md"
+    ]
+  },
+  {
+    "id": "folder-name-46",
+    "features": [
+      "F19",
+      "F37"
+    ],
+    "call": "parseFolderFileName_",
+    "args": [
+      "12.txt"
+    ]
+  },
+  {
+    "id": "folder-name-47",
+    "features": [
+      "F19",
+      "F37"
+    ],
+    "call": "parseFolderFileName_",
+    "args": [
+      "info.txt"
+    ]
+  },
+  {
+    "id": "folder-name-48",
+    "features": [
+      "F19",
+      "F37"
+    ],
+    "call": "parseFolderFileName_",
+    "args": [
+      "_import.json"
+    ]
+  },
+  {
+    "id": "folder-name-49",
+    "features": [
+      "F19",
+      "F37"
+    ],
+    "call": "parseFolderFileName_",
+    "args": [
+      "cover.jpg"
+    ]
+  },
+  {
+    "id": "folder-name-50",
+    "features": [
+      "F19",
+      "F37"
+    ],
+    "call": "parseFolderFileName_",
+    "args": [
+      "_Chương lỗi đã xóa.txt"
+    ]
+  },
+  {
+    "id": "insert-between-group-chapters",
+    "features": [
+      "F21"
+    ],
+    "call": "placeChapter_",
+    "args": [
+      [
+        [
+          "BOOK001",
+          1,
+          "Mở đầu",
+          "",
+          "DONE",
+          "file1",
+          0,
+          "",
+          "",
+          "Phần 1",
+          "Quyển 1",
+          1
+        ],
+        [
+          "BOOK001",
+          3,
+          "Tiếp bước",
+          "",
+          "DONE",
+          "file3",
+          0,
+          "",
+          "",
+          "Phần 1",
+          "Quyển 1",
+          3
+        ],
+        [
+          "BOOK001",
+          4,
+          "Quyển sau",
+          "",
+          "DONE",
+          "file4",
+          0,
+          "",
+          "",
+          "Phần 1",
+          "Quyển 2",
+          1
+        ]
+      ],
+      {
+        "part": "Phần 1",
+        "vol": "Quyển 1"
+      },
+      2
+    ]
+  },
+  {
+    "id": "duplicate-group-display-number",
+    "features": [
+      "F21"
+    ],
+    "call": "placeChapter_",
+    "args": [
+      [
+        [
+          "BOOK001",
+          1,
+          "Mở đầu",
+          "",
+          "DONE",
+          "file1",
+          0,
+          "",
+          "",
+          "Phần 1",
+          "Quyển 1",
+          1
+        ],
+        [
+          "BOOK001",
+          3,
+          "Tiếp bước",
+          "",
+          "DONE",
+          "file3",
+          0,
+          "",
+          "",
+          "Phần 1",
+          "Quyển 1",
+          3
+        ],
+        [
+          "BOOK001",
+          4,
+          "Quyển sau",
+          "",
+          "DONE",
+          "file4",
+          0,
+          "",
+          "",
+          "Phần 1",
+          "Quyển 2",
+          1
+        ]
+      ],
+      {
+        "part": "Phần 1",
+        "vol": "Quyển 1"
+      },
+      1
+    ]
+  },
+  {
+    "id": "flat-chapter-inside-volume",
+    "features": [
+      "F21"
+    ],
+    "call": "placeChapter_",
+    "args": [
+      [
+        [
+          "BOOK001",
+          1,
+          "Mở đầu",
+          "",
+          "DONE",
+          "file1",
+          0,
+          "",
+          "",
+          "Phần 1",
+          "Quyển 1",
+          1
+        ],
+        [
+          "BOOK001",
+          3,
+          "Tiếp bước",
+          "",
+          "DONE",
+          "file3",
+          0,
+          "",
+          "",
+          "Phần 1",
+          "Quyển 1",
+          3
+        ],
+        [
+          "BOOK001",
+          4,
+          "Quyển sau",
+          "",
+          "DONE",
+          "file4",
+          0,
+          "",
+          "",
+          "Phần 1",
+          "Quyển 2",
+          1
+        ]
+      ],
+      {
+        "part": "",
+        "vol": ""
+      },
+      2
+    ]
+  },
+  {
+    "id": "invalid-chapter-order",
+    "features": [
+      "F21"
+    ],
+    "call": "parseOrder_",
+    "args": [
+      "1-2"
+    ]
+  },
+  {
+    "id": "max-chapter-order",
+    "features": [
+      "F21"
+    ],
+    "call": "parseOrder_",
+    "args": [
+      "99999"
+    ]
+  },
+  {
+    "id": "filename-56",
+    "features": [
+      "F07",
+      "F12"
+    ],
+    "call": "fname_",
+    "args": [
+      "1-2",
+      "Chương 1-2: Phi lộ",
+      "Chương"
+    ]
+  },
+  {
+    "id": "filename-57",
+    "features": [
+      "F07",
+      "F12"
+    ],
+    "call": "fname_",
+    "args": [
+      12,
+      "Hồi 12: Hành trình",
+      "Hồi"
+    ]
+  },
+  {
+    "id": "filename-58",
+    "features": [
+      "F07",
+      "F12"
+    ],
+    "call": "fname_",
+    "args": [
+      1,
+      "Tên: / khó?",
+      "Chương"
+    ]
+  },
+  {
+    "id": "chapter-document",
+    "features": [
+      "F20"
+    ],
+    "call": "docChapterFile_",
+    "args": [
+      "Truyện mẫu",
+      "Chương",
+      {
+        "num": 1,
+        "title": "Khởi đầu",
+        "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+      }
+    ]
+  },
+  {
+    "id": "preamble-document",
+    "features": [
+      "F17"
+    ],
+    "call": "docChapterFile_",
+    "args": [
+      "Truyện mẫu",
+      "Hồi",
+      {
+        "preamble": true,
+        "ordinal": "Lời tựa",
+        "body": "Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật."
+      }
+    ]
+  },
+  {
+    "id": "reader-strip-generated-header",
+    "features": [
+      "F29"
+    ],
+    "call": "stripFileHead_",
+    "args": [
+      "Truyện mẫu\n\nChương 1: Khởi đầu\n\nNội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.",
+      false,
+      "Truyện mẫu"
+    ]
+  },
+  {
+    "id": "reader-preserve-unmatched-folder-header",
+    "features": [
+      "F29"
+    ],
+    "call": "stripFileHead_",
+    "args": [
+      "Tựa ngoài\n\nChương 1: Khởi đầu\n\nNội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.",
+      true,
+      "Truyện mẫu"
+    ]
+  },
+  {
+    "id": "empty-runs-63",
+    "features": [
+      "F15"
+    ],
+    "call": "emptyRuns_",
+    "args": [
+      [
+        [
+          "BOOK001",
+          1,
+          "",
+          "",
+          "DONE",
+          "",
+          0,
+          ""
+        ],
+        [
+          "BOOK001",
+          2,
+          "",
+          "",
+          "ERROR",
+          "",
+          0,
+          "NO_CONTENT: Không có nội dung"
+        ],
+        [
+          "BOOK001",
+          3,
+          "",
+          "",
+          "DONE",
+          "",
+          0,
+          ""
+        ]
+      ]
+    ]
+  },
+  {
+    "id": "empty-runs-64",
+    "features": [
+      "F15"
+    ],
+    "call": "emptyRuns_",
+    "args": [
+      [
+        [
+          "BOOK001",
+          1,
+          "",
+          "",
+          "DONE",
+          "",
+          0,
+          ""
+        ],
+        [
+          "BOOK001",
+          2,
+          "",
+          "",
+          "ERROR",
+          "",
+          0,
+          "NO_CONTENT: Không có nội dung"
+        ],
+        [
+          "BOOK001",
+          3,
+          "",
+          "",
+          "ERROR",
+          "",
+          0,
+          "NO_CONTENT: Không có nội dung"
+        ],
+        [
+          "BOOK001",
+          4,
+          "",
+          "",
+          "ERROR",
+          "",
+          0,
+          "NO_CONTENT: Không có nội dung"
+        ],
+        [
+          "BOOK001",
+          5,
+          "",
+          "",
+          "ERROR",
+          "",
+          0,
+          "NO_CONTENT: Không có nội dung"
+        ],
+        [
+          "BOOK001",
+          6,
+          "",
+          "",
+          "DONE",
+          "",
+          0,
+          ""
+        ]
+      ]
+    ]
+  },
+  {
+    "id": "empty-runs-65",
+    "features": [
+      "F15"
+    ],
+    "call": "emptyRuns_",
+    "args": [
+      [
+        [
+          "BOOK001",
+          1,
+          "",
+          "",
+          "DONE",
+          "",
+          0,
+          ""
+        ],
+        [
+          "BOOK001",
+          2,
+          "",
+          "",
+          "ERROR",
+          "",
+          0,
+          "NO_CONTENT: Không có nội dung"
+        ]
+      ]
+    ]
+  },
+  {
+    "id": "removed-log-line",
+    "features": [
+      "F16",
+      "F38"
+    ],
+    "call": "removedLine_",
+    "args": [
+      {
+        "num": 1001.002,
+        "dnum": "1-2",
+        "part": "Phần 1",
+        "vol": "Quyển 1",
+        "title": "Tiêu đề | xuống\ndòng",
+        "url": "https://fiction.test/1",
+        "reason": "Không có nội dung"
+      }
+    ]
+  },
+  {
+    "id": "removed-log-empty-fields",
+    "features": [
+      "F16"
+    ],
+    "call": "removedLine_",
+    "args": [
+      {
+        "num": 1,
+        "dnum": "",
+        "title": "",
+        "url": "",
+        "reason": "Xóa thủ công"
+      }
+    ]
+  },
+  {
+    "id": "info-full",
+    "features": [
+      "F37"
+    ],
+    "args": [
+      {
+        "name": "Truyện mẫu",
+        "author": "Lê Bình",
+        "genre": "Phiêu lưu, Kỳ ảo",
+        "url": "https://fiction.test/truyen/"
+      }
+    ],
+    "driver": "info"
+  },
+  {
+    "id": "info-file-source-blank",
+    "features": [
+      "F37"
+    ],
+    "args": [
+      {
+        "name": "Truyện file"
+      }
+    ],
+    "driver": "info"
+  },
+  {
+    "id": "info-update-no-duplicate",
+    "features": [
+      "F37"
+    ],
+    "args": [
+      {
+        "name": "Truyện mẫu",
+        "author": "Lê Bình",
+        "genre": "Phiêu lưu, Kỳ ảo",
+        "url": "https://fiction.test/truyen/"
+      },
+      {
+        "name": "Truyện mẫu",
+        "author": "Lê Bình",
+        "genre": "Phiêu lưu, Kỳ ảo",
+        "url": "https://fiction.test/truyen/"
+      },
+      {
+        "name": "Truyện mẫu",
+        "author": "Nguyễn Văn An",
+        "genre": "Phiêu lưu, Kỳ ảo",
+        "url": "https://fiction.test/truyen/"
+      }
+    ],
+    "driver": "info"
+  },
+  {
+    "id": "genre-normalization",
+    "features": [
+      "F25"
+    ],
+    "call": "cleanGenreList_",
+    "args": [
+      [
+        "Kiếm hiệp",
+        "kiem hiep",
+        "Phiêu lưu;Kỳ ảo",
+        ""
+      ]
+    ]
+  },
+  {
+    "id": "utf8-size-unicode",
+    "features": [
+      "F03"
+    ],
+    "call": "utf8Len_",
+    "args": [
+      "Truyện 🌱"
+    ]
+  },
+  {
+    "id": "legacy-cache-before-file-permission",
+    "features": [
+      "F29"
+    ],
+    "driver": "reader-cache-before-permission",
+    "args": [],
+    "known_issue": "ADR-006: cache hit precedes file registration check; must be fixed before multi-user release"
+  }
+]

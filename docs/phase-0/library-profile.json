@@ -1,0 +1,128 @@
+{
+  "realLibrary": {
+    "status": "not_supplied",
+    "books": null,
+    "chapters": null,
+    "maxFileBytes": null
+  },
+  "synthetic": [
+    {
+      "provenance": "original synthetic test data; not the owner library",
+      "books": 14,
+      "chapters": 126,
+      "maxChaptersPerBook": 9,
+      "sourceTypes": {
+        "WEB": 5,
+        "FILE": 5,
+        "FOLDER": 4
+      },
+      "bookStatuses": {
+        "ANALYZED": 2,
+        "IDLE": 1,
+        "COMPLETED": 6,
+        "DOWNLOADING": 2,
+        "PAUSED": 1,
+        "READY": 1,
+        "ERROR": 1
+      },
+      "chapterStatuses": {
+        "ERROR": 20,
+        "PENDING": 20,
+        "DONE": 86
+      },
+      "groupedChapters": 126,
+      "fractionalOrderChapters": 14,
+      "twoLevelDisplayNumbers": 14,
+      "doneWithoutFile": 14,
+      "files": {
+        "count": 72,
+        "totalBytes": 100870,
+        "p50Bytes": 1328,
+        "p95Bytes": 1926,
+        "maxBytes": 1932,
+        "missingReferencedFiles": 0
+      },
+      "issues": {},
+      "note": "Counts and sizes only; does not verify live Drive existence, access, content, quota or runtime performance."
+    },
+    {
+      "provenance": "original synthetic test data; not the owner library",
+      "books": 100,
+      "chapters": 20000,
+      "maxChaptersPerBook": 200,
+      "sourceTypes": {
+        "WEB": 34,
+        "FILE": 33,
+        "FOLDER": 33
+      },
+      "bookStatuses": {
+        "ANALYZED": 10,
+        "IDLE": 10,
+        "COMPLETED": 43,
+        "DOWNLOADING": 10,
+        "PAUSED": 9,
+        "READY": 9,
+        "ERROR": 9
+      },
+      "chapterStatuses": {
+        "ERROR": 2680,
+        "PENDING": 2680,
+        "DONE": 14640
+      },
+      "groupedChapters": 20000,
+      "fractionalOrderChapters": 100,
+      "twoLevelDisplayNumbers": 100,
+      "doneWithoutFile": 100,
+      "files": {
+        "count": 14540,
+        "totalBytes": 21655112,
+        "p50Bytes": 1524,
+        "p95Bytes": 1938,
+        "maxBytes": 1954,
+        "missingReferencedFiles": 0
+      },
+      "issues": {},
+      "note": "Counts and sizes only; does not verify live Drive existence, access, content, quota or runtime performance."
+    },
+    {
+      "provenance": "original synthetic test data; not the owner library",
+      "books": 1,
+      "chapters": 20000,
+      "maxChaptersPerBook": 20000,
+      "sourceTypes": {
+        "WEB": 1
+      },
+      "bookStatuses": {
+        "ANALYZED": 1
+      },
+      "chapterStatuses": {
+        "ERROR": 4000,
+        "PENDING": 4000,
+        "DONE": 12000
+      },
+      "groupedChapters": 20000,
+      "fractionalOrderChapters": 1,
+      "twoLevelDisplayNumbers": 1,
+      "doneWithoutFile": 1,
+      "files": {
+        "count": 11999,
+        "totalBytes": 12466937,
+        "p50Bytes": 1039,
+        "p95Bytes": 1053,
+        "maxBytes": 1054,
+        "missingReferencedFiles": 0
+      },
+      "issues": {},
+      "note": "Counts and sizes only; does not verify live Drive existence, access, content, quota or runtime performance."
+    }
+  ],
+  "capacityDecisions": {
+    "initialPageSize": 24,
+    "readerCluster": 5,
+    "retainedReaderClusters": 2,
+    "downloadBatchSize": 5,
+    "concurrencyPerPipeline": 2,
+    "liveLoadTest": "phase 8; not executed",
+    "note": "Initial choices from legacy defaults and synthetic cases, not measured service throughput."
+  }
+}

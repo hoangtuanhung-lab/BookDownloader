@@ -1,0 +1,12 @@
+Lời tựa
+Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.
+
+Hồi thứ nhất
+Dòng thơ thứ nhất
+Dòng thơ thứ hai
+Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.
+
+Hồi thứ hai
+Dòng thơ tiếp theo
+Dòng thơ cuối
+Nội dung mẫu do dự án tự viết để kiểm thử. Nhân vật đi qua khu vườn và nhìn thấy ánh sáng buổi sớm. Không trích từ tác phẩm hay website thật.

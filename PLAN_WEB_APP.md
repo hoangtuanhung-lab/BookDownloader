@@ -1,8 +1,8 @@
 # Kế hoạch chuyển Trình tải truyện sang web app Netlify
 
-- Bản kế hoạch: 0.1 — 08/10/2026.
+- Bản kế hoạch: 0.2 — 08/10/2026 (đã thực hiện baseline Phase 0).
 - Baseline: Apps Script V1.59.2 tại commit `aae3c570286edac1db5ca355cbce40f5108d0a10` (mã info.txt được thêm ở `18d1b1e`); đọc `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md`, 29 file mã nguồn và bộ kiểm thử `tests/book-info.test.js` để đối chiếu khi triển khai.
-- Trạng thái: kế hoạch triển khai, chưa có ứng dụng Netlify, database, OAuth hoặc worker được tạo. Không coi nội dung kế hoạch là chức năng đã hoàn thành.
+- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1–9 chưa triển khai; chưa có ứng dụng Netlify, database, OAuth hoặc worker cloud được tạo. Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
 - Mục tiêu: giữ toàn bộ hành vi nghiệp vụ đang có, thêm đăng nhập Google, phân quyền nhiều người và ảnh bìa; Google Drive chỉ lưu file, PostgreSQL là nguồn dữ liệu chính.
 - Cách làm: trước mỗi thay đổi mã, đọc plan cũ và plan này, xác định mã chức năng/phase, cập nhật checklist và bằng chứng kiểm thử sau khi làm. Tài liệu có nội dung lệch mã thì đối chiếu mã thật và ghi rõ chênh lệch, không lấy kết quả lịch sử làm kết quả mới.
 
@@ -29,7 +29,7 @@ Google Drive là nơi lưu TXT, ảnh bìa, `info.txt`, `_import.json` và `_Ch�
 | File | Google Drive API v3 | Lưu và đọc file, thư mục, ảnh bìa |
 | Kiểm thử | Vitest/Node test, Playwright, kiểm thử SQL/RLS | Logic, hợp đồng API, giao diện, quyền và migration |
 
-Đây là lựa chọn thiết kế, không phải các dịch vụ đã được provision. Trước khi cài đặt cần kiểm tra phiên bản runtime được Netlify/Cloud Run hỗ trợ, hạn mức, chi phí và khu vực của database. Chốt chi phí sau đo tải; không hứa toàn bộ hệ thống miễn phí.
+Đây là lựa chọn thiết kế, không phải các dịch vụ đã được provision. Trước khi cài đặt cần kiểm tra phiên bản runtime được Netlify/Cloud Run hỗ trợ, hạn mức, chi phí và khu vực của database. Người dùng chọn ưu tiên gói miễn phí, chỉ đề xuất nâng cấp sau khi đo tải. Chốt chi phí sau đo tải; không hứa toàn bộ hệ thống miễn phí. Worker chạy local khi phát triển; kiểm free allowance và điều kiện billing trước deployment cloud, không tự kích hoạt billing/nâng gói. Xem [ADR Phase 0](docs/phase-0/DECISIONS.md).
 
 Netlify phục vụ web và API ngắn. Một yêu cầu tải truyện trả `202` và `job_id`; không chờ tải hết sách trong Function. Worker xử lý hữu hạn mỗi lần chạy, checkpoint từng chương, nhận việc tiếp ở lần sau. Không đưa browser/Chromium vào worker mặc định; chỉ hỗ trợ các cấu trúc HTML/mẫu URL tương đương bộ parser cũ.
 
@@ -262,20 +262,20 @@ Mutation idempotent bằng request_id/dedupe key. Bulk trả kết quả từng 
 
 ## 7. Kế hoạch các phase và tiêu chí hoàn thành
 
-Tất cả checklist triển khai đang chưa làm. Mỗi phase phải có code, migration/schema khi cần, tests, hướng dẫn chạy, kết quả và lỗi còn mở. Không đánh dấu hoàn thành bằng việc build thành công hoặc ảnh chụp một màn hình.
+Phase 0 đã có bằng chứng bên dưới; các checklist triển khai Phase 1–9 đang chưa làm. Mỗi phase phải có code, migration/schema khi cần, tests, hướng dẫn chạy, kết quả và lỗi còn mở. Không đánh dấu hoàn thành bằng việc build thành công hoặc ảnh chụp một màn hình.
 
 ### Phase 0 — Chốt baseline và bộ đối chiếu
 
-**Phụ thuộc:** không. **Đầu ra:** inventory F01–N04, fixture và các quyết định kiến trúc.
+**Phụ thuộc:** không. **Đầu ra:** [inventory](docs/phase-0/inventory.json), [parity](docs/phase-0/PARITY.md), [ADR](docs/phase-0/DECISIONS.md), [fixtures/runner](docs/phase-0/README.md), [báo cáo kết quả](docs/phase-0/REPORT.md).
 
-- [ ] Ghi baseline commit V1.59.2, checksum nguồn, API inventory; ghi chênh lệch mô tả cũ (ví dụ version hoặc câu “chỉ sửa tác giả không chạm Drive” nay đã có info.txt).
-- [ ] Chuyển 10 test info.txt thành baseline chạy được; lấy fixture HTML/URL được phép sử dụng, TXT/CSV/Hồi/marker, thứ tự chương và Drive mock.
-- [ ] Định nghĩa expected output từ hàm nguồn thật, không chỉ chép kỳ vọng trong lịch sử test.
-- [ ] Tạo bộ golden cho pure functions: Cleaner, Parser, Adapters, chương nhiều cấp, import, đặt tên, info/log; ngăn vô tình đổi output khi tách module.
-- [ ] Xác định số sách/chương, kích thước file tối đa và thư viện đại diện để chọn pagination/cache/worker batch; giữ dữ liệu thật ngoài repo.
-- [ ] Chốt thư viện chung, publication, bootstrap admin, nguồn Drive/worker và chi phí. Ghi quyết định đổi hành vi có chủ ý (quyền nhiều người, đồng bộ progress theo user, domain match an toàn).
+- [x] Ghi baseline commit V1.59.2, SHA-256/byte count cho 29 nguồn, đủ 34 API/signatures và 42 nhóm tính năng; ghi chênh lệch mô tả/mã trong ADR-007.
+- [x] Giữ và chạy lại 10 test info.txt; tạo 17 fixture HTML/URL/TXT/MD/CSV/Hồi/marker nguyên bản, Drive mock và metadata export synthetic; không tải nội dung thật.
+- [x] Ghi 74 expected output/error bằng thực thi source pinned từ Git, có neo output kiểm độc lập; không lấy kết quả lịch sử hoặc mã tương lai làm expected.
+- [x] Runner golden cho Cleaner/Parser/Adapters/chương nhiều cấp/import/filename/info/log/header; có 2 mutation trong VM chứng minh phát hiện đổi logic. Tổng 98 tests pass, không skip.
+- [!] Khảo sát số sách/chương/max file **thật** chưa hoàn tất vì chưa có export owner. Đã có profiler read-only, 3 workload synthetic (14/126, 100/20000, 1/20000) và mặc định page/cache/batch. Dữ liệu thật để null; hoàn tất khảo sát tại Phase 3 và trước nghiệm thu migration Phase 8, không thay bằng số mẫu.
+- [x] Chốt mô hình thư viện chung, publication, bootstrap admin, owner OAuth Drive, worker hữu hạn và free-first theo trả lời người dùng; ADR-006 ghi domain/cookie boundary và kiểm quyền trước cache là thay đổi bắt buộc. Chưa provision hay kích hoạt chi phí.
 
-**Gate:** mọi chức năng/API có phase và ca nghiệm thu; không có “để sau” cho chức năng cũ. Chưa có dữ liệu thật không ngăn xây fixture nhưng chặn nghiệm thu migration.
+**Gate đối chiếu đạt:** mọi chức năng/API có phase và ca nghiệm thu; không có tính năng cũ bị bỏ. Còn khảo sát dữ liệu thật như mục `[!]`; plan cho phép dùng fixtures để sang Phase 1, nhưng thiếu dữ liệu thật chặn nghiệm thu migration. Các ca acceptance web/API/RLS/browser và dịch vụ thật vẫn chưa chạy.
 
 ### Phase 1 — Nền dự án, contracts, database và CI
 

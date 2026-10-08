@@ -173,8 +173,10 @@ Mã có cơ chế loại bỏ một số chương lỗi nội dung rỗng/quá n
 
 - [Hướng dẫn sử dụng chi tiết](HUONG_DAN_SU_DUNG.md)
 - [Mô tả và lịch sử phát triển của bản nguồn](plan_TrinhTaiTruyen.md)
-- [Kế hoạch chuyển sang web app Netlify: 10 phase, giữ tính năng cũ và bổ sung đăng nhập/phân quyền/ảnh bìa](PLAN_WEB_APP.md) — kế hoạch chưa triển khai.
+- [Kế hoạch chuyển sang web app Netlify: 10 phase, giữ tính năng cũ và bổ sung đăng nhập/phân quyền/ảnh bìa](PLAN_WEB_APP.md) — Phase 0 đã có baseline/kiểm thử, Phase 1–9 chưa triển khai.
 - [Hạn mức Google Apps Script](https://developers.google.com/apps-script/guides/services/quotas)
 - [Triển khai ứng dụng web Apps Script](https://developers.google.com/apps-script/guides/web)
 
 Repository chưa có file `LICENSE`. Việc công bố mã nguồn không tự cấp một giấy phép sử dụng cụ thể; cần chủ sở hữu xác định giấy phép trước khi phân phối lại theo điều khoản đó.
+
+Kiểm thử đối chiếu cho kế hoạch web mới và cách chạy: [Phase 0](docs/phase-0/README.md). Kết quả hiện tại: 98/98 tests với nguồn Apps Script và dịch vụ giả lập; chưa kiểm dịch vụ cloud thật.

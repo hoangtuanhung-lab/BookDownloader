@@ -1,0 +1,3767 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "aae3c570286edac1db5ca355cbce40f5108d0a10",
+  "version": "1.59.2",
+  "sourceCount": 29,
+  "sourceBytes": 339779,
+  "files": [
+    {
+      "path": "Adapters.gs",
+      "bytes": 1399,
+      "sha256": "78588612c91caa934521f4a37a497a43d704002ca07c3362f2cb9cc63fe43d6e",
+      "functions": [
+        {
+          "name": "siteRule_",
+          "parameters": [
+            "url",
+            "cfg"
+          ]
+        },
+        {
+          "name": "adapter_",
+          "parameters": [
+            "url",
+            "cfg"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "AnalyzeQueue.gs",
+      "bytes": 7278,
+      "sha256": "1bc360246e4d3a8fa7bb638601f6c57c96fd7716dfd193007200e64df423ebe0",
+      "functions": [
+        {
+          "name": "anaLoad_",
+          "parameters": []
+        },
+        {
+          "name": "utf8Len_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "anaSave_",
+          "parameters": [
+            "q"
+          ]
+        },
+        {
+          "name": "hangState_",
+          "parameters": [
+            "books"
+          ]
+        },
+        {
+          "name": "anaDone_",
+          "parameters": [
+            "rawUrl",
+            "bookId",
+            "bookUrl"
+          ]
+        },
+        {
+          "name": "anaFail_",
+          "parameters": [
+            "url",
+            "msg"
+          ]
+        },
+        {
+          "name": "failPending_",
+          "parameters": [
+            "url",
+            "msg"
+          ]
+        },
+        {
+          "name": "retryAnalyze_",
+          "parameters": [
+            "url"
+          ]
+        },
+        {
+          "name": "anaDrop_",
+          "parameters": [
+            "ids"
+          ]
+        },
+        {
+          "name": "dropPending_",
+          "parameters": [
+            "url"
+          ]
+        },
+        {
+          "name": "queueAnalyze_",
+          "parameters": [
+            "urls"
+          ]
+        },
+        {
+          "name": "analyzeAndHold_",
+          "parameters": [
+            "url"
+          ]
+        },
+        {
+          "name": "analyzeHoldCore_",
+          "parameters": [
+            "url"
+          ]
+        },
+        {
+          "name": "moveAnalyzed_",
+          "parameters": [
+            "ids"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "BookManager.gs",
+      "bytes": 15956,
+      "sha256": "a0319dfeb9dc0663a91400f5283f739bac4a38bf36821699ca648fa839d1d7a3",
+      "functions": [
+        {
+          "name": "findBook_",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "pipelineBusy_",
+          "parameters": [
+            "excludeId",
+            "isFile"
+          ]
+        },
+        {
+          "name": "assertUniqueName_",
+          "parameters": [
+            "name",
+            "excludeId"
+          ]
+        },
+        {
+          "name": "analyzeBook_",
+          "parameters": [
+            "url"
+          ]
+        },
+        {
+          "name": "renumMixed_",
+          "parameters": [
+            "id",
+            "chs"
+          ]
+        },
+        {
+          "name": "numKey_",
+          "parameters": [
+            "vol",
+            "n"
+          ]
+        },
+        {
+          "name": "knownChapterSet_",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "mergeByNum_",
+          "parameters": [
+            "oldRows",
+            "newRows"
+          ]
+        },
+        {
+          "name": "statusAfterAdd_",
+          "parameters": [
+            "b"
+          ]
+        },
+        {
+          "name": "insertChapterRows_",
+          "parameters": [
+            "br",
+            "rows"
+          ]
+        },
+        {
+          "name": "addMissingChapters_",
+          "parameters": [
+            "id",
+            "newChapters"
+          ]
+        },
+        {
+          "name": "manualAnalyze_",
+          "parameters": [
+            "sampleUrl",
+            "total"
+          ]
+        },
+        {
+          "name": "createBook_",
+          "parameters": [
+            "info",
+            "hold"
+          ]
+        },
+        {
+          "name": "setBookStatus_",
+          "parameters": [
+            "id",
+            "action"
+          ]
+        },
+        {
+          "name": "chapterRow_",
+          "parameters": [
+            "id",
+            "num"
+          ]
+        },
+        {
+          "name": "retryChapterRow_",
+          "parameters": [
+            "id",
+            "num"
+          ]
+        },
+        {
+          "name": "editChapterRow_",
+          "parameters": [
+            "id",
+            "num",
+            "url",
+            "title"
+          ]
+        },
+        {
+          "name": "cancelChapterRow_",
+          "parameters": [
+            "id",
+            "num"
+          ]
+        },
+        {
+          "name": "pauseChapterRow_",
+          "parameters": [
+            "id",
+            "num"
+          ]
+        },
+        {
+          "name": "deleteChapterRow_",
+          "parameters": [
+            "id",
+            "num"
+          ]
+        },
+        {
+          "name": "reorderQueue_",
+          "parameters": [
+            "id",
+            "dir"
+          ]
+        },
+        {
+          "name": "promoteIdle_",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "startReady_",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "setGenreMany_",
+          "parameters": [
+            "ids",
+            "genre"
+          ]
+        },
+        {
+          "name": "updateBookInfo_",
+          "parameters": [
+            "id",
+            "f"
+          ]
+        },
+        {
+          "name": "deleteBook_",
+          "parameters": [
+            "id",
+            "trashFolder"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "CSS.html",
+      "bytes": 59968,
+      "sha256": "7108e90016375e4bb895472aeef8f8789133fff407c9af9cd6fdafd28f47aaef",
+      "functions": []
+    },
+    {
+      "path": "ChapterManager.gs",
+      "bytes": 8960,
+      "sha256": "00374d4e0b212620a0451b071b5018d0967a94a78213b3ea140322e7787387e0",
+      "functions": [
+        {
+          "name": "hasPager_",
+          "parameters": [
+            "html"
+          ]
+        },
+        {
+          "name": "pageNum_",
+          "parameters": [
+            "u"
+          ]
+        },
+        {
+          "name": "pageBase_",
+          "parameters": [
+            "u"
+          ]
+        },
+        {
+          "name": "nextPage_",
+          "parameters": [
+            "html",
+            "cur"
+          ]
+        },
+        {
+          "name": "chNum_",
+          "parameters": [
+            "c",
+            "tok"
+          ]
+        },
+        {
+          "name": "volInfo_",
+          "parameters": [
+            "c"
+          ]
+        },
+        {
+          "name": "chapterUrlTemplate_",
+          "parameters": [
+            "chs"
+          ]
+        },
+        {
+          "name": "fillSequentialGap_",
+          "parameters": [
+            "chs",
+            "notes"
+          ]
+        },
+        {
+          "name": "mixShift_",
+          "parameters": [
+            "cands"
+          ]
+        },
+        {
+          "name": "discover_",
+          "parameters": [
+            "bookUrl",
+            "firstHtml",
+            "cfg"
+          ]
+        },
+        {
+          "name": "chaptersOf_",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "errorRows_",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "activeRows_",
+          "parameters": [
+            "id",
+            "limit"
+          ]
+        },
+        {
+          "name": "firstChapterUrls_",
+          "parameters": [
+            "ids"
+          ]
+        },
+        {
+          "name": "resetErrorRows_",
+          "parameters": [
+            "rows"
+          ]
+        },
+        {
+          "name": "markMissing_",
+          "parameters": [
+            "rows",
+            "ids"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "ChapterTools.gs",
+      "bytes": 11604,
+      "sha256": "5308d91321d4b16d1da39729b1a520c8b818a0c6a8561b7ea5ad7fb5fd4f9e35",
+      "functions": [
+        {
+          "name": "logCell_",
+          "parameters": [
+            "v"
+          ]
+        },
+        {
+          "name": "removedLine_",
+          "parameters": [
+            "it"
+          ]
+        },
+        {
+          "name": "removedItem_",
+          "parameters": [
+            "row",
+            "reason"
+          ]
+        },
+        {
+          "name": "removedLogAppend_",
+          "parameters": [
+            "b",
+            "items"
+          ]
+        },
+        {
+          "name": "chapterGroups_",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "sameName_",
+          "parameters": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "name": "leadInt_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "cmpName_",
+          "parameters": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "name": "cmpGroup_",
+          "parameters": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "name": "dnumValue_",
+          "parameters": [
+            "r"
+          ]
+        },
+        {
+          "name": "pickName_",
+          "parameters": [
+            "chosen",
+            "existing",
+            "allowBlank",
+            "allowNew",
+            "label"
+          ]
+        },
+        {
+          "name": "pickGroup_",
+          "parameters": [
+            "rows",
+            "f"
+          ]
+        },
+        {
+          "name": "parseOrder_",
+          "parameters": [
+            "raw"
+          ]
+        },
+        {
+          "name": "groupLabel_",
+          "parameters": [
+            "g"
+          ]
+        },
+        {
+          "name": "placeChapter_",
+          "parameters": [
+            "rows",
+            "g",
+            "k"
+          ]
+        },
+        {
+          "name": "addChapterManual_",
+          "parameters": [
+            "id",
+            "kind",
+            "f"
+          ]
+        },
+        {
+          "name": "addChapterByLink_",
+          "parameters": [
+            "b",
+            "br",
+            "at",
+            "rawUrl"
+          ]
+        },
+        {
+          "name": "addChapterByText_",
+          "parameters": [
+            "b",
+            "br",
+            "at",
+            "rawText",
+            "source"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "Cleaner.gs",
+      "bytes": 5526,
+      "sha256": "0101e596f9f3973007ca137e04f4fe4a6da90940b317bff2f6cbfba74ad66d1f",
+      "functions": [
+        {
+          "name": "vnOrdinalToNum_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "parseHoiHead_",
+          "parameters": [
+            "ln"
+          ]
+        },
+        {
+          "name": "normKey_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "isToolbar_",
+          "parameters": [
+            "ln"
+          ]
+        },
+        {
+          "name": "toolbarAhead_",
+          "parameters": [
+            "lines",
+            "j"
+          ]
+        },
+        {
+          "name": "splitHead_",
+          "parameters": [
+            "text"
+          ]
+        },
+        {
+          "name": "junkRe_",
+          "parameters": [
+            "words"
+          ]
+        },
+        {
+          "name": "stripJunk_",
+          "parameters": [
+            "text",
+            "words"
+          ]
+        },
+        {
+          "name": "stripJunkInline_",
+          "parameters": [
+            "s",
+            "words"
+          ]
+        },
+        {
+          "name": "tidyChapter_",
+          "parameters": [
+            "text",
+            "words"
+          ]
+        },
+        {
+          "name": "titleOnly_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "sig_",
+          "parameters": [
+            "s"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "Code.gs",
+      "bytes": 6033,
+      "sha256": "e70ffd472b33e52de27b7f8aba7fc2b69d2ed9ff861dd1baeb8ca80941d2e5e1",
+      "functions": [
+        {
+          "name": "doGet",
+          "parameters": []
+        },
+        {
+          "name": "include",
+          "parameters": [
+            "name"
+          ]
+        },
+        {
+          "name": "api_getState",
+          "parameters": []
+        },
+        {
+          "name": "api_createAndStart",
+          "parameters": [
+            "info"
+          ]
+        },
+        {
+          "name": "api_queueAnalyze",
+          "parameters": [
+            "urls"
+          ]
+        },
+        {
+          "name": "api_dropPending",
+          "parameters": [
+            "url"
+          ]
+        },
+        {
+          "name": "api_analyzeAndHold",
+          "parameters": [
+            "url"
+          ]
+        },
+        {
+          "name": "api_retryAnalyze",
+          "parameters": [
+            "url"
+          ]
+        },
+        {
+          "name": "api_addChapter",
+          "parameters": [
+            "id",
+            "kind",
+            "f"
+          ]
+        },
+        {
+          "name": "api_chapterGroups",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "api_moveToDownload",
+          "parameters": [
+            "ids"
+          ]
+        },
+        {
+          "name": "api_manualAnalyze",
+          "parameters": [
+            "sampleUrl",
+            "total"
+          ]
+        },
+        {
+          "name": "api_tick",
+          "parameters": []
+        },
+        {
+          "name": "api_setStatus",
+          "parameters": [
+            "id",
+            "action"
+          ]
+        },
+        {
+          "name": "api_chapters",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "api_errorChapters",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "api_chapterAction",
+          "parameters": [
+            "id",
+            "num",
+            "action"
+          ]
+        },
+        {
+          "name": "api_editChapter",
+          "parameters": [
+            "id",
+            "num",
+            "url",
+            "title"
+          ]
+        },
+        {
+          "name": "api_firstChapterUrls",
+          "parameters": [
+            "ids"
+          ]
+        },
+        {
+          "name": "api_addBookFromFile",
+          "parameters": [
+            "filename",
+            "base64",
+            "meta"
+          ]
+        },
+        {
+          "name": "api_addBookFromFiles",
+          "parameters": [
+            "tocName",
+            "tocB64",
+            "fileName",
+            "fileB64",
+            "meta"
+          ]
+        },
+        {
+          "name": "api_addBookFromFolder",
+          "parameters": [
+            "folderInput",
+            "meta"
+          ]
+        },
+        {
+          "name": "api_saveBook",
+          "parameters": [
+            "id",
+            "f"
+          ]
+        },
+        {
+          "name": "api_setGenreMany",
+          "parameters": [
+            "ids",
+            "genre"
+          ]
+        },
+        {
+          "name": "api_saveBooksBatch",
+          "parameters": [
+            "items"
+          ]
+        },
+        {
+          "name": "api_deleteBook",
+          "parameters": [
+            "id",
+            "trashFolder"
+          ]
+        },
+        {
+          "name": "api_reorderQueue",
+          "parameters": [
+            "id",
+            "dir"
+          ]
+        },
+        {
+          "name": "api_saveConfig",
+          "parameters": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "api_saveGenres",
+          "parameters": [
+            "list"
+          ]
+        },
+        {
+          "name": "api_readerList",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "api_readChapter",
+          "parameters": [
+            "bookId",
+            "fileId"
+          ]
+        },
+        {
+          "name": "api_readChapterCluster",
+          "parameters": [
+            "bookId",
+            "fileIds"
+          ]
+        },
+        {
+          "name": "api_saveReadingProgress",
+          "parameters": [
+            "bookId",
+            "chapterId",
+            "y",
+            "ratio",
+            "t"
+          ]
+        },
+        {
+          "name": "api_getReadingProgress",
+          "parameters": [
+            "bookId"
+          ]
+        },
+        {
+          "name": "api_registerRoot",
+          "parameters": [
+            "input"
+          ]
+        },
+        {
+          "name": "api_createRoot",
+          "parameters": [
+            "name"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "Config.gs",
+      "bytes": 3919,
+      "sha256": "0f9c75d0eb28490c19a57e0da80cd6c5fb32526ea0e1cd4e26d6d301a1bb5044",
+      "functions": [
+        {
+          "name": "getConfig_",
+          "parameters": []
+        },
+        {
+          "name": "writeConfig_",
+          "parameters": [
+            "obj"
+          ]
+        },
+        {
+          "name": "saveConfig_",
+          "parameters": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "parseGenres_",
+          "parameters": [
+            "v"
+          ]
+        },
+        {
+          "name": "cleanGenreList_",
+          "parameters": [
+            "list"
+          ]
+        },
+        {
+          "name": "saveGenres_",
+          "parameters": [
+            "list"
+          ]
+        },
+        {
+          "name": "junkWords_",
+          "parameters": []
+        }
+      ]
+    },
+    {
+      "path": "Dashboard.html",
+      "bytes": 3534,
+      "sha256": "eb2db35e99a41cfb83a141296e714040e63984d83fcb29e103f6ebe14db5ae9c",
+      "functions": []
+    },
+    {
+      "path": "Database.gs",
+      "bytes": 3979,
+      "sha256": "0ea6a16a8d99ea7f920d692bf2a2a4f5629034a95d3e5b8752ecbceb1606aeb9",
+      "functions": [
+        {
+          "name": "db_",
+          "parameters": []
+        },
+        {
+          "name": "ensureSchema_",
+          "parameters": [
+            "ss"
+          ]
+        },
+        {
+          "name": "ensureTextFormats_",
+          "parameters": [
+            "ss"
+          ]
+        },
+        {
+          "name": "ensureHeaders_",
+          "parameters": [
+            "sheet",
+            "firstCol",
+            "labels"
+          ]
+        },
+        {
+          "name": "readBooks_",
+          "parameters": []
+        },
+        {
+          "name": "getState_",
+          "parameters": []
+        },
+        {
+          "name": "bookRows_",
+          "parameters": [
+            "bookId"
+          ]
+        },
+        {
+          "name": "writeBlock_",
+          "parameters": [
+            "b"
+          ]
+        },
+        {
+          "name": "writeStatusCell_",
+          "parameters": [
+            "b",
+            "idx",
+            "status"
+          ]
+        },
+        {
+          "name": "count_",
+          "parameters": [
+            "rows"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "Downloader.gs",
+      "bytes": 8300,
+      "sha256": "bd6f21694aeabb6e99fede5ddc05e217407994770a9801f0cc707af288515121",
+      "functions": [
+        {
+          "name": "siteCookie_",
+          "parameters": [
+            "url",
+            "cfg"
+          ]
+        },
+        {
+          "name": "fetch_",
+          "parameters": [
+            "url",
+            "cfg"
+          ]
+        },
+        {
+          "name": "isEmptyRow_",
+          "parameters": [
+            "r"
+          ]
+        },
+        {
+          "name": "emptyRuns_",
+          "parameters": [
+            "rows"
+          ]
+        },
+        {
+          "name": "runBatch_",
+          "parameters": [
+            "b",
+            "cfg",
+            "deadline"
+          ]
+        },
+        {
+          "name": "drive_",
+          "parameters": [
+            "maxMs"
+          ]
+        },
+        {
+          "name": "runOneKind_",
+          "parameters": [
+            "books",
+            "isFile",
+            "cfg",
+            "deadline",
+            "maxMs"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "DriveManager.gs",
+      "bytes": 5822,
+      "sha256": "ef4f0d35b5540d3c27114bd3472bf9b1d24ccab893b2144db1a6099b53b94574",
+      "functions": [
+        {
+          "name": "folderIdFrom_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "rootFolder_",
+          "parameters": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "driveQuery_",
+          "parameters": [
+            "field",
+            "op",
+            "text"
+          ]
+        },
+        {
+          "name": "hashHex_",
+          "parameters": [
+            "text"
+          ]
+        },
+        {
+          "name": "folderUnder_",
+          "parameters": [
+            "id",
+            "parentId",
+            "name"
+          ]
+        },
+        {
+          "name": "childFolder_",
+          "parameters": [
+            "parent",
+            "name"
+          ]
+        },
+        {
+          "name": "genreFolderName_",
+          "parameters": [
+            "g"
+          ]
+        },
+        {
+          "name": "bookFolder_",
+          "parameters": [
+            "name",
+            "genre",
+            "cfg"
+          ]
+        },
+        {
+          "name": "writeBookInfo_",
+          "parameters": [
+            "folder",
+            "book"
+          ]
+        },
+        {
+          "name": "moveToGenre_",
+          "parameters": [
+            "folder",
+            "oldGenre",
+            "newGenre"
+          ]
+        },
+        {
+          "name": "registerRoot_",
+          "parameters": [
+            "input"
+          ]
+        },
+        {
+          "name": "createRoot_",
+          "parameters": [
+            "name"
+          ]
+        },
+        {
+          "name": "fileOk_",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "padDnum_",
+          "parameters": [
+            "n"
+          ]
+        },
+        {
+          "name": "findByNum_",
+          "parameters": [
+            "folder",
+            "n",
+            "label"
+          ]
+        },
+        {
+          "name": "chapterFolder_",
+          "parameters": [
+            "bookFolder",
+            "part",
+            "vol"
+          ]
+        },
+        {
+          "name": "allFileIds_",
+          "parameters": [
+            "folder",
+            "ids"
+          ]
+        },
+        {
+          "name": "fname_",
+          "parameters": [
+            "n",
+            "title",
+            "label"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "Favicon.gs",
+      "bytes": 17246,
+      "sha256": "af92bfcc4a01fb7ab92dc098eaed43849e2ac01e84946334d393f009b244bad9",
+      "functions": [
+        {
+          "name": "faviconUrl_",
+          "parameters": []
+        },
+        {
+          "name": "dbParentFolder_",
+          "parameters": []
+        }
+      ]
+    },
+    {
+      "path": "Importer.gs",
+      "bytes": 19966,
+      "sha256": "1c7d7dc7063cba150d5eed62bb6b8c68b7aefdb42702105d0f2d1ed100e88eae",
+      "functions": [
+        {
+          "name": "splitChapters_",
+          "parameters": [
+            "text"
+          ]
+        },
+        {
+          "name": "parseCsvChapters_",
+          "parameters": [
+            "text"
+          ]
+        },
+        {
+          "name": "splitHoiChapters_",
+          "parameters": [
+            "text"
+          ]
+        },
+        {
+          "name": "detectImportFormat_",
+          "parameters": [
+            "text"
+          ]
+        },
+        {
+          "name": "parseImportFile_",
+          "parameters": [
+            "ext",
+            "text"
+          ]
+        },
+        {
+          "name": "cleanChapterList_",
+          "parameters": [
+            "chapters",
+            "cfg"
+          ]
+        },
+        {
+          "name": "importDataFile_",
+          "parameters": [
+            "folder"
+          ]
+        },
+        {
+          "name": "saveImportData_",
+          "parameters": [
+            "folder",
+            "chapters"
+          ]
+        },
+        {
+          "name": "loadImportData_",
+          "parameters": [
+            "folder"
+          ]
+        },
+        {
+          "name": "deleteImportData_",
+          "parameters": [
+            "folder"
+          ]
+        },
+        {
+          "name": "docChapterFile_",
+          "parameters": [
+            "bookName",
+            "label",
+            "ch"
+          ]
+        },
+        {
+          "name": "importFileName_",
+          "parameters": [
+            "label",
+            "ch"
+          ]
+        },
+        {
+          "name": "findImportFile_",
+          "parameters": [
+            "folder",
+            "label",
+            "ch"
+          ]
+        },
+        {
+          "name": "writeImportChapterFile_",
+          "parameters": [
+            "folder",
+            "bookName",
+            "label",
+            "ch"
+          ]
+        },
+        {
+          "name": "insertPendingFileBook_",
+          "parameters": [
+            "name",
+            "author",
+            "genre",
+            "label",
+            "folder",
+            "chapters"
+          ]
+        },
+        {
+          "name": "createBookFromFile_",
+          "parameters": [
+            "filename",
+            "base64",
+            "meta"
+          ]
+        },
+        {
+          "name": "parseMarkedChapterHead_",
+          "parameters": [
+            "text"
+          ]
+        },
+        {
+          "name": "parseMarkedFile_",
+          "parameters": [
+            "text",
+            "what"
+          ]
+        },
+        {
+          "name": "fillMissingNums_",
+          "parameters": [
+            "items"
+          ]
+        },
+        {
+          "name": "markKey_",
+          "parameters": [
+            "c"
+          ]
+        },
+        {
+          "name": "mergeTocStory_",
+          "parameters": [
+            "toc",
+            "story"
+          ]
+        },
+        {
+          "name": "numberMarkedList_",
+          "parameters": [
+            "list"
+          ]
+        },
+        {
+          "name": "decodeTextFile_",
+          "parameters": [
+            "filename",
+            "base64"
+          ]
+        },
+        {
+          "name": "createBookFromFiles_",
+          "parameters": [
+            "tocName",
+            "tocB64",
+            "fileName",
+            "fileB64",
+            "meta"
+          ]
+        },
+        {
+          "name": "parseFolderFileName_",
+          "parameters": [
+            "name"
+          ]
+        },
+        {
+          "name": "scanFolderChapters_",
+          "parameters": [
+            "folder"
+          ]
+        },
+        {
+          "name": "createBookFromFolder_",
+          "parameters": [
+            "folderInput",
+            "meta"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "Index.html",
+      "bytes": 863,
+      "sha256": "744115c6b0888180f1c4301aed250f6e97e20edbe72130205b1fa2174173c3ea",
+      "functions": []
+    },
+    {
+      "path": "JS.html",
+      "bytes": 71292,
+      "sha256": "188dd25733eb0d3c860064f0827b8a1259656dfe70e163eb2c2f93aac1fa068a",
+      "functions": [
+        {
+          "name": "stepsRender_",
+          "parameters": [
+            "box",
+            "steps",
+            "activeIdx"
+          ]
+        },
+        {
+          "name": "anaStepsRender_",
+          "parameters": [
+            "activeIdx"
+          ]
+        },
+        {
+          "name": "anaStepsHide_",
+          "parameters": []
+        },
+        {
+          "name": "sleep_",
+          "parameters": [
+            "ms"
+          ]
+        },
+        {
+          "name": "anaStepsAnimate_",
+          "parameters": []
+        },
+        {
+          "name": "call",
+          "parameters": [
+            "fn"
+          ]
+        },
+        {
+          "name": "say",
+          "parameters": [
+            "t",
+            "bad"
+          ]
+        },
+        {
+          "name": "toastDrop_",
+          "parameters": [
+            "n"
+          ]
+        },
+        {
+          "name": "toastArm_",
+          "parameters": [
+            "n"
+          ]
+        },
+        {
+          "name": "showToast",
+          "parameters": [
+            "message",
+            "type"
+          ]
+        },
+        {
+          "name": "toast",
+          "parameters": [
+            "t",
+            "bad"
+          ]
+        },
+        {
+          "name": "amFinish_",
+          "parameters": [
+            "ok"
+          ]
+        },
+        {
+          "name": "closeModal",
+          "parameters": []
+        },
+        {
+          "name": "openModal",
+          "parameters": [
+            "title",
+            "content",
+            "onConfirm",
+            "opt"
+          ]
+        },
+        {
+          "name": "askConfirm",
+          "parameters": [
+            "message",
+            "opt"
+          ]
+        },
+        {
+          "name": "take",
+          "parameters": [
+            "r"
+          ]
+        },
+        {
+          "name": "checkErrorTransitions_",
+          "parameters": []
+        },
+        {
+          "name": "show",
+          "parameters": [
+            "v"
+          ]
+        },
+        {
+          "name": "sideSet_",
+          "parameters": [
+            "col"
+          ]
+        },
+        {
+          "name": "gname",
+          "parameters": [
+            "g"
+          ]
+        },
+        {
+          "name": "dirPath",
+          "parameters": []
+        },
+        {
+          "name": "addUrlRow_",
+          "parameters": [
+            "v"
+          ]
+        },
+        {
+          "name": "clearUrlRows_",
+          "parameters": []
+        },
+        {
+          "name": "collectUrls_",
+          "parameters": []
+        },
+        {
+          "name": "elNew_",
+          "parameters": [
+            "tag",
+            "cls",
+            "text"
+          ]
+        },
+        {
+          "name": "clipLink_",
+          "parameters": [
+            "url",
+            "label"
+          ]
+        },
+        {
+          "name": "iconBtn_",
+          "parameters": [
+            "text",
+            "label",
+            "attr",
+            "id",
+            "cls"
+          ]
+        },
+        {
+          "name": "anaTable_",
+          "parameters": [
+            "title",
+            "heads",
+            "rows",
+            "tool"
+          ]
+        },
+        {
+          "name": "anaHeldRows_",
+          "parameters": []
+        },
+        {
+          "name": "anaDirPath_",
+          "parameters": [
+            "b"
+          ]
+        },
+        {
+          "name": "anaRows_",
+          "parameters": []
+        },
+        {
+          "name": "anaUrlBtn_",
+          "parameters": [
+            "text",
+            "label",
+            "attr",
+            "url",
+            "cls"
+          ]
+        },
+        {
+          "name": "anaRow_",
+          "parameters": [
+            "r",
+            "i"
+          ]
+        },
+        {
+          "name": "drawAna_",
+          "parameters": []
+        },
+        {
+          "name": "anaPickGenre_",
+          "parameters": []
+        },
+        {
+          "name": "anaResume_",
+          "parameters": []
+        },
+        {
+          "name": "applyInfoEdit_",
+          "parameters": []
+        },
+        {
+          "name": "renderActiveChapters_",
+          "parameters": [
+            "rows"
+          ]
+        },
+        {
+          "name": "draw",
+          "parameters": []
+        },
+        {
+          "name": "chTreeNode_",
+          "parameters": [
+            "items",
+            "isOpen"
+          ]
+        },
+        {
+          "name": "chTreeHtml_",
+          "parameters": [
+            "items",
+            "isOpen"
+          ]
+        },
+        {
+          "name": "chHasHier_",
+          "parameters": [
+            "rows",
+            "pi",
+            "vi"
+          ]
+        },
+        {
+          "name": "chDispNum_",
+          "parameters": [
+            "num",
+            "dnum"
+          ]
+        },
+        {
+          "name": "renderChapterList_",
+          "parameters": [
+            "c"
+          ]
+        },
+        {
+          "name": "renderErrorGrid_",
+          "parameters": [
+            "c"
+          ]
+        },
+        {
+          "name": "openChEdit",
+          "parameters": [
+            "id",
+            "num",
+            "title",
+            "url"
+          ]
+        },
+        {
+          "name": "drawQueue",
+          "parameters": []
+        },
+        {
+          "name": "renderQueue_",
+          "parameters": [
+            "queue"
+          ]
+        },
+        {
+          "name": "tmItems_",
+          "parameters": []
+        },
+        {
+          "name": "tmBtn_",
+          "parameters": [
+            "a",
+            "it"
+          ]
+        },
+        {
+          "name": "drawMon_",
+          "parameters": []
+        },
+        {
+          "name": "drawBatch",
+          "parameters": []
+        },
+        {
+          "name": "drawCfg",
+          "parameters": []
+        },
+        {
+          "name": "drawFolder",
+          "parameters": []
+        },
+        {
+          "name": "fmsg",
+          "parameters": [
+            "t",
+            "bad"
+          ]
+        },
+        {
+          "name": "gmsg",
+          "parameters": [
+            "t",
+            "bad"
+          ]
+        },
+        {
+          "name": "gnKey_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "gnSort_",
+          "parameters": [
+            "a"
+          ]
+        },
+        {
+          "name": "gnClean_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "gnAddNames_",
+          "parameters": [
+            "names"
+          ]
+        },
+        {
+          "name": "drawGenres_",
+          "parameters": []
+        },
+        {
+          "name": "gnAddFromInput_",
+          "parameters": []
+        },
+        {
+          "name": "openHelp_",
+          "parameters": [
+            "key"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "Logger.gs",
+      "bytes": 166,
+      "sha256": "513ef458f6ec3ea42e97e4f74856e833bf41668bd9993347f49afac23aef16d3",
+      "functions": [
+        {
+          "name": "writeLogs_",
+          "parameters": [
+            "logs"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "Manager.html",
+      "bytes": 2444,
+      "sha256": "f9ae13f3a3138c0dccaa0f3f68b311ed36be15b0019f9d940e785fe4ba5f4a14",
+      "functions": []
+    },
+    {
+      "path": "ManagerJS.html",
+      "bytes": 29519,
+      "sha256": "c036f86a0e209714c2ec0edb017046d9e8f66203703fb9ad2d7b82b770c82f84",
+      "functions": [
+        {
+          "name": "mgViewGet_",
+          "parameters": []
+        },
+        {
+          "name": "mgLs_",
+          "parameters": [
+            "k"
+          ]
+        },
+        {
+          "name": "mgHue_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "mgCover_",
+          "parameters": [
+            "name"
+          ]
+        },
+        {
+          "name": "mgInitials_",
+          "parameters": [
+            "name"
+          ]
+        },
+        {
+          "name": "mgReadInfo_",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "mgEl_",
+          "parameters": [
+            "tag",
+            "cls",
+            "text"
+          ]
+        },
+        {
+          "name": "mgBtn_",
+          "parameters": [
+            "text",
+            "label",
+            "a",
+            "cls"
+          ]
+        },
+        {
+          "name": "mgCard_",
+          "parameters": [
+            "b",
+            "d",
+            "pend"
+          ]
+        },
+        {
+          "name": "mgSkeleton_",
+          "parameters": []
+        },
+        {
+          "name": "mgDrawGrid_",
+          "parameters": [
+            "page"
+          ]
+        },
+        {
+          "name": "mgSyncView_",
+          "parameters": []
+        },
+        {
+          "name": "mgDisplay_",
+          "parameters": [
+            "b"
+          ]
+        },
+        {
+          "name": "mgPrune_",
+          "parameters": []
+        },
+        {
+          "name": "mgBad_",
+          "parameters": [
+            "b",
+            "f"
+          ]
+        },
+        {
+          "name": "mgSyncBtn_",
+          "parameters": []
+        },
+        {
+          "name": "genreOptions_",
+          "parameters": []
+        },
+        {
+          "name": "bookOf",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "normVi_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "mgMatch_",
+          "parameters": [
+            "b",
+            "q"
+          ]
+        },
+        {
+          "name": "drawMgr",
+          "parameters": []
+        },
+        {
+          "name": "drawPager_",
+          "parameters": [
+            "total",
+            "pages"
+          ]
+        },
+        {
+          "name": "mgAct_",
+          "parameters": [
+            "e"
+          ]
+        },
+        {
+          "name": "acMsg",
+          "parameters": [
+            "t",
+            "bad"
+          ]
+        },
+        {
+          "name": "acSetMode",
+          "parameters": [
+            "m"
+          ]
+        },
+        {
+          "name": "acOpt_",
+          "parameters": [
+            "sel",
+            "value",
+            "text"
+          ]
+        },
+        {
+          "name": "acPartVal_",
+          "parameters": []
+        },
+        {
+          "name": "acRenderParts_",
+          "parameters": [
+            "keep"
+          ]
+        },
+        {
+          "name": "acRenderVols_",
+          "parameters": [
+            "keep"
+          ]
+        },
+        {
+          "name": "acRenderGroups_",
+          "parameters": [
+            "keepPart",
+            "keepVol"
+          ]
+        },
+        {
+          "name": "acFields_",
+          "parameters": []
+        },
+        {
+          "name": "acReset",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "acDirty",
+          "parameters": []
+        },
+        {
+          "name": "acReadFile_",
+          "parameters": [
+            "file"
+          ]
+        },
+        {
+          "name": "lockEdit",
+          "parameters": [
+            "on"
+          ]
+        },
+        {
+          "name": "openEdit",
+          "parameters": [
+            "id",
+            "stage"
+          ]
+        },
+        {
+          "name": "gpApplyVisibility_",
+          "parameters": []
+        },
+        {
+          "name": "gpSplit_",
+          "parameters": [
+            "v"
+          ]
+        },
+        {
+          "name": "gpFind_",
+          "parameters": [
+            "k"
+          ]
+        },
+        {
+          "name": "openGenrePick_",
+          "parameters": [
+            "input",
+            "opts"
+          ]
+        },
+        {
+          "name": "gpSyncMain_",
+          "parameters": []
+        },
+        {
+          "name": "openDel",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "nfMsg",
+          "parameters": [
+            "t",
+            "bad"
+          ]
+        },
+        {
+          "name": "nfStepsRender_",
+          "parameters": [
+            "activeIdx"
+          ]
+        },
+        {
+          "name": "nfStepsHide_",
+          "parameters": []
+        },
+        {
+          "name": "nfStepsAnimate_",
+          "parameters": []
+        },
+        {
+          "name": "openAddFile",
+          "parameters": []
+        },
+        {
+          "name": "nfSend_",
+          "parameters": []
+        },
+        {
+          "name": "nfFail_",
+          "parameters": [
+            "msg"
+          ]
+        },
+        {
+          "name": "nfRead_",
+          "parameters": [
+            "f"
+          ]
+        },
+        {
+          "name": "nfDupOpen_",
+          "parameters": [
+            "msg"
+          ]
+        },
+        {
+          "name": "afMsg",
+          "parameters": [
+            "t",
+            "bad"
+          ]
+        },
+        {
+          "name": "openAddFolder",
+          "parameters": []
+        }
+      ]
+    },
+    {
+      "path": "Modals.html",
+      "bytes": 11842,
+      "sha256": "f18f27dfda9cb2a7534218372f8aa497a7d4280df0fa215bc0ca5ded40c5af5b",
+      "functions": []
+    },
+    {
+      "path": "Parser.gs",
+      "bytes": 6712,
+      "sha256": "a3ea0396cac9cf26bae0e43a56262373806e91ae9753a3ad9a5286ee8644486b",
+      "functions": [
+        {
+          "name": "block_",
+          "parameters": [
+            "html",
+            "names"
+          ]
+        },
+        {
+          "name": "clean_",
+          "parameters": [
+            "h"
+          ]
+        },
+        {
+          "name": "autoBlock_",
+          "parameters": [
+            "html"
+          ]
+        },
+        {
+          "name": "bookName_",
+          "parameters": [
+            "html",
+            "host"
+          ]
+        },
+        {
+          "name": "getChapter_",
+          "parameters": [
+            "url",
+            "cfg",
+            "num"
+          ]
+        },
+        {
+          "name": "authorName_",
+          "parameters": [
+            "html"
+          ]
+        },
+        {
+          "name": "genreNames_",
+          "parameters": [
+            "html"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "Reader.html",
+      "bytes": 3069,
+      "sha256": "e68ee8a26d94af9daf93b4293a2cae346a8a0629ff1af2919063ededca58231b",
+      "functions": []
+    },
+    {
+      "path": "ReaderCSS.html",
+      "bytes": 4975,
+      "sha256": "215094966e1ca1d0fea12c77cea36bfcdf844ee8a5c14b72fb358350d5b9a16f",
+      "functions": []
+    },
+    {
+      "path": "ReaderData.gs",
+      "bytes": 4986,
+      "sha256": "a3937cfdafde5e4a69de7110940003a6ce889877458e65bf8584e8d14af2c21d",
+      "functions": [
+        {
+          "name": "readerList_",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "bookOrNull_",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "headLike_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "stripFileHead_",
+          "parameters": [
+            "t",
+            "strict",
+            "bookName"
+          ]
+        },
+        {
+          "name": "readChapterFile_",
+          "parameters": [
+            "bookId",
+            "fileId",
+            "book"
+          ]
+        },
+        {
+          "name": "readChapterCluster_",
+          "parameters": [
+            "bookId",
+            "fileIds"
+          ]
+        },
+        {
+          "name": "regPut_",
+          "parameters": [
+            "bookId",
+            "ids"
+          ]
+        },
+        {
+          "name": "regHas_",
+          "parameters": [
+            "bookId",
+            "fileId"
+          ]
+        },
+        {
+          "name": "fileRegistered_",
+          "parameters": [
+            "bookId",
+            "fileId"
+          ]
+        },
+        {
+          "name": "rpKey_",
+          "parameters": [
+            "bookId"
+          ]
+        },
+        {
+          "name": "saveReadingProgress_",
+          "parameters": [
+            "bookId",
+            "chapterId",
+            "y",
+            "ratio",
+            "t"
+          ]
+        },
+        {
+          "name": "getReadingProgress_",
+          "parameters": [
+            "bookId"
+          ]
+        },
+        {
+          "name": "dropReadingProgress_",
+          "parameters": [
+            "bookId"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "ReaderJS.html",
+      "bytes": 20073,
+      "sha256": "e623cbb1ba620480baff69104dfda11dc5d9301c1bd56039a260a5263c38eb35",
+      "functions": [
+        {
+          "name": "clusterOf",
+          "parameters": [
+            "i"
+          ]
+        },
+        {
+          "name": "clusterRange",
+          "parameters": [
+            "c"
+          ]
+        },
+        {
+          "name": "lastCluster",
+          "parameters": []
+        },
+        {
+          "name": "lsGet",
+          "parameters": [
+            "k",
+            "d"
+          ]
+        },
+        {
+          "name": "lsSet",
+          "parameters": [
+            "k",
+            "v"
+          ]
+        },
+        {
+          "name": "norm",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "rdApply",
+          "parameters": []
+        },
+        {
+          "name": "rdMsg",
+          "parameters": [
+            "t",
+            "bad"
+          ]
+        },
+        {
+          "name": "rdSkel",
+          "parameters": []
+        },
+        {
+          "name": "rdRender",
+          "parameters": [
+            "t"
+          ]
+        },
+        {
+          "name": "rdCache",
+          "parameters": [
+            "id",
+            "r"
+          ]
+        },
+        {
+          "name": "rdShort",
+          "parameters": [
+            "c"
+          ]
+        },
+        {
+          "name": "rdNum",
+          "parameters": [
+            "n"
+          ]
+        },
+        {
+          "name": "rdLabel",
+          "parameters": [
+            "c",
+            "title"
+          ]
+        },
+        {
+          "name": "rdHead",
+          "parameters": [
+            "name",
+            "author"
+          ]
+        },
+        {
+          "name": "rdHome",
+          "parameters": []
+        },
+        {
+          "name": "rdEnter",
+          "parameters": []
+        },
+        {
+          "name": "rdSync",
+          "parameters": []
+        },
+        {
+          "name": "rdScrollFloat",
+          "parameters": []
+        },
+        {
+          "name": "rdClosePops",
+          "parameters": [
+            "keep"
+          ]
+        },
+        {
+          "name": "rdToggleGear",
+          "parameters": []
+        },
+        {
+          "name": "rdSearch",
+          "parameters": []
+        },
+        {
+          "name": "rdPick",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "rdSetList",
+          "parameters": [
+            "rows"
+          ]
+        },
+        {
+          "name": "rdTreeRender",
+          "parameters": []
+        },
+        {
+          "name": "rdToggleTree",
+          "parameters": []
+        },
+        {
+          "name": "rdNavState",
+          "parameters": []
+        },
+        {
+          "name": "rdOpenAt",
+          "parameters": [
+            "id"
+          ]
+        },
+        {
+          "name": "rdAddCluster",
+          "parameters": [
+            "ci"
+          ]
+        },
+        {
+          "name": "rdDropCluster",
+          "parameters": [
+            "ci"
+          ]
+        },
+        {
+          "name": "rdTrimWindow",
+          "parameters": []
+        },
+        {
+          "name": "rdFetchClusters",
+          "parameters": [
+            "idxs"
+          ]
+        },
+        {
+          "name": "rdExtendWindow",
+          "parameters": [
+            "nextC"
+          ]
+        },
+        {
+          "name": "rdPosNow",
+          "parameters": []
+        },
+        {
+          "name": "rdPosSchedule",
+          "parameters": []
+        },
+        {
+          "name": "rdPosCancel",
+          "parameters": []
+        },
+        {
+          "name": "rdPosStore",
+          "parameters": []
+        },
+        {
+          "name": "rdPosFlush",
+          "parameters": []
+        },
+        {
+          "name": "rdRestore",
+          "parameters": [
+            "c",
+            "rs"
+          ]
+        },
+        {
+          "name": "rdLayout",
+          "parameters": []
+        },
+        {
+          "name": "rdShowPage",
+          "parameters": [
+            "n"
+          ]
+        },
+        {
+          "name": "rdPgInfo",
+          "parameters": []
+        },
+        {
+          "name": "rdPage",
+          "parameters": [
+            "d"
+          ]
+        },
+        {
+          "name": "rdSetMode",
+          "parameters": [
+            "m"
+          ]
+        },
+        {
+          "name": "rdLayoutSoon",
+          "parameters": []
+        }
+      ]
+    },
+    {
+      "path": "Scheduler.gs",
+      "bytes": 419,
+      "sha256": "79f9d92213ed56763a413f75409be0f6a115d556cd221f68d6664d9ed70ea597",
+      "functions": [
+        {
+          "name": "autoTick",
+          "parameters": []
+        },
+        {
+          "name": "ensureTrigger_",
+          "parameters": []
+        },
+        {
+          "name": "removeTriggers_",
+          "parameters": []
+        }
+      ]
+    },
+    {
+      "path": "Sidebar.html",
+      "bytes": 1113,
+      "sha256": "47ea1dfa5241b592e1f2c47847a5f004565a6d57a54ffb1823855bdb789283a8",
+      "functions": []
+    },
+    {
+      "path": "Utils.gs",
+      "bytes": 2816,
+      "sha256": "6dd4e991db071c502595757cf8a7ab61807a0aaafd136e63424e83ae4269be6b",
+      "functions": [
+        {
+          "name": "mk_",
+          "parameters": [
+            "type",
+            "msg"
+          ]
+        },
+        {
+          "name": "stamp_",
+          "parameters": []
+        },
+        {
+          "name": "pad_",
+          "parameters": [
+            "n"
+          ]
+        },
+        {
+          "name": "hostOf_",
+          "parameters": [
+            "u"
+          ]
+        },
+        {
+          "name": "safe_",
+          "parameters": [
+            "fn"
+          ]
+        },
+        {
+          "name": "withLock_",
+          "parameters": [
+            "fn"
+          ]
+        },
+        {
+          "name": "tryStartTick_",
+          "parameters": []
+        },
+        {
+          "name": "endTick_",
+          "parameters": []
+        },
+        {
+          "name": "abs_",
+          "parameters": [
+            "href",
+            "base"
+          ]
+        },
+        {
+          "name": "normUrl_",
+          "parameters": [
+            "u"
+          ]
+        },
+        {
+          "name": "decode_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "txt_",
+          "parameters": [
+            "h"
+          ]
+        },
+        {
+          "name": "normName_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "startsFormula_",
+          "parameters": [
+            "s"
+          ]
+        },
+        {
+          "name": "assertNoFormula_",
+          "parameters": [
+            "s",
+            "label"
+          ]
+        },
+        {
+          "name": "cleanName_",
+          "parameters": [
+            "n"
+          ]
+        }
+      ]
+    }
+  ],
+  "apis": [
+    {
+      "name": "api_getState",
+      "parameters": [],
+      "target": "GET /state, dữ liệu lọc theo quyền, phân trang",
+      "permission": "Theo từng nhóm dữ liệu; không trả secret",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_createAndStart",
+      "parameters": [
+        "info"
+      ],
+      "target": "POST /books/from-web",
+      "permission": "download",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_queueAnalyze",
+      "parameters": [
+        "urls"
+      ],
+      "target": "POST /analysis/jobs",
+      "permission": "download",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_dropPending",
+      "parameters": [
+        "url"
+      ],
+      "target": "DELETE /analysis/jobs/:id",
+      "permission": "download",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_analyzeAndHold",
+      "parameters": [
+        "url"
+      ],
+      "target": "Worker analysis job, POST /analysis/jobs/:id/start khi cần",
+      "permission": "download",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_retryAnalyze",
+      "parameters": [
+        "url"
+      ],
+      "target": "POST /analysis/jobs/:id/retry",
+      "permission": "download",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_addChapter",
+      "parameters": [
+        "id",
+        "kind",
+        "f"
+      ],
+      "target": "POST /books/:id/chapters",
+      "permission": "manage; thêm link cần download",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_chapterGroups",
+      "parameters": [
+        "id"
+      ],
+      "target": "GET /books/:id/groups",
+      "permission": "read nếu sách xuất bản; manage/download khi quản trị",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_moveToDownload",
+      "parameters": [
+        "ids"
+      ],
+      "target": "POST /downloads/enqueue",
+      "permission": "download",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_manualAnalyze",
+      "parameters": [
+        "sampleUrl",
+        "total"
+      ],
+      "target": "POST /analysis/manual",
+      "permission": "download",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_tick",
+      "parameters": [],
+      "target": "POST /jobs/wake, nhận job; scheduler xử lý, không tải trong request",
+      "permission": "download cho wake, danh tính worker cho drain",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_setStatus",
+      "parameters": [
+        "id",
+        "action"
+      ],
+      "target": "POST /books/:id/download-actions",
+      "permission": "download; verify chỉ đọc trạng thái cần quyền quản trị sách",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_chapters",
+      "parameters": [
+        "id"
+      ],
+      "target": "GET /books/:id/chapters",
+      "permission": "read nhận chương được phép; manage/download nhận dữ liệu quản trị",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_errorChapters",
+      "parameters": [
+        "id"
+      ],
+      "target": "GET /books/:id/chapter-errors",
+      "permission": "manage hoặc download",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_chapterAction",
+      "parameters": [
+        "id",
+        "num",
+        "action"
+      ],
+      "target": "POST /chapters/:id/actions",
+      "permission": "download cho retry/pause/cancel; manage cho delete",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_editChapter",
+      "parameters": [
+        "id",
+        "num",
+        "url",
+        "title"
+      ],
+      "target": "PATCH /chapters/:id",
+      "permission": "manage; sửa URL kích hoạt tải cần download",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_firstChapterUrls",
+      "parameters": [
+        "ids"
+      ],
+      "target": "GET /books/source-links",
+      "permission": "download hoặc manage",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_addBookFromFile",
+      "parameters": [
+        "filename",
+        "base64",
+        "meta"
+      ],
+      "target": "POST /imports/file",
+      "permission": "manage",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_addBookFromFiles",
+      "parameters": [
+        "tocName",
+        "tocB64",
+        "fileName",
+        "fileB64",
+        "meta"
+      ],
+      "target": "POST /imports/paired-files",
+      "permission": "manage",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_addBookFromFolder",
+      "parameters": [
+        "folderInput",
+        "meta"
+      ],
+      "target": "POST /imports/drive-folder",
+      "permission": "manage",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_saveBook",
+      "parameters": [
+        "id",
+        "f"
+      ],
+      "target": "PATCH /books/:id",
+      "permission": "manage",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_setGenreMany",
+      "parameters": [
+        "ids",
+        "genre"
+      ],
+      "target": "POST /books/bulk-genres",
+      "permission": "manage",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_saveBooksBatch",
+      "parameters": [
+        "items"
+      ],
+      "target": "POST /books/bulk-save",
+      "permission": "manage",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_deleteBook",
+      "parameters": [
+        "id",
+        "trashFolder"
+      ],
+      "target": "DELETE /books/:id, tùy chọn trash_folder",
+      "permission": "manage",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_reorderQueue",
+      "parameters": [
+        "id",
+        "dir"
+      ],
+      "target": "POST /downloads/:id/reorder",
+      "permission": "download",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_saveConfig",
+      "parameters": [
+        "cfg"
+      ],
+      "target": "PATCH /settings",
+      "permission": "admin; có thể tách config vận hành cho download sau",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_saveGenres",
+      "parameters": [
+        "list"
+      ],
+      "target": "PUT /genres",
+      "permission": "manage",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_readerList",
+      "parameters": [
+        "id"
+      ],
+      "target": "GET /books/:id/reader-chapters",
+      "permission": "read và quyền sách",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_readChapter",
+      "parameters": [
+        "bookId",
+        "fileId"
+      ],
+      "target": "GET /chapters/:id/content",
+      "permission": "read và quyền sách",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_readChapterCluster",
+      "parameters": [
+        "bookId",
+        "fileIds"
+      ],
+      "target": "POST /reader/cluster",
+      "permission": "read, kiểm từng chapter, giới hạn count/bytes",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_saveReadingProgress",
+      "parameters": [
+        "bookId",
+        "chapterId",
+        "y",
+        "ratio",
+        "t"
+      ],
+      "target": "PUT /me/progress/:bookId",
+      "permission": "read; chỉ chính mình",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_getReadingProgress",
+      "parameters": [
+        "bookId"
+      ],
+      "target": "GET /me/progress/:bookId",
+      "permission": "read; chỉ chính mình",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_registerRoot",
+      "parameters": [
+        "input"
+      ],
+      "target": "PUT /drive/root",
+      "permission": "admin",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    },
+    {
+      "name": "api_createRoot",
+      "parameters": [
+        "name"
+      ],
+      "target": "POST /drive/root",
+      "permission": "admin",
+      "acceptanceCases": [
+        "Authenticated happy path with schema + resource ownership",
+        "Missing/expired/blocked token and insufficient role rejected",
+        "Invalid input/foreign resource, error and no unauthorized side effect"
+      ],
+      "implementationEvidence": "planned; legacy inventory only"
+    }
+  ],
+  "features": [
+    {
+      "id": "F01",
+      "behavior": "Tự động/thủ công; nhiều URL qua `;` và thêm từng dòng",
+      "source": "Dashboard, JS, BookManager",
+      "phases": "6",
+      "acceptanceCases": [
+        "Nhập một/nhiều URL bằng dấu ; và dòng thêm; phân biệt tự động/thủ công; URL sai không mất ô nhập."
+      ],
+      "baselineCases": [
+        "normalize-book-url",
+        "invalid-book-url"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F02",
+      "behavior": "URL hiện ngay, phân tích tuần tự; thêm mới khi đang phân tích; trả URL về ô khi máy chủ từ chối",
+      "source": "JS, AnalyzeQueue",
+      "phases": "6",
+      "acceptanceCases": [
+        "Máy chủ chậm: dòng chờ xuất hiện trước response; thêm URL khi phân tích đang chạy; reject trả input đúng."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F03",
+      "behavior": "Hàng phân tích bền vững, giữ URL lỗi, thử lại/bỏ; không tự tải truyện ANALYZED",
+      "source": "AnalyzeQueue, Code",
+      "phases": "6",
+      "acceptanceCases": [
+        "Đóng/mở tab vẫn còn queue; lỗi lưu lại; retry chuyển cuối queue; bỏ URL; ANALYZED không tự tải."
+      ],
+      "baselineCases": [
+        "utf8-size-unicode"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F04",
+      "behavior": "Bảng 8 cột: STT, tên, tác giả, thể loại, URL, thư mục, trạng thái, thao tác",
+      "source": "JS, Dashboard",
+      "phases": "6",
+      "acceptanceCases": [
+        "Đối chiếu 8 cột và thao tác theo từng trạng thái; metadata chưa có để trống; link folder đúng."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F05",
+      "behavior": "Metadata JSON-LD/meta/itemprop; selector cấu hình; dò nội dung khi chưa có selector",
+      "source": "Parser, Adapters",
+      "phases": "0, 6",
+      "acceptanceCases": [
+        "JSON-LD/meta/H1, vùng lồng, selector cấu hình, auto fallback và thiếu/quá ngắn: đối chiếu golden."
+      ],
+      "baselineCases": [
+        "decode-entities",
+        "metadata-jsonld",
+        "metadata-fallback",
+        "nested-html-block",
+        "clean-html-no-scripts",
+        "chapter-explicit-selector",
+        "chapter-auto-selector",
+        "chapter-too-short",
+        "chapter-no-content",
+        "site-rules-custom"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F06",
+      "behavior": "Phân trang, URL mẫu; chỉ sinh chương thiếu khi đủ bằng chứng, cảnh báo mục lục không đầy đủ",
+      "source": "ChapterManager, BookManager",
+      "phases": "6",
+      "acceptanceCases": [
+        "Mục lục 2 trang có lặp URL/trang; URL mẫu đúng/sai; giữ cảnh báo, không sinh URL không chứng minh."
+      ],
+      "baselineCases": [
+        "relative-url",
+        "discover-paged",
+        "discover-broken-pagination",
+        "discover-missing-chapters",
+        "verified-gap-template",
+        "inconsistent-gap-template"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F07",
+      "behavior": "Quyển/Phần, chương `1-2`, mục lục trộn; phân tích lại thêm chương thiếu, không mất file cũ",
+      "source": "ChapterManager, BookManager",
+      "phases": "6, 7",
+      "acceptanceCases": [
+        "Mixed volume/flat và chương 1-2 đúng thứ tự/nhãn; reanalyze chỉ thêm thiếu, không mất IDs/file/progress."
+      ],
+      "baselineCases": [
+        "title-two-level",
+        "chapter-number-27",
+        "chapter-number-28",
+        "chapter-number-29",
+        "volume-display-number",
+        "discover-mixed",
+        "filename-56",
+        "filename-57",
+        "filename-58"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F08",
+      "behavior": "Chuyển một/tất cả truyện đã phân tích xuống tải; giới hạn số truyện tải, đổi thứ tự hàng chờ",
+      "source": "AnalyzeQueue, BookManager",
+      "phases": "7",
+      "acceptanceCases": [
+        "Chuyển một/tất cả ANALYZED; cap đầy vào IDLE; đổi thứ tự giữ fairness."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F09",
+      "behavior": "Tách hai pipeline FILE và WEB, cap riêng; trạng thái ANALYZED/IDLE/READY/DOWNLOADING/PAUSED/ERROR/COMPLETED",
+      "source": "Downloader, Scheduler",
+      "phases": "7",
+      "acceptanceCases": [
+        "Hai pipeline FILE/WEB cap độc lập; FOLDER không có URL job; đúng mọi transition sách/chương."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F10",
+      "behavior": "Tạm dừng/tiếp tục/thử lại; tải nền khi đóng tab, auto resume cấu hình được",
+      "source": "Downloader, BookManager",
+      "phases": "7",
+      "acceptanceCases": [
+        "Đóng tab vẫn tải nền; pause ở ranh giới batch; start/retry; AUTO_RESUME=false dừng tự tiếp tục."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F11",
+      "behavior": "Retry HTTP, DELAY_MS, cookie theo website; báo 401/403/429/5xx phù hợp",
+      "source": "Downloader, Config",
+      "phases": "7",
+      "acceptanceCases": [
+        "401/403 không retry vô hạn; 429 Retry-After; 5xx retry budget; delay/cookie đúng domain."
+      ],
+      "baselineCases": [
+        "legacy-cookie-substring"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F12",
+      "behavior": "Khôi phục file tạo dở, không tải trùng; verify file mất; FOLDER không thành việc tải mạng",
+      "source": "DriveManager, Downloader, BookManager",
+      "phases": "3, 7",
+      "acceptanceCases": [
+        "Tạo file xong rồi lỗi DB; chạy lại không duplicate; verify file mất; FOLDER không thành WEB."
+      ],
+      "baselineCases": [
+        "filename-56",
+        "filename-57",
+        "filename-58"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F13",
+      "behavior": "Giám sát tác vụ, lọc nhóm, tiến độ, làm mới và thao tác từng tác vụ",
+      "source": "JS, Dashboard",
+      "phases": "7",
+      "acceptanceCases": [
+        "Monitor tổng và filters chờ/phân tích/tải/pause/error khớp DB; refresh và từng thao tác đúng quyền."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F14",
+      "behavior": "Danh sách chương/chương lỗi; retry/cancel/pause/delete, sửa URL/tiêu đề",
+      "source": "BookManager, JS, Modals",
+      "phases": "5, 7",
+      "acceptanceCases": [
+        "Retry/cancel/pause/delete từng chương, sửa URL/title, count và quyền; DONE bỏ qua không đọc như có file."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F15",
+      "behavior": "Tự bỏ đoạn lỗi rỗng/quá ngắn theo `emptyRuns_`; giữ đoạn dài/cận cuối, không đánh lại số khi xóa",
+      "source": "Downloader",
+      "phases": "7",
+      "acceptanceCases": [
+        "Một đến ba ERROR rỗng giữa DONE bị bỏ; bốn liên tiếp/cuối sách giữ; không renumber."
+      ],
+      "baselineCases": [
+        "chapter-too-short",
+        "chapter-no-content",
+        "empty-runs-63",
+        "empty-runs-64",
+        "empty-runs-65"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F16",
+      "behavior": "`_Chương lỗi đã xóa.txt` ghi thời điểm, nhóm, số hiệu, tiêu đề, URL, lý do; chỉ ghi đúng trường hợp",
+      "source": "ChapterTools",
+      "phases": "5, 7",
+      "acceptanceCases": [
+        "Append log cho tự xóa/xóa chương lỗi; group/số hiệu/lý do đầy đủ; không ghi cho xóa DONE."
+      ],
+      "baselineCases": [
+        "removed-log-line",
+        "removed-log-empty-fields"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F17",
+      "behavior": "Nhập TXT/MD/Markdown/CSV, Chương/Hồi tiếng Việt, lời tựa",
+      "source": "Importer, Cleaner",
+      "phases": "5",
+      "acceptanceCases": [
+        "TXT/MD/CSV quoting/newline, duplicate chapter, Hồi tiếng Việt và lời tựa; lỗi không có heading."
+      ],
+      "baselineCases": [
+        "ordinal-7",
+        "ordinal-8",
+        "ordinal-9",
+        "ordinal-10",
+        "hoi-heading-inline",
+        "strip-toolbar-and-junk",
+        "import-chapters.txt",
+        "import-chapters.md",
+        "import-chapters.csv",
+        "import-hoi.txt",
+        "import-no-headings",
+        "preamble-document"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F18",
+      "behavior": "Cặp mục lục + truyện có marker `#@`, `##@`, `###@`, `@`, `00`; ghép/chỉ rõ thiếu và thừa",
+      "source": "Importer, ManagerJS",
+      "phases": "5",
+      "acceptanceCases": [
+        "Marker Phần/Quyển, preamble; ghép thiếu/thừa và fallback theo index; không mất nội dung ngoài mục lục."
+      ],
+      "baselineCases": [
+        "marked-paired-merge",
+        "marked-malformed"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F19",
+      "behavior": "Nhập thư mục Drive: nhận diện tên file, bỏ file phụ, đếm skipped; mỗi folder một truyện",
+      "source": "Importer, DriveManager",
+      "phases": "5",
+      "acceptanceCases": [
+        "Import folder với tên chương đa dạng, file phụ và duplicate số; giữ skipped và folder uniqueness."
+      ],
+      "baselineCases": [
+        "folder-name-44",
+        "folder-name-45",
+        "folder-name-46",
+        "folder-name-47",
+        "folder-name-48",
+        "folder-name-49",
+        "folder-name-50"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F20",
+      "behavior": "Nhập dài lưu tạm `_import.json`, tạo chương theo đợt, hoàn tất mới dọn dữ liệu tạm",
+      "source": "Importer, Downloader",
+      "phases": "5, 7",
+      "acceptanceCases": [
+        "Import dài checkpoint ở từng batch; _import.json còn khi chưa xong; hoàn tất mới dọn."
+      ],
+      "baselineCases": [
+        "chapter-document"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F21",
+      "behavior": "Thêm chương từ link/file/dán; chọn/tạo nhóm và thứ tự; cấm trùng; FILE không thêm từ link",
+      "source": "ChapterTools, Modals",
+      "phases": "5",
+      "acceptanceCases": [
+        "Thêm link/file/paste; nhóm mới/cũ/rỗng, chèn giữa, số trùng; FILE không thêm từ link."
+      ],
+      "baselineCases": [
+        "insert-between-group-chapters",
+        "duplicate-group-display-number",
+        "flat-chapter-inside-volume",
+        "invalid-chapter-order",
+        "max-chapter-order"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F22",
+      "behavior": "Nội dung chủ động thêm ngắn vẫn được nhận; giới hạn file/text đúng baseline",
+      "source": "ChapterTools, ManagerJS",
+      "phases": "5",
+      "acceptanceCases": [
+        "Nội dung tự thêm ngắn được nhận; >300000 ký tự hoặc >2000000 byte bị chặn, message rõ."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F23",
+      "behavior": "Thư viện bảng/lưới mặc định lưới; tìm không dấu, sắp xếp, phân trang, trạng thái, đọc tiếp",
+      "source": "ManagerJS, Manager, Utils",
+      "phases": "4, 5",
+      "acceptanceCases": [
+        "Grid mặc định/table, tìm không dấu tên/tác giả, sort/page; reload nhớ lựa chọn theo user."
+      ],
+      "baselineCases": [
+        "normalize-vietnamese"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F24",
+      "behavior": "Tên duy nhất sau chuẩn hóa; sửa tác giả/thể loại; rename/move folder theo thể loại chính",
+      "source": "BookManager, DriveManager",
+      "phases": "5",
+      "acceptanceCases": [
+        "Tên khác dấu/hoa là trùng; rename/move theo primary genre; lỗi Drive có trạng thái repair rõ."
+      ],
+      "baselineCases": [
+        "normalize-vietnamese",
+        "sanitize-filename",
+        "formula-input-rejected"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F25",
+      "behavior": "Quản lý thể loại, nhiều thể loại, thể loại chính, nhập danh mục từ sách; bỏ danh mục không mất thể loại sách",
+      "source": "Config, JS, Modals",
+      "phases": "5",
+      "acceptanceCases": [
+        "Multi-genre/primary, nhập từ sách; xóa danh mục không mất metadata; tên normalize trùng loại."
+      ],
+      "baselineCases": [
+        "genre-normalization"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F26",
+      "behavior": "Quản lý sách lưu tạm nhiều bản nháp, Lưu tất cả, giữ mục lỗi; ở Tải sách lưu ngay; cảnh báo rời trang",
+      "source": "ManagerJS, JS",
+      "phases": "5, 6",
+      "acceptanceCases": [
+        "Sửa hai draft rồi Save all, một lỗi giữ lại; cảnh báo rời trang; màn Tải sách lưu ngay."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F27",
+      "behavior": "Gán thể loại cả bảng ANALYZED, lỗi từng truyện không làm mất kết quả khác",
+      "source": "BookManager, JS",
+      "phases": "6",
+      "acceptanceCases": [
+        "Bulk genre chỉ ANALYZED; lỗi từng item không mất success khác; kiểm quyền manage."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F28",
+      "behavior": "Xóa truyện có lựa chọn đưa folder vào thùng rác; dọn queue/progress, chống worker ghi lại sách đã xóa",
+      "source": "BookManager, Downloader",
+      "phases": "5, 7",
+      "acceptanceCases": [
+        "Delete khi worker chạy: không resurrect; option trash; dọn queue/progress; file ngoài ownership không xóa."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F29",
+      "behavior": "Đọc chương DONE có file, cây Phần/Quyển, dropdown và chương trước/sau; xử lý sách bị xóa",
+      "source": "ReaderData, ReaderJS",
+      "phases": "4",
+      "acceptanceCases": [
+        "Reader chỉ DONE có file của sách được đọc, cây/dropdown nhóm/lời tựa; hidden/deleted/cache không bypass quyền."
+      ],
+      "baselineCases": [
+        "reader-strip-generated-header",
+        "reader-preserve-unmatched-folder-header",
+        "legacy-cache-before-file-permission"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F30",
+      "behavior": "Cuộn/lật trang, click mép, vuốt, phím, chuyển chương ở ranh giới; resize/font giữ vị trí",
+      "source": "ReaderJS, ReaderCSS",
+      "phases": "4",
+      "acceptanceCases": [
+        "Scroll/page, swipe/keys/edge click, biên chương, font/resize/rotate giữ vị trí."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F31",
+      "behavior": "4 phông và hệ số cỡ chữ, A-/A+, ngày/đêm, 4 mức lọc xanh",
+      "source": "ReaderJS, Reader, Index",
+      "phases": "4",
+      "acceptanceCases": [
+        "Bốn font hệ số, size, ngày/đêm, bốn mức blue; giá trị cấu hình lạ trở mặc định."
+      ],
+      "baselineCases": [
+        "strip-toolbar-and-junk"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F32",
+      "behavior": "Cụm đọc 5 chương, tải trước 2 chương cuối, giữ 2 cụm; batch tối đa 40 và giới hạn byte",
+      "source": "ReaderJS, ReaderData",
+      "phases": "4",
+      "acceptanceCases": [
+        "Cụm 5, prefetch ở hai chương cuối, giữ tối đa hai cụm; batch tối đa 40; giới hạn byte mới được test riêng."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F33",
+      "behavior": "Lưu vị trí local và server, debounce, gửi khi ẩn tab, hỏi tiếp tục khi thiết bị khác mới hơn",
+      "source": "ReaderJS, ReaderData",
+      "phases": "4",
+      "acceptanceCases": [
+        "Hai thiết bị/clock lệch, khôi phục local/server, tab hide và chương khác hỏi continue; không stale overwrite."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F34",
+      "behavior": "Bìa chữ tự sinh khi chưa có ảnh, tiến độ/Đọc tiếp trên thẻ",
+      "source": "ManagerJS",
+      "phases": "4, 5",
+      "acceptanceCases": [
+        "Bìa chữ fallback, status badge, progress user và Read continue đúng chương đã đọc."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F35",
+      "behavior": "Dark Glass, sidebar thu gọn, responsive, skeleton, toast, modal chồng, Esc/Tab và trợ giúp `?`",
+      "source": "CSS, JS, Modals, Sidebar",
+      "phases": "1, 4–7",
+      "acceptanceCases": [
+        "Dark Glass/sidebar/help/toast/modal focus/Esc/Tab/skeleton, mobile không tràn ngang ngoài vùng cuộn chủ ý."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F36",
+      "behavior": "Đăng ký/tạo thư mục gốc, cấu hình batch/delay/retry/concurrent/auto resume/junk/rules/cookie",
+      "source": "DriveManager, Config, JS",
+      "phases": "3, 5, 7",
+      "acceptanceCases": [
+        "Root create/register đủ quyền; defaults/limits config; không trả cookie hoặc secrets cho reader."
+      ],
+      "baselineCases": [
+        "junk-inline",
+        "site-rules-custom",
+        "site-rules-invalid-selector",
+        "legacy-domain-substring"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F37",
+      "behavior": "`info.txt` đúng bốn mục, nguồn trống với FILE/FOLDER; tạo/cập nhật không trùng; bỏ qua khi scan",
+      "source": "DriveManager, Importer, tests",
+      "phases": "3, 5, 7",
+      "acceptanceCases": [
+        "Bốn heading, Unicode và link rỗng FILE/FOLDER; update/no-change/trashed/restart; import không tính info là chương."
+      ],
+      "baselineCases": [
+        "folder-name-44",
+        "folder-name-45",
+        "folder-name-46",
+        "folder-name-47",
+        "folder-name-48",
+        "folder-name-49",
+        "folder-name-50",
+        "info-full",
+        "info-file-source-blank",
+        "info-update-no-duplicate"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "F38",
+      "behavior": "Nhật ký tải, import, sửa, phục hồi và lỗi; lỗi tiếng Việt phân loại rõ",
+      "source": "Logger, Utils",
+      "phases": "1, 5–7",
+      "acceptanceCases": [
+        "Audit actor/action/result và timestamp; lỗi tiếng Việt; không log cookie/token; query logs có quyền."
+      ],
+      "baselineCases": [
+        "removed-log-line"
+      ],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "N01",
+      "behavior": "Google đăng nhập, tự tạo reader, vào đọc ngay, logout và tài khoản bị khóa",
+      "source": "Mới",
+      "phases": "2",
+      "acceptanceCases": [
+        "Google lần đầu tạo reader và redirect /read; login lại/session expiry/logout/blocked có E2E thật."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "N02",
+      "behavior": "Quyền độc lập đọc/tải/quản lý/admin; kiểm cả API và database",
+      "source": "Mới",
+      "phases": "2, 5–7",
+      "acceptanceCases": [
+        "Các tổ hợp read/download/manage/admin, direct API/URL và RLS; reader không tự cấp quyền."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "N03",
+      "behavior": "Upload/preview/thay/xóa ảnh bìa; bìa mặc định; lưu Drive File ID",
+      "source": "Mới + thẻ sách cũ",
+      "phases": "5",
+      "acceptanceCases": [
+        "Ảnh validate/upload/preview/staged Save all/cancel/replace/remove/fallback; lỗi không mất bìa đang dùng."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    },
+    {
+      "id": "N04",
+      "behavior": "Tiến độ và cài đặt riêng từng người, không lộ/copy dữ liệu giữa tài khoản",
+      "source": "ReaderJS chuyển đổi",
+      "phases": "2, 4",
+      "acceptanceCases": [
+        "Hai user dùng cùng browser; cache/progress/preferences tách user; không chuyển progress owner cho user mới."
+      ],
+      "baselineCases": [],
+      "implementationEvidence": "planned; not executed against the new app"
+    }
+  ],
+  "legacyInfoTest": {
+    "path": "tests/book-info.test.js",
+    "sha256": "09a8305bf75755ebd96f68ee8c8cd06abff8c518321e693d841fa74643e01cd7",
+    "cases": 10
+  },
+  "limits": {
+    "chapterOrderMax": 99999,
+    "manualAnalyzeMaxChapters": 20000,
+    "discoveryMaxPages": 300,
+    "chapterNetworkMinCharacters": 50,
+    "chapterPasteMaxCharacters": 300000,
+    "chapterFileMaxBytes": 2000000,
+    "siteRulesMaxCharacters": 2000,
+    "genresMax": 500,
+    "analysisQueueMaxBytes": 8800,
+    "analysisUrlMaxCharacters": 500,
+    "analysisMoveMaxBooks": 200,
+    "analysisErrorMaxCharacters": 80,
+    "analysisErrorMaxRows": 50,
+    "readerBatchMaxChapters": 40,
+    "readerClusterChapters": 5,
+    "readerRetainedClusters": 2,
+    "readerCacheTTLSeconds": 21600,
+    "emptyRunMax": 3,
+    "defaults": {
+      "ROOT_FOLDER": "TRUYEN_DOWNLOADER",
+      "ROOT_FOLDER_ID": "",
+      "BATCH_SIZE": 5,
+      "DELAY_MS": 800,
+      "MAX_RETRY": 3,
+      "MAX_CONCURRENT": 2,
+      "FILE_TYPE": "TXT",
+      "ENCODING": "UTF-8",
+      "AUTO_RESUME": "TRUE",
+      "JUNK_WORDS": "truyen full, truyenfull, truyenfullvn, truyenfulllive, truyenfull vn",
+      "SITE_COOKIES": "",
+      "SITE_RULES": "",
+      "GENRES": "[]"
+    }
+  },
+  "notes": [
+    "Manual/discovery limits and browser constants checked against source; source hashes pin exact evidence.",
+    "42 feature groups have planned acceptance cases, not 42 executed E2E tests.",
+    "No production library or credential exported."
+  ]
+}
