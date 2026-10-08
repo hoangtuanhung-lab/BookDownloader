@@ -5,6 +5,8 @@
 [build.environment]
   NODE_VERSION = "24.19.0"
   NPM_VERSION = "11.9.0"
+  # The project URL is public and also used by the browser. Keep scanning all credentials.
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL"
 [functions]
   node_bundler = "esbuild"
 [context.deploy-preview.environment]

@@ -440,7 +440,8 @@ Các mục bên dưới là **nghiệm thu trên dữ liệu/dịch vụ thật*
 
 - [x] Đọc hai plan/Phase 9, kiểm binding names/presence, chuẩn bị [hướng dẫn staging](docs/phase-10/README.md); đã có URL Netlify/Supabase do chủ dự án cung cấp, Google provider báo đã cấu hình; credentials/API/login thật chưa xác minh.
 - [ ] 10A: project Supabase/site Netlify staging riêng, free tier; cấu hình secrets đúng nơi, ghi URLs/revision, không bật billing.
-- [x] Chuẩn bị [bootstrap SQL cho schema mới](docs/phase-10/staging-bootstrap.sql), đủ 23 checksum/transaction/fresh-target guard; 4/4 kiểm tra local, chưa chạy SQL trên Supabase.
+- [x] Chuẩn bị [bootstrap SQL cho schema mới](docs/phase-10/staging-bootstrap.sql), đủ 23 checksum/transaction/fresh-target guard; 4/4 kiểm tra local; chủ dự án báo đã chạy SQL trên Supabase, kết quả ledger/API chưa xác minh.
+- [x] Sửa false positive Netlify secret scan: ngoại lệ chỉ `SUPABASE_URL` công khai, giữ quét credentials; TOML/bundle local đạt, chờ redeploy thật.
 - [ ] 10B: 23 migrations + checksum ledger có review, Supabase RLS/RPC thật; Google OAuth/login/session/roles và Netlify health/version/SPA/CSP.
 - [ ] 10C: Drive owner/scopes/root staging, info/bìa/import; worker cùng SHA, finite download/retry/maintenance, chưa bật scheduler khi chưa kiểm.
 - [ ] 10D: backup DB + bytes/restore/rollback staging, mobile/đo quota-chi phí và báo cáo kết quả thật.

@@ -2,7 +2,7 @@
 
 Plan ban đầu gồm Phase 0–9. Phase 10 bổ sung bước kiểm dịch vụ thật đã hoãn theo yêu cầu local-first, dùng bản đóng code Phase 9. Đây là staging với project/database/thư mục Drive riêng; production và nghiệm thu chuyển thư viện vẫn thuộc gate Phase 9.
 
-**Trạng thái 09/10/2026:** chủ dự án đã cung cấp site `https://bookdownloader.netlify.app` và project `https://ofgqwopjncdvrpeynuhf.supabase.co`, báo đã cấu hình Google provider. Truy vấn schema trả NULL; đã chuẩn bị bootstrap SQL cho database mới. Chưa xác minh đăng nhập hoặc deploy/API end-to-end; proxy workspace đang chặn domain và đề xuất allowlist mới chỉ được lưu trong draft. Không dùng lỗi proxy để kết luận website bị lỗi. Drive/server credentials chưa được kiểm chứng. Kết quả 495/495 của Phase 9 là bằng chứng local, không phải kết quả Phase 10. Không thay version ứng dụng hoặc mã đã đóng chỉ để thêm tài liệu.
+**Trạng thái 09/10/2026:** chủ dự án đã cung cấp site `https://bookdownloader.netlify.app` và project `https://ofgqwopjncdvrpeynuhf.supabase.co`, báo đã cấu hình Google provider. Truy vấn schema ban đầu trả NULL; chủ dự án đã báo chạy xong bootstrap SQL. Deploy Netlify bị secret scan coi URL công khai là secret; đã thêm ngoại lệ chỉ SUPABASE_URL, chờ redeploy xác minh. Chưa xác minh đăng nhập hoặc deploy/API end-to-end; proxy workspace đang chặn domain và đề xuất allowlist mới chỉ được lưu trong draft. Không dùng lỗi proxy để kết luận website bị lỗi. Drive/server credentials chưa được kiểm chứng. Kết quả 495/495 của Phase 9 là bằng chứng local, không phải kết quả Phase 10. Không thay version ứng dụng hoặc mã đã đóng chỉ để thêm tài liệu.
 
 ## 10A — Tạo staging và cấu hình
 
@@ -23,6 +23,10 @@ Plan ban đầu gồm Phase 0–9. Phase 10 bổ sung bước kiểm dịch vụ
 | NETLIFY_AUTH_TOKEN / NETLIFY_SITE_ID | CLI deploy staging nếu cần | Token ở Environment Settings, site ID phải đúng staging |
 
 Đối với biến của workspace Codex, nhập trong Environment Settings; đối với build/functions/worker, nhập tại dashboard hoặc secret manager tương ứng. Workspace có biến không đồng nghĩa Netlify/worker đã nhận cấu hình. Không bật production acceptance checkbox để deploy staging.
+
+### Netlify báo secret scan với SUPABASE_URL
+
+`SUPABASE_URL` là URL project công khai, cùng giá trị frontend dùng qua `VITE_SUPABASE_URL`; không phải service-role key. `netlify.toml` đặt `SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL"` để bỏ false positive cho đúng biến URL này. Quét service-role key/Drive credentials/tokens/cookies vẫn bật; không đặt `SECRETS_SCAN_ENABLED=false` hoặc bỏ quét toàn bộ thư mục. Trong Netlify dashboard, URL cũng có thể đánh dấu là biến không chứa secret. Redeploy commit mới có cấu hình này; thành công cần kiểm log Netlify thật.
 
 ## Chạy schema lần đầu bằng SQL Editor
 
