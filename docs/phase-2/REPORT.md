@@ -26,6 +26,7 @@
 | Typecheck/build/bundle | Đạt; service role sentinel không xuất hiện trong browser assets |
 | Docker worker rebuild/run | Build và readiness exit 0; vẫn skeleton Phase 1, chưa nhận jobs |
 | npm audit | 0 vulnerabilities tại lần kiểm |
+| Clone sạch + database mới | `npm ci`, `npm run check`, các bộ SQL/concurrency/browser và kiểm bundle đều đạt; tổng 256/256, working tree sạch |
 
 Tổng **256/256** kiểm tra tự động đạt, không skip. N01/N02 và foundation N04 có bằng chứng local; nội dung đọc, Drive cache/drafts thực tế cần tích hợp ở Phase 3–5. Test mới không sửa expected goldens/source legacy để làm cho port đạt.
 
@@ -39,6 +40,6 @@ Auth transport tests kiểm gọi `/auth/v1/user`, service-only RPC, invalid/exp
 - Reader hiện tới `/read` và kiểm quyền; chưa đọc nội dung thật. Quản lý/tải sách vẫn placeholder Phase 5–7, không báo thành công giả.
 - Không có Drive OAuth/token trong luồng login; chưa tạo ảnh bìa, worker business handlers hoặc migration thư viện thật.
 - CI đã cập nhật nhưng chưa xác nhận remote Actions/Netlify preview chạy. Chưa publish lại môi trường cloud.
-- Thử lưu `start_skill` mới hai lần bị backend trả `INVALID_ARGUMENT`, persistence chưa xác nhận; hướng dẫn Phase 2 đã lưu trong repo. Install script Phase 1 vẫn dùng npm ci/check và phù hợp dependency lockfile mới. Không nói draft đã lưu thành công.
+- Thử lưu `start_skill` mới hai lần bị backend trả `INVALID_ARGUMENT`. Đọc lại draft thấy revision 1 vẫn là hướng dẫn Phase 1, chưa có Phase 2; hướng dẫn Phase 2 đã lưu trong repo. Install script Phase 1 vẫn dùng npm ci/check và phù hợp dependency lockfile mới. Draft cloud chưa cập nhật thành công.
 
 Các giới hạn source/gate khác của Phase 0–1 tiếp tục áp dụng. Không đánh dấu toàn bộ Phase 2 hoàn tất staging bằng kết quả mock/local.
