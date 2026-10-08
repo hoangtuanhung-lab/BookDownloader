@@ -1,0 +1,69 @@
+{
+  "synthetic": true,
+  "environment": "Local PostgreSQL + memory Drive/HTTP; no Google/Netlify/Supabase cloud requests",
+  "thresholds": {
+    "importMs": 120000,
+    "pageP95Ms": 500,
+    "readMs": 500,
+    "rssMiB": 512,
+    "queueMs": 30000,
+    "warmFileReads": 0
+  },
+  "passed": true,
+  "measurements": [
+    {
+      "books": 14,
+      "chapters": 126,
+      "mixed": true,
+      "importMs": 138.8776479999999,
+      "rerunMs": 10.252276000000165,
+      "pageCount": 2,
+      "pageP95Ms": 14.080019999999877,
+      "coldReadMs": 6.0787840000000415,
+      "warmReadMs": 1.1197790000001078,
+      "coldMockFileReads": 1,
+      "warmMockFileReads": 0
+    },
+    {
+      "books": 100,
+      "chapters": 20000,
+      "mixed": false,
+      "importMs": 14691.464243,
+      "rerunMs": 423.0552399999997,
+      "pageCount": 6,
+      "pageP95Ms": 20.658158999998705,
+      "coldReadMs": 4.44248399999924,
+      "warmReadMs": 0.6586400000014692,
+      "coldMockFileReads": 1,
+      "warmMockFileReads": 0
+    },
+    {
+      "books": 1,
+      "chapters": 20000,
+      "mixed": false,
+      "importMs": 37514.82907,
+      "rerunMs": 467.421795000002,
+      "pageCount": 101,
+      "pageP95Ms": 8.802545999998983,
+      "coldReadMs": 3.5679759999984526,
+      "warmReadMs": 0.8377540000001318,
+      "coldMockFileReads": 1,
+      "warmMockFileReads": 0
+    }
+  ],
+  "peakProcessRssMiB": 360.36328125,
+  "queue": {
+    "done": 20,
+    "passes": 2,
+    "queueMs": 284.66453000000183,
+    "chaptersPerSecond": 70.25813858860417,
+    "mockFetches": 20
+  },
+  "cloud": {
+    "driveQuota": null,
+    "netlifyCompute": null,
+    "supabaseEgress": null,
+    "cost": null,
+    "reason": "Deferred until code closure; local timings do not establish cloud capacity or pricing"
+  }
+}

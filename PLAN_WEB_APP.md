@@ -1,8 +1,8 @@
 # Kế hoạch chuyển Trình tải truyện sang web app Netlify
 
-- Bản kế hoạch: 0.8 — 08/10/2026 (Phase 0–7 local; cloud để sau khi đóng code).
+- Bản kế hoạch: 0.9 — 08/10/2026 (Phase 0–8 local; cloud để sau khi đóng code).
 - Baseline: Apps Script V1.59.2 tại commit `aae3c570286edac1db5ca355cbce40f5108d0a10` (mã info.txt được thêm ở `18d1b1e`); đọc `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md`, 29 file mã nguồn và bộ kiểm thử `tests/book-info.test.js` để đối chiếu khi triển khai.
-- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3 đã triển khai adapter/API/migration nền và kiểm chứng local; Phase 4 đã triển khai thư viện/reader và kiểm chứng local; Phase 5 đã có quản lý/import/bìa và executor tối thiểu; Phase 6 đã có analysis/checkpoint/bảng 8 cột, kiểm chứng local; Phase 7 đã có worker tải WEB/FILE, cap riêng, resume/fencing, monitor và kiểm chứng local; Phase 8–9 chưa triển khai. Xem [báo cáo Phase 7](docs/phase-7/REPORT.md). Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 5](docs/phase-5/REPORT.md), [báo cáo Phase 6](docs/phase-6/REPORT.md). Xem [báo cáo Phase 4](docs/phase-4/REPORT.md). Xem [báo cáo Phase 3](docs/phase-3/REPORT.md). Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
+- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3 đã triển khai adapter/API/migration nền và kiểm chứng local; Phase 4 đã triển khai thư viện/reader và kiểm chứng local; Phase 5 đã có quản lý/import/bìa và executor tối thiểu; Phase 6 đã có analysis/checkpoint/bảng 8 cột, kiểm chứng local; Phase 7 đã có worker tải WEB/FILE, cap riêng, resume/fencing, monitor và kiểm chứng local; Phase 8 đã có công cụ migration/verify/backup-restore/load/parity local; gate đầy đủ còn mở (FILE/queue/root/delta và dịch vụ thật). Phase 9 chưa triển khai. Xem [báo cáo Phase 8](docs/phase-8/REPORT.md). Xem [báo cáo Phase 7](docs/phase-7/REPORT.md). Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 5](docs/phase-5/REPORT.md), [báo cáo Phase 6](docs/phase-6/REPORT.md). Xem [báo cáo Phase 4](docs/phase-4/REPORT.md). Xem [báo cáo Phase 3](docs/phase-3/REPORT.md). Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
 - Mục tiêu: giữ toàn bộ hành vi nghiệp vụ đang có, thêm đăng nhập Google, phân quyền nhiều người và ảnh bìa; Google Drive chỉ lưu file, PostgreSQL là nguồn dữ liệu chính.
 - Cách làm: trước mỗi thay đổi mã, đọc plan cũ và plan này, xác định mã chức năng/phase, cập nhật checklist và bằng chứng kiểm thử sau khi làm. Tài liệu có nội dung lệch mã thì đối chiếu mã thật và ghi rõ chênh lệch, không lấy kết quả lịch sử làm kết quả mới.
 
@@ -385,6 +385,17 @@ Phase 0 đã có bằng chứng bên dưới; Phase 1 có nền local bên dư�
 ### Phase 8 — Chuyển dữ liệu thật và kiểm tra toàn bộ tương đương
 
 **Phụ thuộc:** 4–7. **Đầu ra:** staging giống thư viện thật, báo cáo đối chiếu từng Fxx.
+
+**Triển khai local 08/10/2026:** [hướng dẫn](docs/phase-8/README.md), [report](docs/phase-8/REPORT.md), [42 nhóm/34 API và gaps](docs/phase-8/PARITY.md). Các checkbox nghiệm thu đầy đủ dưới đây vẫn mở; local fixtures không thay thư viện và dịch vụ thật.
+
+- [x] Exporter read-only tách private state/LOG/UserProperties và browser export progress chủ động; không chuyển credentials vào report chung.
+- [x] Import PostgreSQL local rỗng có transaction/checksum/ID map; rerun không duplicate/overwrite/resurrect. Inventory/root và ngày/order/status sai bị chặn.
+- [x] Owner verified/bootstrap binding, private mặc định, DONE-no-file chỉ skipped có xác nhận; paused jobs không lease cũ.
+- [x] Chặn API start/retry/verify và worker/outbox ghi sách nhập trước review; review server-only cần hashes và owner checksum.
+- [x] Verify mọi file chương trong backup local, hash/size/path/symlink; pg_dump/restore thực tế trên database disposable.
+- [x] Đo ba workload Phase 0, cold/warm riêng, phân trang 20.000 chương, RSS process và finite worker fixture theo ngưỡng đặt trước; không suy chi phí/quota cloud.
+- [x] Mapping F01–F38/N01–N04 và 34 API, hồi quy local; ghi gaps root UI/API, FILE pending/queue/log/config/delta, auth thật và accessibility audit còn mở.
+
 
 - [ ] Export CONFIG/BOOKS/CHAPTERS/LOG, Script Properties DB_ID/ANA_QUEUE/FLD_/IMP_/DEL_, và tiến độ owner bằng cơ chế có quyền; secrets tách khỏi export phổ thông.
 - [ ] Migration idempotent theo legacy IDs/checksum; preserve URLs/author/genre/date/status/file/group/order/display labels. Unknown statuses và dữ liệu corrupt phải report, không âm thầm loại.

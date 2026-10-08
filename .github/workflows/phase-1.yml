@@ -37,6 +37,7 @@ jobs:
       - run: npm run test:storage:db
       - run: npm run test:reader:db
       - run: npm run test:management:db
+      - run: npm run test:migration:load
       - run: npm run test:download:db
       - run: npm run test:auth:concurrency
       - run: npm run db:migrate # Check repeatability.

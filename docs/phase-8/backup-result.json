@@ -1,0 +1,9 @@
+{
+  "synthetic": true,
+  "engine": "PostgreSQL pg_dump/pg_restore",
+  "restored": true,
+  "dumpSha256": "c8af334c4c412d6e817c2974941ec6e02fcea286ef7cff61ed836dc9ee6c57d3",
+  "driveFilesBackedUp": false,
+  "checkedTables": 8,
+  "permissionsRestored": true
+}

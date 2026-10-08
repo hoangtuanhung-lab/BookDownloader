@@ -33,6 +33,7 @@ export function createAuthServices(env:NodeJS.ProcessEnv):AuthServices {
     const code=body?.code;
     if(code==='42501')throw new AppError('FORBIDDEN',403,'Tài khoản bị khóa hoặc không có quyền');
     if(code==='P0002')throw new AppError('NOT_FOUND',404,'Không tìm thấy dữ liệu');
+    if(code==='55000')throw new AppError('CONFLICT',409,'Cần đối soát dữ liệu chuyển từ dự án cũ trước khi tiếp tục');
     if(code==='23514'||code==='23505'||code==='40001')throw new AppError('CONFLICT',409,'Dữ liệu đã thay đổi hoặc cần giữ quản trị viên cuối cùng');
     if(code==='22023')throw new AppError('INVALID_INPUT',400,'Dữ liệu không hợp lệ');
     throw new AppError('DATABASE_UNAVAILABLE',503,'Không xử lý được yêu cầu');

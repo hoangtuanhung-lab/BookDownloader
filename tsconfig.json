@@ -28,6 +28,7 @@
     "tests/phase-4/**/*.ts",
     "tests/phase-5/**/*.ts",
     "tests/phase-6/**/*.ts",
-    "tests/phase-7/**/*.ts"
+    "tests/phase-7/**/*.ts",
+    "tests/phase-8/**/*.ts"
   ]
 }

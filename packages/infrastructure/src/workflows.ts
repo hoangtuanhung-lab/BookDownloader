@@ -1171,7 +1171,7 @@ export async function runWorkflows(db: PoolClient, o: WorkflowOptions) {
   }
   const operations = (
     await db.query(
-      "select * from public.outbox_operations where next_run_at<=now() and (status='pending' or status='running' and lease_until<now()) order by next_run_at,id limit 20",
+      "select * from public.outbox_operations where private.migration_write_allowed(book_id) and next_run_at<=now() and (status='pending' or status='running' and lease_until<now()) order by next_run_at,id limit 20",
     )
   ).rows;
   for (const candidate of operations) {
@@ -1183,7 +1183,7 @@ export async function runWorkflows(db: PoolClient, o: WorkflowOptions) {
     try {
       const item = (
         await db.query(
-          "update public.outbox_operations set status='running',attempts=attempts+1,lease_owner=$2,lease_until=now()+interval '90 seconds' where id=$1 and (status='pending' or status='running' and lease_until<now()) returning *",
+          "update public.outbox_operations set status='running',attempts=attempts+1,lease_owner=$2,lease_until=now()+interval '90 seconds' where id=$1 and private.migration_write_allowed(book_id) and (status='pending' or status='running' and lease_until<now()) returning *",
           [candidate.id, worker],
         )
       ).rows[0];
