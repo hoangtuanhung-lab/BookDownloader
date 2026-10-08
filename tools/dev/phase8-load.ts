@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { writeFile } from "node:fs/promises";
+import { writeFile, mkdir } from "node:fs/promises";
 import { performance } from "node:perf_hooks";
 import { randomUUID } from "node:crypto";
 import type { PoolClient } from "pg";
@@ -123,6 +123,7 @@ export async function runPhase8Load(
           driveSubject: "synthetic-owner",
           skippedChapterKeys: f.skipped,
         };
+      console.log(`LOAD stage import ${books}/${chapters}`);
       const start = performance.now();
       await importLegacyLocal(db, f.data, options);
       const importMs = performance.now() - start;
@@ -135,16 +136,19 @@ export async function runPhase8Load(
           .n,
         books * chapters,
       );
+      console.log(`LOAD stage rerun ${books}/${chapters}`);
       const rerun = performance.now();
       assert.equal(
         (await importLegacyLocal(db, f.data, options)).repeated,
         true,
       );
       const rerunMs = performance.now() - rerun;
+      console.log(`LOAD stage publication ${books}/${chapters}`);
       // Publication/resource verification ONLY for generated in-memory fixtures.
       await db.query(
         "update public.books set visibility='published';update public.drive_resources set sync_status='synced',content_hash=repeat('a',64)",
       );
+      console.log(`LOAD stage pages ${books}/${chapters}`);
       const pages: number[] = [],
         ids = new Set<string>(),
         book = migrationId("book", "LOAD0000");
@@ -188,6 +192,7 @@ export async function runPhase8Load(
         pageP95Ms < thresholds.pageP95Ms,
         `Pagination threshold exceeded: ${pageP95Ms} ms`,
       );
+      console.log(`LOAD stage read ${books}/${chapters}`);
       let fileReads = 0;
       const chapter = (
         await db.query(
@@ -366,8 +371,11 @@ export async function runPhase8Load(
           "Deferred until code closure; local timings do not establish cloud capacity or pricing",
       },
     };
+    await mkdir(".local-library/benchmarks", { recursive: true });
     await writeFile(
-      "docs/phase-8/load-result.json",
+      process.env.PHASE8_RECORD_REPORT === "1"
+        ? "docs/phase-8/load-result.json"
+        : ".local-library/benchmarks/phase8-load-result.json",
       JSON.stringify(report, null, 2) + "\n",
     );
     return report;

@@ -40,9 +40,11 @@ export const sha256 = (value: string | Buffer) =>
   createHash("sha256").update(value).digest("hex");
 function timestamp(value: string) {
   if (!value) return null;
-  const local = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+  const local = /^(\d{2})\/(\d{2})\/(\d{4})(?: (\d{2}):(\d{2}):(\d{2}))?$/.exec(
+    value,
+  );
   const iso = local
-    ? `${local[3]}-${local[2]}-${local[1]}T00:00:00+07:00`
+    ? `${local[3]}-${local[2]}-${local[1]}T${local[4] || "00"}:${local[5] || "00"}:${local[6] || "00"}+07:00`
     : value;
   if (
     !local &&
@@ -155,7 +157,7 @@ export async function importLegacyLocal(
       if (prior.checksum !== checksum)
         throw Error("Snapshot conflict; use a reviewed delta migration");
       const missing = await db.query(
-        "select 1 from public.migration_items m left join public.books b on m.entity_kind='book' and b.id=m.new_id left join public.chapters c on m.entity_kind='chapter' and c.id=m.new_id where m.run_id=(select run_id from private.legacy_imports where source_key=$1) and ((m.entity_kind='book' and (b.id is null or b.deleted_at is not null)) or (m.entity_kind='chapter' and c.id is null)) limit 1",
+        "select 1 from public.migration_items m where m.run_id=(select run_id from private.legacy_imports where source_key=$1) and ((m.entity_kind='book' and not exists(select 1 from public.books b where b.id=m.new_id and b.deleted_at is null)) or (m.entity_kind='chapter' and not exists(select 1 from public.chapters c where c.id=m.new_id))) limit 1",
         [o.sourceKey],
       );
       if (missing.rowCount)
@@ -390,3 +392,5 @@ if (process.argv[1]?.endsWith("import-local.ts"))
     console.error("Local command failed; no credentials logged");
     process.exitCode = 1;
   });
+
+export { timestamp as legacyTimestamp };

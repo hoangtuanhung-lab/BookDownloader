@@ -1038,7 +1038,7 @@ async function outbox(db: PoolClient, o: WorkflowOptions, item: any) {
 }
 /** Finite executor. Per-book writer lock, short claim transaction and fenced leases.
  * Downloads commit checkpoints outside remote IO; separate FILE/WEB admission caps. */
-export async function runWorkflows(db: PoolClient, o: WorkflowOptions) {
+async function runWorkflowsUnlocked(db: PoolClient, o: WorkflowOptions) {
   const worker = randomUUID(),
     deadline = Date.now() + (o.maxMs ?? 45000);
   let processed = 0,
@@ -1206,4 +1206,16 @@ export async function runWorkflows(db: PoolClient, o: WorkflowOptions) {
     }
   }
   return { processed, busy };
+}
+
+/** Session lock spans finite remote IO. Maintenance never interrupts a half-written pass. */
+export async function runWorkflows(db:PoolClient,o:WorkflowOptions){
+ const locked=(await db.query('select pg_try_advisory_lock_shared(610090001) as ok')).rows[0].ok;
+ if(!locked)return {processed:0,busy:true,maintenance:true};
+ try{
+  const state=(await db.query('select maintenance,root_id from private.runtime_control where singleton')).rows[0];
+  if(state.maintenance)return {processed:0,busy:false,maintenance:true};
+  if(state.root_id&&state.root_id!==o.rootId)throw new AppError('ROOT_CHANGED',409,'Thư mục gốc đã thay đổi; khởi tạo lại worker');
+  return await runWorkflowsUnlocked(db,o);
+ }finally{await db.query('select pg_advisory_unlock_shared(610090001)');}
 }

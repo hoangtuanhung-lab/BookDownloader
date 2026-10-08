@@ -96,3 +96,7 @@ URL dự kiến ở Phase 0 là thiết kế, không phải routes tương thíc
 - Phase 8 thêm transaction/checksum/owner binding/private visibility/review gates. DONE không file cần xác nhận skipped; data lỗi bị chặn và giữ archive để sửa, không loại âm thầm. CONFIG/queue/log/private manifests/ngày chương được giữ để review, chưa tự áp dụng tất cả runtime.
 - **Khoảng trống code cần xử lý trước đóng code:** UI/API tạo/đăng ký root; chuyển FILE pending manifest/ANA_QUEUE/removed-log thành runtime có đối soát; công cụ delta migration. Root server environment hiện cho phép vận hành local nhưng chưa tương đương đầy đủ thao tác root trên app cũ. Chưa tuyên bố 42/42 hoặc 34/34 đầy đủ.
 - **Gate thật theo yêu cầu chủ dự án:** Google OAuth, owner/scopes/refresh/quota Drive, Supabase RLS live, Netlify/mobile thực tế, backup file thật, migration/rerun/hashes và rollback thư viện thật. Access Google thật không thể được suy ra từ mocks hoặc email trong export. Chi phí/quota giữ null cho đến đo account thật.
+
+## Cập nhật local ngày 09/10/2026
+
+Các khoảng trống root UI/API, FILE pending/ANA_QUEUE/removed log/CONFIG/ngày giờ và delta nêu trong báo cáo Phase 8 đã có triển khai và kiểm chứng local ở [Phase 9](../phase-9/REPORT.md). Bảng trên giữ nguyên mốc Phase 8 để không đổi bằng chứng lịch sử. Gate OAuth/Drive/Supabase/Netlify, thư viện thật, chi phí và chuyển vận hành vẫn mở; không tuyên bố đầy đủ tương đương trên production.

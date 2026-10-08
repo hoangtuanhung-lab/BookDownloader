@@ -2,7 +2,7 @@
 
 > File này là **plan và mô tả dự án hợp nhất** (thay `MO_TA_DU_AN.md`). Trước khi làm bất kỳ việc gì, đọc mục "Cách làm việc ở các phiên sau" trong MÔ TẢ PHẦN MỀM.
 
-> Web rewrite: Phase 1–8 đã có nền, auth/phân quyền, Drive adapter/cache/migration, thư viện/reader, quản lý/import/bìa, phân tích URL và worker tải WEB/FILE/monitor, kiểm thử local. Làm local trước; Google API, Netlify và database cloud kiểm sau khi đóng code. Theo [PLAN_WEB_APP.md](PLAN_WEB_APP.md), [hướng dẫn](docs/phase-7/README.md) và [báo cáo Phase 7](docs/phase-7/REPORT.md), [Phase 8 local/gaps](docs/phase-8/REPORT.md). Mã Apps Script vẫn V1.59.2, không đổi baseline.
+> Web rewrite: Phase 1–9 đã có nền, auth/phân quyền, Drive adapter/cache/migration, thư viện/reader, quản lý/import/bìa, phân tích URL và worker tải WEB/FILE/monitor, kiểm thử local. Làm local trước; Google API, Netlify và database cloud kiểm sau khi đóng code. Theo [PLAN_WEB_APP.md](PLAN_WEB_APP.md), [hướng dẫn](docs/phase-7/README.md) và [báo cáo Phase 7](docs/phase-7/REPORT.md), [Phase 8 local/gaps](docs/phase-8/REPORT.md), [Phase 9 vận hành local](docs/phase-9/REPORT.md). Mã Apps Script vẫn V1.59.2, không đổi baseline.
 
 ## CHECKLIST TIẾN ĐỘ
 Trạng thái: ĐANG MỞ | Phiên bản hiện tại: V1.59.2 | Cập nhật: 2026-10-08 | Cỡ đợt này: S
@@ -378,7 +378,7 @@ Trạng thái: ĐANG MỞ | Phiên bản hiện tại: V1.59.2 | Cập nhật: 2
 
 ## MÔ TẢ PHẦN MỀM
 
-**Kế hoạch chuyển sang web app:** xem [PLAN_WEB_APP.md](PLAN_WEB_APP.md), bản 0.9 ngày 08/10/2026. Kế hoạch gồm 10 phase (0–9), bảng đối chiếu chức năng/API V1.59.2, tái sử dụng module và các mục của plan này, Netlify + database + Drive lưu file, đăng nhập Google/phân quyền/ảnh bìa, migration và rollback. Phase 0 đã khóa baseline và đạt 98/98 kiểm thử đối chiếu, xem [báo cáo](docs/phase-0/REPORT.md); khảo sát thư viện thật còn mở, Phase 1–7 đã triển khai local, Phase 8 đã có migration/backup/load/parity local, gate đầy đủ còn mở; Phase 9 chưa triển khai; kiểm cloud sau khi đóng code. Tài liệu này vẫn là baseline và lịch sử Apps Script V1.59.2. Mọi sửa mã phải đọc cả phần baseline liên quan và phase tương ứng trước khi làm.
+**Kế hoạch chuyển sang web app:** xem [PLAN_WEB_APP.md](PLAN_WEB_APP.md), bản 0.10 ngày 09/10/2026. Kế hoạch gồm 10 phase (0–9), bảng đối chiếu chức năng/API V1.59.2, tái sử dụng module và các mục của plan này, Netlify + database + Drive lưu file, đăng nhập Google/phân quyền/ảnh bìa, migration và rollback. Phase 0 đã khóa baseline và đạt 98/98 kiểm thử đối chiếu, xem [báo cáo](docs/phase-0/REPORT.md); khảo sát thư viện thật còn mở, Phase 1–7 đã triển khai local, Phase 8 đã có migration/backup/load/parity local, gate đầy đủ còn mở; Phase 9 đã có code maintenance/root/reconcile/delta/backup-restore/release và tài liệu local; nghiệm thu/thay thế thật còn mở; kiểm cloud sau khi đóng code. Tài liệu này vẫn là baseline và lịch sử Apps Script V1.59.2. Mọi sửa mã phải đọc cả phần baseline liên quan và phase tương ứng trước khi làm.
 
 Trình tải truyện: web app Google Apps Script, Google Sheet làm cơ sở dữ liệu, Google Drive lưu file TXT của truyện. Ba chức năng: tải truyện từ website, quản lý sách, đọc truyện. Dùng riêng một mình (Chủ dự án xác nhận ngày 2026-09-30), không phân quyền theo người dùng; bảo vệ bằng cách triển khai Web App chỉ cho chính chủ script. Nền tảng: Google Apps Script Web App, giao diện tiếng Việt.
 

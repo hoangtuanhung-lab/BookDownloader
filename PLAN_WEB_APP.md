@@ -1,8 +1,8 @@
 # Kế hoạch chuyển Trình tải truyện sang web app Netlify
 
-- Bản kế hoạch: 0.9 — 08/10/2026 (Phase 0–8 local; cloud để sau khi đóng code).
+- Bản kế hoạch: 0.10 — 09/10/2026 (Phase 0–9 local; cloud để sau khi đóng code).
 - Baseline: Apps Script V1.59.2 tại commit `aae3c570286edac1db5ca355cbce40f5108d0a10` (mã info.txt được thêm ở `18d1b1e`); đọc `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md`, 29 file mã nguồn và bộ kiểm thử `tests/book-info.test.js` để đối chiếu khi triển khai.
-- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3 đã triển khai adapter/API/migration nền và kiểm chứng local; Phase 4 đã triển khai thư viện/reader và kiểm chứng local; Phase 5 đã có quản lý/import/bìa và executor tối thiểu; Phase 6 đã có analysis/checkpoint/bảng 8 cột, kiểm chứng local; Phase 7 đã có worker tải WEB/FILE, cap riêng, resume/fencing, monitor và kiểm chứng local; Phase 8 đã có công cụ migration/verify/backup-restore/load/parity local; gate đầy đủ còn mở (FILE/queue/root/delta và dịch vụ thật). Phase 9 chưa triển khai. Xem [báo cáo Phase 8](docs/phase-8/REPORT.md). Xem [báo cáo Phase 7](docs/phase-7/REPORT.md). Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 5](docs/phase-5/REPORT.md), [báo cáo Phase 6](docs/phase-6/REPORT.md). Xem [báo cáo Phase 4](docs/phase-4/REPORT.md). Xem [báo cáo Phase 3](docs/phase-3/REPORT.md). Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
+- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3 đã triển khai adapter/API/migration nền và kiểm chứng local; Phase 4 đã triển khai thư viện/reader và kiểm chứng local; Phase 5 đã có quản lý/import/bìa và executor tối thiểu; Phase 6 đã có analysis/checkpoint/bảng 8 cột, kiểm chứng local; Phase 7 đã có worker tải WEB/FILE, cap riêng, resume/fencing, monitor và kiểm chứng local; Phase 8 đã có công cụ migration/verify/backup-restore/load/parity local; gate dịch vụ/thư viện thật còn mở. Phase 9 đã triển khai vận hành local: maintenance/root UI-API, reconcile FILE/queue/LOG/CONFIG, delta có backup/review, full backup/restore, release candidate/CI/manual deploy và tài liệu; production chưa kích hoạt. Xem [Phase 9](docs/phase-9/REPORT.md). Xem [báo cáo Phase 8](docs/phase-8/REPORT.md). Xem [báo cáo Phase 7](docs/phase-7/REPORT.md). Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 5](docs/phase-5/REPORT.md), [báo cáo Phase 6](docs/phase-6/REPORT.md). Xem [báo cáo Phase 4](docs/phase-4/REPORT.md). Xem [báo cáo Phase 3](docs/phase-3/REPORT.md). Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
 - Mục tiêu: giữ toàn bộ hành vi nghiệp vụ đang có, thêm đăng nhập Google, phân quyền nhiều người và ảnh bìa; Google Drive chỉ lưu file, PostgreSQL là nguồn dữ liệu chính.
 - Cách làm: trước mỗi thay đổi mã, đọc plan cũ và plan này, xác định mã chức năng/phase, cập nhật checklist và bằng chứng kiểm thử sau khi làm. Tài liệu có nội dung lệch mã thì đối chiếu mã thật và ghi rõ chênh lệch, không lấy kết quả lịch sử làm kết quả mới.
 
@@ -411,6 +411,18 @@ Phase 0 đã có bằng chứng bên dưới; Phase 1 có nền local bên dư�
 ### Phase 9 — Phát hành, chuyển vận hành và tài liệu
 
 **Phụ thuộc:** 8. **Đầu ra:** bản web vận hành, đường quay lại có kiểm chứng.
+
+**09/10/2026 — local đã triển khai; gate production còn mở:** [README](docs/phase-9/README.md), [runbook](docs/phase-9/RUNBOOK.md), [báo cáo](docs/phase-9/REPORT.md).
+
+- [x] SQL/worker maintenance gate, trạng thái admin/alerts và UI/API tạo/đăng ký root, receipt và revision; không đổi root dưới thư viện có sách.
+- [x] Reconcile CONFIG/ngày giờ, FILE pending manifests, ANA_QUEUE, LOG và removed-log; archive riêng, rollback khi unresolved.
+- [x] Delta metadata reviewed-plan + snapshot checksum, IDs ổn định, archive removal và review lại; không ghi Drive.
+- [x] Backup DB và offline content SHA-256; restore sang DB riêng còn maintenance, phát hiện file/dump bị sửa; diễn tập rollback.
+- [x] Release manifest/version/preflight, CI candidate từ main; manual workflow production mặc định đóng, provenance/hash/lock/public config; schema/worker/scheduler tách riêng.
+- [x] Hướng dẫn user/admin/dev, cutover, smoke, ownership/monitoring/backup/rollback; 495/495 kiểm thử local.
+
+Các mục bên dưới là **nghiệm thu trên dữ liệu/dịch vụ thật**, chưa thực hiện theo yêu cầu local-first. Backup local không chứng minh Google access, workflow viết xong không đồng nghĩa đã deploy.
+
 
 - [ ] Tạo backup export DB cũ/Drive inventory và snapshot DB mới; thử restore. Snapshot metadata không thay backup file nội dung khi file bị chỉnh/xóa.
 - [ ] Maintenance ngắn: dừng worker mới, tạm dừng tải cũ và trigger do chủ quản lý, freeze chỉnh sửa cũ, export delta, import/reconcile cuối.

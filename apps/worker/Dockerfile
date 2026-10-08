@@ -1,5 +1,7 @@
 FROM node:24.19.0-bookworm-slim AS build
 WORKDIR /app
+ARG RELEASE_REVISION
+ENV RELEASE_REVISION=$RELEASE_REVISION
 COPY package*.json ./
 COPY apps/web/package.json apps/web/package.json
 COPY apps/worker/package.json apps/worker/package.json

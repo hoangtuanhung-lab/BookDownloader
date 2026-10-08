@@ -37,6 +37,9 @@ jobs:
       - run: npm run test:storage:db
       - run: npm run test:reader:db
       - run: npm run test:management:db
+      - run: npm run test:operations:db
+        env:
+          BOOK_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
       - run: npm run test:migration:load
       - run: npm run test:download:db
       - run: npm run test:auth:concurrency
@@ -47,13 +50,30 @@ jobs:
       - run: npm run test:reader:browser
       - run: npm run test:management:browser
       - run: npm run test:download:browser
+      - run: npm run test:operations:browser
       - run: npm run build:web && npm run test:bundle
         env:
           SUPABASE_SERVICE_ROLE_KEY: server-secret-sentinel
           DRIVE_CLIENT_SECRET: drive-secret-sentinel
           DRIVE_REFRESH_TOKEN: drive-secret-sentinel
           SOURCE_COOKIES_JSON: source-cookie-sentinel
-      - run: docker build -f apps/worker/Dockerfile -t book-worker:ci .
+      - run: docker build --build-arg RELEASE_REVISION="$GITHUB_SHA" -f apps/worker/Dockerfile -t book-worker:ci .
+      - run: docker run --rm book-worker:ci node dist/worker.mjs --version
       - run: docker run --rm --network host -e APP_ENV -e DATABASE_URL book-worker:ci node dist/worker.mjs --check
-# Netlify Git integration owns previews; credentials scoped to staging contexts.
+      - run: npm run release:prepare -- .local-library/release-candidate
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Stage verified candidate paths
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p .local-library/release-candidate/apps/web
+          cp -R apps/web/dist .local-library/release-candidate/apps/web/dist
+          cp -R dist .local-library/release-candidate/dist
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          name: release-candidate
+          retention-days: 14
+          path: .local-library/release-candidate/
+          include-hidden-files: true
+# Production deploy is manual via release.yml. Disable automatic production publishing in Netlify Git integration.
 # No migration or deploy runs with production credentials from a PR.

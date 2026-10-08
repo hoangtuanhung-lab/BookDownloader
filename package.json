@@ -1,6 +1,6 @@
 {
   "name": "bookdownloader",
-  "version": "2.0.0-phase.8",
+  "version": "2.0.0-phase.9",
   "private": true,
   "type": "module",
   "engines": {
@@ -20,7 +20,7 @@
     "build:web": "vite build --config apps/web/vite.config.ts",
     "build:server": "node tools/dev/build.mjs",
     "test:legacy": "node --test tests/book-info.test.js tests/baseline/*.test.cjs",
-    "test": "tsx --test tests/phase-1/*.test.ts tests/phase-2/*.test.ts tests/phase-3/*.test.ts tests/phase-4/*.test.ts tests/phase-5/*.test.ts tests/phase-6/*.test.ts tests/phase-7/*.test.ts tests/phase-8/*.test.ts",
+    "test": "tsx --test tests/phase-1/*.test.ts tests/phase-2/*.test.ts tests/phase-3/*.test.ts tests/phase-4/*.test.ts tests/phase-5/*.test.ts tests/phase-6/*.test.ts tests/phase-7/*.test.ts tests/phase-8/*.test.ts tests/phase-9/*.test.ts",
     "test:db": "node --env-file-if-exists=.env --import tsx tools/dev/db-tests.ts",
     "db:migrate": "node --env-file-if-exists=.env --import tsx tools/dev/migrate.ts",
     "db:up": "docker compose up -d --wait db",
@@ -48,7 +48,17 @@
     "migration:verify-files": "tsx tools/migration/verify-local-files.ts",
     "test:migration:db": "node --env-file-if-exists=.env --import tsx tools/dev/migration-db-tests.ts",
     "test:migration:load": "node --env-file-if-exists=.env --import tsx tools/dev/migration-db-tests.ts --load",
-    "test:migration:restore": "node --env-file-if-exists=.env --import tsx tools/dev/migration-db-tests.ts --backup-rehearsal"
+    "test:migration:restore": "node --env-file-if-exists=.env --import tsx tools/dev/migration-db-tests.ts --backup-rehearsal",
+    "operations:backup": "node --env-file-if-exists=.env --import tsx tools/operations/backup.ts",
+    "operations:status": "node --env-file-if-exists=.env --import tsx tools/operations/status.ts",
+    "migration:reconcile": "node --env-file-if-exists=.env --import tsx tools/migration/reconcile-local.ts",
+    "migration:verify-apply-local": "node --env-file-if-exists=.env --import tsx tools/migration/verify-apply-local.ts",
+    "migration:delta": "node --env-file-if-exists=.env --import tsx tools/migration/delta-local.ts",
+    "release:prepare": "tsx tools/release/prepare.ts",
+    "test:operations:db": "node --env-file-if-exists=.env --import tsx tools/dev/operations-db-tests.ts",
+    "test:operations:browser": "playwright test --config tests/phase-9/playwright.config.ts",
+    "operations:maintenance": "node --env-file-if-exists=.env --import tsx tools/operations/maintenance.ts",
+    "release:preflight": "node --env-file-if-exists=.env --import tsx tools/release/preflight.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.117.3",

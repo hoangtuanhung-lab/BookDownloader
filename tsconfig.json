@@ -29,6 +29,9 @@
     "tests/phase-5/**/*.ts",
     "tests/phase-6/**/*.ts",
     "tests/phase-7/**/*.ts",
-    "tests/phase-8/**/*.ts"
+    "tests/phase-8/**/*.ts",
+    "tools/operations/**/*.ts",
+    "tools/release/**/*.ts",
+    "tests/phase-9/**/*.ts"
   ]
 }

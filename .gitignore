@@ -19,3 +19,6 @@ coverage/
 *.tsbuildinfo
 .local-browser-results/
 playwright-report/
+
+# Manual release staging, never source
+.release-functions/

@@ -463,7 +463,7 @@ async function main() {
                 false,
               );
               await writeFile(
-                "docs/phase-8/backup-result.json",
+                process.env.PHASE8_RECORD_REPORT==='1'?'docs/phase-8/backup-result.json':'.local-library/phase8/backup-result.json',
                 JSON.stringify(
                   {
                     synthetic: true,

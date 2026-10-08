@@ -1,0 +1,92 @@
+name: Release an approved web candidate
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful main push CI run ID
+        required: true
+        type: string
+      revision:
+        description: Full 40-character commit SHA from that run
+        required: true
+        type: string
+      cloud_checks_accepted:
+        description: Owner accepted real OAuth, Drive, database, backup and migration checks
+        required: true
+        default: false
+        type: boolean
+      schema_worker_ready:
+        description: Compatible schema and verified worker image are already deployed; old writer is stopped
+        required: true
+        default: false
+        type: boolean
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: production-release
+  cancel-in-progress: false
+jobs:
+  web:
+    if: github.ref == 'refs/heads/main' && inputs.cloud_checks_accepted && inputs.schema_worker_ready
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RUN_ID: ${{ inputs.run_id }}
+      EXPECTED_SHA: ${{ inputs.revision }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Check run provenance before accessing deployment secrets
+        run: |
+          node -e 'if(!/^[0-9]+$/.test(process.env.RUN_ID)||!/^[a-f0-9]{40}$/.test(process.env.EXPECTED_SHA))process.exit(1)'
+          gh api "repos/$GH_REPO/actions/runs/$RUN_ID" > "$RUNNER_TEMP/release-run.json"
+          node tools/release/verify-run.mjs "$RUNNER_TEMP/release-run.json"
+          gh run download "$RUN_ID" --name release-candidate --dir candidate
+          node tools/release/verify-artifact.mjs candidate "$EXPECTED_SHA"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.revision }}
+          path: source
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: source/.nvmrc
+          cache: npm
+          cache-dependency-path: source/package-lock.json
+      - name: Install frozen runtime and verify public configuration
+        working-directory: source
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          npm ci --no-audit --no-fund
+          node -e 'const fs=require("fs"),crypto=require("crypto");const m=JSON.parse(fs.readFileSync("../candidate/release-manifest.json"));if(crypto.createHash("sha256").update(fs.readFileSync("package-lock.json")).digest("hex")!==m.lockSha256)process.exit(1);if(!process.env.VITE_SUPABASE_URL||!process.env.VITE_SUPABASE_ANON_KEY)process.exit(1)'
+          node tools/release/public-config.mjs
+          # Rebuild browser with production PUBLIC auth config; server binaries remain the verified candidate.
+          npm run build:web
+          npm run test:bundle
+      - name: Record environment-specific browser artifact
+        working-directory: source
+        run: |
+          mkdir -p dist
+          cp ../candidate/dist/api.mjs ../candidate/dist/worker.mjs ../candidate/dist/build-record.json dist/
+          npm run release:prepare -- ../deployment-record
+      - name: Publish web and API only
+        working-directory: source
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
+        run: |
+          node -e 'if(!process.env.NETLIFY_AUTH_TOKEN||!/^[a-f0-9-]{36}$/.test(process.env.NETLIFY_SITE_ID||""))process.exit(1)'
+          mkdir -p .release-functions
+          cp ../candidate/dist/api.mjs .release-functions/api.mjs
+          npm exec --yes --package=netlify-cli@27.12.0 -- netlify deploy --dir apps/web/dist --functions .release-functions --site "$NETLIFY_SITE_ID" --prod --no-build --message "release $EXPECTED_SHA"
+          # No schema migration, worker deployment or scheduler activation is performed here.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deployment-record
+          path: deployment-record/release-manifest.json
+          retention-days: 30

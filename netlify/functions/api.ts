@@ -23,6 +23,9 @@ import {
 } from "../../packages/contracts/src/management";
 import { validateSource } from "../../packages/infrastructure/src/source-http";
 import { normalizeCover } from "../../packages/infrastructure/src/cover";
+import {configureRoot} from '../../packages/infrastructure/src/operations';
+import {createDrive} from '../../packages/infrastructure/src/drive';
+import {releaseContract,releaseRevision} from '../../packages/contracts/src/release';
 import {
   normUrl_,
   folderIdFrom_,
@@ -54,7 +57,7 @@ export async function handleApi(
   check = checkDatabase,
   injected?: AuthServices,
   storage?: ReaderStorage,
-  business = { validateUrl: validateSource },
+  business: {validateUrl:(url:string)=>Promise<unknown>;rootFactory?:typeof createDrive} = { validateUrl: validateSource },
 ): Promise<Response> {
   const correlationId = randomUUID();
   const headers = {
@@ -67,6 +70,7 @@ export async function handleApi(
     pathname = url.pathname.replace(/^\/.netlify\/functions\/api\//, "/api/");
   const json = (body: unknown, status = 200) =>
     Response.json(body, { status, headers });
+  if(request.method==='GET'&&pathname==='/api/version')return json({...releaseContract,revision:releaseRevision||env.RELEASE_REVISION||env.COMMIT_REF||null});
   if (request.method === "GET" && pathname === "/api/health") {
     try {
       await check(env);
@@ -144,6 +148,24 @@ export async function handleApi(
     }
     if (pathname === "/api/me" && request.method === "GET")
       return json(account);
+    if(pathname==='/api/admin/operations'){
+      requirePermission('admin');
+      if(request.method==='GET')return json(await services.rpc('app_operations',{actor:identity.id,operation:'status'}));
+      if(request.method==='PUT'){
+        const input=z.object({enabled:z.boolean()}).strict().parse(await body());
+        return json(await services.rpc('app_operations',{actor:identity.id,operation:'maintenance',input}));
+      }
+    }
+    if(pathname==='/api/drive/root'&&request.method==='PUT'){
+      requirePermission('admin');
+      return json(await configureRoot(services,identity.id,await body(),env,business.rootFactory));
+    }
+    let rootStorage:ReaderStorage|undefined;
+    async function effectiveStorage(){
+      if(rootStorage)return rootStorage;
+      const binding=z.object({rootId:z.string().nullable(),revision:z.number()}).parse(await services!.rpc('app_runtime_root',{actor:identity.id}));
+      return rootStorage=readerStorage({...env,DRIVE_ROOT_ID:binding.rootId||env.DRIVE_ROOT_ID});
+    }
     if (pathname === "/api/admin/users" && request.method === "GET") {
       requirePermission("admin");
       const after = url.searchParams.get("after");
@@ -218,7 +240,7 @@ export async function handleApi(
       if (managedCover && request.method === "GET") {
         const content = await readStoredCover(
           services,
-          storage || readerStorage(env),
+          storage || await effectiveStorage(),
           identity.id,
           z.uuid().parse(managedCover[1]),
           true,
@@ -572,8 +594,8 @@ export async function handleApi(
       );
       let source = storage;
       const drive: ReaderStorage = {
-        readText: (id) => (source ??= readerStorage(env)).readText(id),
-        readBytes: (id) => (source ??= readerStorage(env)).readBytes(id),
+        readText: async (id) => (source ??= await effectiveStorage()).readText(id),
+        readBytes: async (id) => (source ??= await effectiveStorage()).readBytes(id),
       };
       const items = [];
       let bytes = 0;
@@ -623,8 +645,8 @@ export async function handleApi(
       z.uuid().parse(chapterContent[2]);
       // Resolve storage lazily so a cache hit does not require a fresh Google token.
       const lazy: ReaderStorage = storage || {
-        readText: (id) => readerStorage(env).readText(id),
-        readBytes: (id) => readerStorage(env).readBytes(id),
+        readText: async (id) => (await effectiveStorage()).readText(id),
+        readBytes: async (id) => (await effectiveStorage()).readBytes(id),
       };
       return json(
         await readStoredChapter(
@@ -642,7 +664,7 @@ export async function handleApi(
       z.uuid().parse(cover[1]);
       const result = await readStoredCover(
         services,
-        storage || readerStorage(env),
+        storage || await effectiveStorage(),
         identity.id,
         cover[1],
       );
