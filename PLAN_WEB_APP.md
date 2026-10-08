@@ -1,8 +1,8 @@
 # Kế hoạch chuyển Trình tải truyện sang web app Netlify
 
-- Bản kế hoạch: 0.7 — 08/10/2026 (Phase 0–6 local; cloud để sau khi đóng code).
+- Bản kế hoạch: 0.8 — 08/10/2026 (Phase 0–7 local; cloud để sau khi đóng code).
 - Baseline: Apps Script V1.59.2 tại commit `aae3c570286edac1db5ca355cbce40f5108d0a10` (mã info.txt được thêm ở `18d1b1e`); đọc `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md`, 29 file mã nguồn và bộ kiểm thử `tests/book-info.test.js` để đối chiếu khi triển khai.
-- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3 đã triển khai adapter/API/migration nền và kiểm chứng local; Phase 4 đã triển khai thư viện/reader và kiểm chứng local; Phase 5 đã có quản lý/import/bìa và executor tối thiểu; Phase 6 đã có analysis/checkpoint/bảng 8 cột, kiểm chứng local; Phase 7–9 chưa triển khai. Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 5](docs/phase-5/REPORT.md), [báo cáo Phase 6](docs/phase-6/REPORT.md). Xem [báo cáo Phase 4](docs/phase-4/REPORT.md). Xem [báo cáo Phase 3](docs/phase-3/REPORT.md). Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
+- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3 đã triển khai adapter/API/migration nền và kiểm chứng local; Phase 4 đã triển khai thư viện/reader và kiểm chứng local; Phase 5 đã có quản lý/import/bìa và executor tối thiểu; Phase 6 đã có analysis/checkpoint/bảng 8 cột, kiểm chứng local; Phase 7 đã có worker tải WEB/FILE, cap riêng, resume/fencing, monitor và kiểm chứng local; Phase 8–9 chưa triển khai. Xem [báo cáo Phase 7](docs/phase-7/REPORT.md). Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 5](docs/phase-5/REPORT.md), [báo cáo Phase 6](docs/phase-6/REPORT.md). Xem [báo cáo Phase 4](docs/phase-4/REPORT.md). Xem [báo cáo Phase 3](docs/phase-3/REPORT.md). Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
 - Mục tiêu: giữ toàn bộ hành vi nghiệp vụ đang có, thêm đăng nhập Google, phân quyền nhiều người và ảnh bìa; Google Drive chỉ lưu file, PostgreSQL là nguồn dữ liệu chính.
 - Cách làm: trước mỗi thay đổi mã, đọc plan cũ và plan này, xác định mã chức năng/phase, cập nhật checklist và bằng chứng kiểm thử sau khi làm. Tài liệu có nội dung lệch mã thì đối chiếu mã thật và ghi rõ chênh lệch, không lấy kết quả lịch sử làm kết quả mới.
 
@@ -370,17 +370,17 @@ Phase 0 đã có bằng chứng bên dưới; Phase 1 có nền local bên dư�
 
 ### Phase 7 — Worker tải đầy đủ, resume và vận hành tác vụ
 
-**Phụ thuộc:** 5–6. **Đầu ra:** tải/nhập nền độc lập trình duyệt với đầy đủ thao tác.
+**Phụ thuộc:** 5–6. **Trạng thái:** triển khai và kiểm local; chưa nghiệm thu dịch vụ thật/scheduler cloud. **Đầu ra:** tải/nhập nền độc lập trình duyệt với đầy đủ thao tác.
 
-- [ ] Điều phối FILE/WEB cap riêng, IDLE/READY promotion, priority/reorder, batch size và delay đúng cấu hình.
-- [ ] Lease/checkpoint/retry budget, job restart, worker crash, HTTP 429/401/403/5xx, hết quyền Drive; monitor đếm đúng trạng thái.
-- [ ] Tải chương giữ tên/head/group/body, recover file tạo dở, ghi DB sau kiểm ownership/version; kiểm retry không tạo bản trùng.
-- [ ] Pause/cancel/delete đang chạy: ghi tombstone/cancel request, kiểm lại trước khi commit; không tự dựng lại sách/chương đã xóa. Nêu rõ batch/file đang in-flight và thời điểm dừng.
-- [ ] Retry/chapter actions, verify file mất và FOLDER exception; `_import.json` resume + cleanup; lỗi ngắn emptyRuns/log giữ đúng baseline.
-- [ ] Đồng bộ info.txt/removed log có tuần tự theo sách; ghi log không mất dữ liệu khi retry/crash; sync job cũ không ghi metadata cũ.
-- [ ] UI monitor/filters/errors/refresh/progress/batch controls; không polling toàn bộ hàng chương, không tự giới hạn task theo vòng tab.
+- [x] Điều phối FILE/WEB cap riêng, IDLE/READY promotion, priority/reorder, batch size và delay đúng cấu hình.
+- [x] Lease/checkpoint/retry budget, job restart, worker crash, HTTP 429/401/403/5xx, hết quyền Drive; monitor đếm đúng trạng thái.
+- [x] Tải chương giữ tên/head/group/body, recover file tạo dở, ghi DB sau kiểm ownership/version; kiểm retry không tạo bản trùng.
+- [x] Pause/cancel/delete đang chạy: ghi tombstone/cancel request, kiểm lại trước khi commit; không tự dựng lại sách/chương đã xóa. Nêu rõ batch/file đang in-flight và thời điểm dừng.
+- [x] Retry/chapter actions, verify file mất và FOLDER exception; `_import.json` resume + cleanup; lỗi ngắn emptyRuns/log giữ đúng baseline.
+- [x] Đồng bộ info.txt/removed log có tuần tự theo sách; ghi log không mất dữ liệu khi retry/crash; sync job cũ không ghi metadata cũ.
+- [x] UI monitor/filters/errors/refresh/progress/batch controls; không polling toàn bộ hàng chương, không tự giới hạn task theo vòng tab.
 
-**Gate:** F08–F16/F20/F28/F36–F38 chạy E2E; hai worker cạnh tranh, mất lease, tạo file rồi DB fail, xóa/đổi thông tin khi tải và đóng tab đều có test. Không nhận hoàn thành chỉ vì có PID hoặc scheduler enabled.
+**Gate local:** F08–F16/F20/F28/F36–F38 chạy E2E; hai worker cạnh tranh, mất lease, tạo file rồi DB fail, xóa/đổi thông tin khi tải và đóng tab đều có test. Đã đạt fixture/SQL/Chromium với 433/433 kiểm tra trong đợt, xem [README](docs/phase-7/README.md), [REPORT](docs/phase-7/REPORT.md). **Gate dịch vụ thật/website/scheduler/load còn mở** sau đóng code. Không nhận hoàn thành chỉ vì có PID hoặc scheduler enabled.
 
 ### Phase 8 — Chuyển dữ liệu thật và kiểm tra toàn bộ tương đương
 

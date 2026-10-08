@@ -1,3 +1,4 @@
+import { Monitor } from "./Monitor";
 import { useEffect, useRef, useState } from "react";
 import type { Account } from "../../../../packages/contracts/src/index";
 import { hasPermission } from "../../../../packages/contracts/src/index";
@@ -290,6 +291,23 @@ export function Download({
                   {j.error && <p>{j.error}</p>}
                 </td>
                 <td>
+                  {j.book?.status === "ANALYZED" && (
+                    <button
+                      onClick={() =>
+                        void call("/download/actions", {
+                          method: "POST",
+                          body: JSON.stringify({
+                            id: j.book.id,
+                            action: "start",
+                          }),
+                        })
+                          .then(() => notify("Đã chuyển xuống hàng tải"))
+                          .catch((e) => setError(e.message))
+                      }
+                    >
+                      Chuyển xuống tải
+                    </button>
+                  )}
                   {j.status !== "submitting" && (
                     <>
                       {["failed", "done"].includes(j.status) && (
@@ -400,7 +418,7 @@ export function Download({
           )}
         </details>
       )}
-      <p>Chuyển xuống tải và giám sát tải nền sẽ triển khai ở Phase 7.</p>
+      <Monitor account={account} call={call} notify={notify} />
     </div>
   );
 }

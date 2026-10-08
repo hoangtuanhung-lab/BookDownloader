@@ -337,13 +337,23 @@ test("analysis optimistic rows show immediately, eight columns, allow another su
     .getByLabel("URL truyện (mỗi dòng hoặc ngăn bằng ;)")
     .fill("https://source.test/one/;https://source.test/two/");
   await page.getByRole("button", { name: "Thêm URL và phân tích" }).click();
-  await expect(page.getByRole("table").locator("th")).toHaveCount(8);
-  await expect(page.getByRole("table").locator("tbody tr")).toHaveCount(2);
+  await expect(
+    page.getByRole("table", { name: "Bảng phân tích truyện" }).locator("th"),
+  ).toHaveCount(8);
+  await expect(
+    page
+      .getByRole("table", { name: "Bảng phân tích truyện" })
+      .locator("tbody tr"),
+  ).toHaveCount(2);
   await page
     .getByLabel("URL truyện (mỗi dòng hoặc ngăn bằng ;)")
     .fill("https://source.test/three/");
   await page.getByRole("button", { name: "Thêm URL và phân tích" }).click();
-  await expect(page.getByRole("table").locator("tbody tr")).toHaveCount(3);
+  await expect(
+    page
+      .getByRole("table", { name: "Bảng phân tích truyện" })
+      .locator("tbody tr"),
+  ).toHaveCount(3);
   expect(
     f.requests.filter((r) => r.path === "/analysis" && r.method === "POST"),
   ).toHaveLength(2);
@@ -361,7 +371,11 @@ test("analysis server reject restores URL and invalid format stays in input", as
   await input.fill("https://source.test/rejected/");
   await page.getByRole("button", { name: "Thêm URL và phân tích" }).click();
   await expect(input).toHaveValue("https://source.test/rejected/");
-  await expect(page.getByRole("table").locator("tbody tr")).toHaveCount(0);
+  await expect(
+    page
+      .getByRole("table", { name: "Bảng phân tích truyện" })
+      .locator("tbody tr"),
+  ).toHaveCount(0);
 });
 test("manual input validates total and sends manual configuration", async ({
   page,
@@ -427,7 +441,11 @@ test("mobile management and analysis fit viewport with horizontal table scrollin
     .getByLabel("URL truyện (mỗi dòng hoặc ngăn bằng ;)")
     .fill("https://source.test/book/");
   await page.getByRole("button", { name: "Thêm URL và phân tích" }).click();
-  await expect(page.getByRole("table").locator("tbody tr")).toHaveCount(1);
+  await expect(
+    page
+      .getByRole("table", { name: "Bảng phân tích truyện" })
+      .locator("tbody tr"),
+  ).toHaveCount(1);
   await page.screenshot({
     path: ".local-browser-results/phase-5-6-screenshots/download-mobile.png",
     fullPage: true,

@@ -309,9 +309,12 @@ try {
         assert.equal(
           (await db.query("select status from public.jobs where id=$1", [j.id]))
             .rows[0].status,
-          "failed",
+          "queued",
         );
-        await ok("/manage/jobs/" + j.id + "/retry", "POST");
+        // Phase 7 retries transient Drive failures automatically at next_run_at.
+        await db.query("update public.jobs set next_run_at=now() where id=$1", [
+          j.id,
+        ]);
         await runWorkflows(db, options);
         assert.equal(
           (await db.query("select status from public.jobs where id=$1", [j.id]))
@@ -747,10 +750,12 @@ try {
         f.crashAfterWrite();
         await runWorkflows(db, options);
         const j = (await ok("/manage/jobs")).find(
-          (j: any) => j.status === "failed" && j.error.includes("Gián đoạn"),
+          (j: any) => j.status === "queued" && j.error.includes("Gián đoạn"),
         );
         assert(j);
-        await ok("/manage/jobs/" + j.id + "/retry", "POST");
+        await db.query("update public.jobs set next_run_at=now() where id=$1", [
+          j.id,
+        ]);
         await runWorkflows(db, options);
         const b = (await ok("/manage/books")).books.find(
           (b: any) => b.name === "Phục hồi",
@@ -820,17 +825,27 @@ try {
         );
         await runWorkflows(db, options);
         const other = await pool!.connect();
-        try {
+        const held = await ok("/analysis", "POST", {
+          urls: ["https://source.test/held-lock/"],
+          mode: "auto",
+        });
+        const pending = (
           await db.query(
-            "select pg_advisory_lock(hashtextextended('book-workflows',0))",
-          );
+            "select id from public.jobs where kind='ANALYZE' and status='queued' order by created_at desc limit 1",
+          )
+        ).rows[0];
+        try {
+          await db.query("select pg_advisory_lock(hashtextextended($1,0))", [
+            "book-writer:" + pending.id,
+          ]);
           assert.equal((await runWorkflows(other, options)).busy, true);
         } finally {
-          await db.query(
-            "select pg_advisory_unlock(hashtextextended('book-workflows',0))",
-          );
+          await db.query("select pg_advisory_unlock(hashtextextended($1,0))", [
+            "book-writer:" + pending.id,
+          ]);
           other.release();
         }
+        await runWorkflows(db, options);
       },
     );
     await check(

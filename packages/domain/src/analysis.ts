@@ -91,12 +91,7 @@ export async function analyze(
       );
     const html = response.body;
     if (!first) first = html;
-    if (/cf-chl-|captcha|Just a moment\.\.\./i.test(html))
-      throw new AppError(
-        "SOURCE_BLOCKED",
-        422,
-        "Website yêu cầu CAPTCHA hoặc chặn truy cập",
-      );
+    assertSourcePage(html);
     for (const m of html.matchAll(
       /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi,
     )) {
@@ -239,4 +234,13 @@ export function manualChapters(
       dnum: "",
     };
   });
+}
+
+export function assertSourcePage(html: string) {
+  if (/cf-chl-|captcha|Just a moment\.\.\./i.test(html))
+    throw new AppError(
+      "SOURCE_BLOCKED",
+      422,
+      "Website yêu cầu CAPTCHA hoặc chặn truy cập",
+    );
 }

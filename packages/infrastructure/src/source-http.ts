@@ -100,6 +100,33 @@ export function sourceValidationSession() {
 }
 /** DNS checked once and pinned in connection lookup. Every redirect is rechecked.
  * No environment proxy, ambient cookies or unchecked fetch fallback. TLS stays on. */
+export class SourceResponseError extends AppError {
+  constructor(
+    public readonly httpStatus: number,
+    public readonly retryAfterMs: number = 0,
+  ) {
+    super(
+      "SOURCE_HTTP",
+      422,
+      "Website trả HTTP " +
+        httpStatus +
+        (httpStatus === 401 || httpStatus === 403
+          ? "; cần kiểm tra quyền truy cập hoặc cookie phía máy chủ"
+          : ""),
+    );
+  }
+}
+export function retryAfter(value: string | undefined, now = Date.now()) {
+  if (!value) return 0;
+  const seconds = Number(value);
+  return Math.min(
+    3600000,
+    Math.max(
+      0,
+      Number.isFinite(seconds) ? seconds * 1000 : Date.parse(value) - now,
+    ) || 0,
+  );
+}
 export class SourceHttp implements HttpFetcher {
   constructor(
     private cookies: Record<string, string> = {},
@@ -118,6 +145,7 @@ export class SourceHttp implements HttpFetcher {
       const result = await new Promise<{
         status: number;
         location?: string;
+        retryAfter?: string;
         body: string;
       }>((resolve, reject) => {
         const request = (url.protocol === "https:" ? https : http).get(
@@ -157,6 +185,9 @@ export class SourceHttp implements HttpFetcher {
               resolve({
                 status: response.statusCode || 500,
                 location: response.headers.location,
+                retryAfter: response.headers["retry-after"] as
+                  | string
+                  | undefined,
                 body: Buffer.concat(parts).toString("utf8"),
               }),
             );
@@ -172,10 +203,9 @@ export class SourceHttp implements HttpFetcher {
         continue;
       }
       if (result.status !== 200)
-        throw new AppError(
-          "SOURCE_HTTP",
-          422,
-          "Website trả HTTP " + result.status,
+        throw new SourceResponseError(
+          result.status,
+          retryAfter(result.retryAfter),
         );
       return { body: result.body, finalUrl: url.href };
     }

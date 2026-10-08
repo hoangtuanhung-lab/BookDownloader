@@ -1,4 +1,9 @@
 import {
+  DownloadAction,
+  DownloadChapterAction,
+  DownloadSettings,
+} from "../../packages/contracts/src/download";
+import {
   readStoredChapter,
   readStoredCover,
   readerStorage,
@@ -395,6 +400,49 @@ export async function handleApi(
           }),
         );
       }
+    }
+    if (pathname.startsWith("/api/download")) {
+      requirePermission("download");
+      const download = (operation: string, input: unknown = {}) =>
+        services!.rpc("app_download", { actor: identity.id, operation, input });
+      if (pathname === "/api/download" && request.method === "GET") {
+        const filter = z
+          .enum(["all", "FILE", "WEB", "FOLDER"])
+          .parse(url.searchParams.get("filter") || "all");
+        return json(await download("list", { filter, offset: offset() }));
+      }
+      if (pathname === "/api/download/actions" && request.method === "POST") {
+        const value = DownloadAction.parse(await body());
+        return json(await download(value.action, value));
+      }
+      if (pathname === "/api/download/chapters" && request.method === "POST") {
+        const value = DownloadChapterAction.parse(await body());
+        if (value.action === "delete") requirePermission("manage");
+        return json(await download("chapter", value));
+      }
+      const errors = /^\/api\/download\/books\/([^/]+)\/errors$/.exec(pathname);
+      if (errors && request.method === "GET")
+        return json(
+          await download("errors", {
+            id: z.uuid().parse(errors[1]),
+            offset: offset(),
+          }),
+        );
+    }
+    if (
+      pathname === "/api/settings/download" &&
+      ["GET", "PUT"].includes(request.method)
+    ) {
+      requirePermission("admin");
+      return json(
+        await services.rpc("app_download_settings", {
+          actor: identity.id,
+          new_value:
+            request.method === "PUT"
+              ? DownloadSettings.parse(await body())
+              : null,
+        }),
+      );
     }
     if (pathname.startsWith("/api/analysis")) {
       requirePermission("download");
