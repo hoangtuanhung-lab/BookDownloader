@@ -16,6 +16,7 @@
 
 | Kiểm tra | Kết quả |
 |---|---|
+| Checkout sạch trong `/tmp/book-phase1-clean` | npm ci/check/build đạt; database mới áp dụng migrations, 29 SQL/RLS và 5 browser đạt; worker/bundle đạt, Git sạch |
 | `npm ci` với npm 11.9.0 | Cài từ lockfile thành công |
 | `npm run typecheck` | Đạt TypeScript strict ở các tầng mới |
 | `npm run test:legacy` | **98/98** đạt, gồm SHA-256 source baseline và 74 golden cũ |
@@ -46,3 +47,5 @@ Hướng dẫn local/staging, Docker/proxy và migrations ở [README Phase 1](R
 Đã lưu draft `install_script` (npm ci + check) và `start_skill` (đọc plan, khởi động PostgreSQL/API/web, kiểm health và browser). Đây là hướng dẫn tái sử dụng, chưa publish snapshot hoặc xác minh ở phiên cloud mới. Người dùng xem/lưu trong environment settings và publish để áp dụng cho môi trường sau.
 
 Docker ban đầu lỗi home read-only và DNS `proxy` không có trong build container. Đã dùng DOCKER_CONFIG ở /tmp, ánh xạ DNS proxy từ máy chủ và CA qua BuildKit secret; build/run thực tế thành công, không tắt TLS. Không lưu giá trị proxy/CA hoặc cloud credential vào repo.
+
+Kiểm chứng checkout sạch phát hiện role Postgres thuộc cả cluster, không riêng database. Đã sửa local-auth bootstrap chỉ tạo role chưa có, rồi chạy lại trên database mới thành công. Lỗi này đã xử lý; không áp dụng bootstrap local cho Supabase.
