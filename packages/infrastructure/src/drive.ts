@@ -81,8 +81,21 @@ export class GoogleDriveStorage implements DriveStorage {
   const response=await this.call('/upload/drive/v3/files'+(existing?'/'+id(existing.id):'')+'?uploadType=multipart&fields='+fields,{method:existing?'PATCH':'POST',headers:{'Content-Type':'multipart/related; boundary='+boundary},body},false);
   const result=DriveFile.parse(await response.json());this.metrics.bytesWritten+=Buffer.byteLength(content);return result.id;
  }
+ async moveFolder(folderId:string,parentId:string,name:string){
+  const file=await this.assertUnderRoot(folderId);await this.assertUnderRoot(parentId);if(file.id===this.options.rootId||file.mimeType!==folderType)throw new AppError('DRIVE_FORBIDDEN',403,'Không di chuyển thư mục gốc');
+  const query=new URLSearchParams({fields});if(!file.parents.includes(parentId)){query.set('addParents',parentId);query.set('removeParents',file.parents.join(','));}
+  await this.call('/drive/v3/files/'+id(folderId)+'?'+query,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+ }
+ async trashOwned(fileId:string){const file=await this.assertUnderRoot(fileId);if(file.id===this.options.rootId)throw new AppError('DRIVE_FORBIDDEN',403,'Không xóa thư mục gốc');await this.call('/drive/v3/files/'+id(fileId)+'?fields='+fields,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({trashed:true})});}
+ async putCover(folderId:string,name:string,bytes:Uint8Array,version:number){
+  const files=(await this.list(folderId,name)).filter(f=>f.mimeType==='image/webp');if(files.length>1)throw new AppError('DRIVE_CONFLICT',409,'Ảnh bìa trùng tên');const old=files[0];
+  if(old){if(old.appProperties.metadataVersion!==String(version))throw new AppError('DRIVE_CONFLICT',409,'Phiên bản bìa không khớp');const current=await this.readBytes(old.id);if(!Buffer.from(current.bytes).equals(Buffer.from(bytes)))throw new AppError('DRIVE_CONFLICT',409,'Nội dung bìa không khớp');return old.id;}
+  const boundary='book-cover-'+crypto.randomUUID(),metadata={name,mimeType:'image/webp',parents:[folderId],appProperties:{metadataVersion:String(version)}};
+  const body=Buffer.concat([Buffer.from('--'+boundary+'\r\nContent-Type: application/json\r\n\r\n'+JSON.stringify(metadata)+'\r\n--'+boundary+'\r\nContent-Type: image/webp\r\n\r\n'),Buffer.from(bytes),Buffer.from('\r\n--'+boundary+'--')]);
+  const response=await this.call('/upload/drive/v3/files?uploadType=multipart&fields='+fields,{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+boundary},body},false);this.metrics.bytesWritten+=bytes.length;return DriveFile.parse(await response.json()).id;
+ }
 }
-export function createDrive(env:NodeJS.ProcessEnv,fetcher:typeof fetch=fetch):GoogleDriveStorage{
+export function createDrive(env:NodeJS.ProcessEnv,fetcher:typeof fetch=fetch,budget:Pick<DriveOptions,'maxRequests'|'maxBytes'>={}):GoogleDriveStorage{
  const {DRIVE_ROOT_ID,DRIVE_CLIENT_ID,DRIVE_CLIENT_SECRET,DRIVE_REFRESH_TOKEN}=env;
  if(!DRIVE_ROOT_ID||!DRIVE_CLIENT_ID||!DRIVE_CLIENT_SECRET||!DRIVE_REFRESH_TOKEN)throw new AppError('DRIVE_UNCONFIGURED',503,'Drive chưa được cấu hình');
  let access:string|undefined,expires=0;
@@ -92,5 +105,5 @@ export function createDrive(env:NodeJS.ProcessEnv,fetcher:typeof fetch=fetch):Go
   const parsed=z.object({access_token:z.string().min(1),expires_in:z.number().positive()}).safeParse(await response.json());if(!response.ok||!parsed.success)throw new AppError('DRIVE_AUTH',503,'Cần kết nối lại Drive của chủ thư viện');
   access=parsed.data.access_token;expires=Date.now()+parsed.data.expires_in*1000;return access;
  };
- return new GoogleDriveStorage({rootId:DRIVE_ROOT_ID,token,fetch:fetcher});
+ return new GoogleDriveStorage({rootId:DRIVE_ROOT_ID,token,fetch:fetcher,...budget});
 }

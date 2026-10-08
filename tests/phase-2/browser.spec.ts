@@ -1,7 +1,7 @@
 import {test,expect,type Page,type Route} from '@playwright/test';
 const id='00000000-0000-4000-8000-000000000001';
-// Phase 4 reader now loads the library; auth fixtures never call real APIs with synthetic JWTs.
-test.beforeEach(async({page})=>{await page.route('**/api/books?**',route=>route.fulfill({json:{books:[],total:0,offset:0}}));});
+// Phase 4–6 screens now load their APIs; auth fixtures never call real APIs with synthetic JWTs.
+test.beforeEach(async({page})=>{await page.route('**/api/analysis',route=>route.fulfill({json:{jobs:[]}}));await page.route('**/api/manage/books?**',route=>route.fulfill({json:{books:[],total:0}}));await page.route('**/api/manage/jobs',route=>route.fulfill({json:[]}));await page.route('**/api/manage/genres',route=>route.fulfill({json:[]}));await page.route('**/api/books?**',route=>route.fulfill({json:{books:[],total:0,offset:0}}));});
 async function session(page:Page,permissions:string[]=['read']){
  await page.addInitScript(({id})=>{
   const jwt=[btoa(JSON.stringify({alg:'HS256',typ:'JWT'})),btoa(JSON.stringify({sub:id,exp:Math.floor(Date.now()/1000)+3600,aud:'authenticated'})),'synthetic-signature'].join('.');

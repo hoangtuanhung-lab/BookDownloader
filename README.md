@@ -4,11 +4,11 @@
 
 Mã nguồn ban đầu được nhập từ `TrinhTaiTruyen_V1.59.1.zip`. Phiên bản hiện tại trong `Code.gs`: **1.59.2**, cập nhật **08/10/2026**.
 
-## Web app mới — Phase 4
+## Web app mới — Phase 5–6
 
-Đã thêm nền **React/TypeScript/Vite + Netlify Functions + PostgreSQL/Supabase + Node worker** bên cạnh ứng dụng Apps Script. Có khung giao diện, domain/contracts, schema/RLS, CI, luồng Google OAuth/PKCE và quản trị phân quyền. Auth/API/SQL/browser đã kiểm thử local; Google OAuth thật còn chờ cấu hình staging. Phase 3 có Drive adapter, API đọc chương/ảnh có kiểm quyền, cache PostgreSQL và migration dry-run; kiểm thử bằng dữ liệu synthetic ở local. Phase 4 có thư viện/reader cuộn và lật trang, mục lục, font/ngày đêm, cache và tiến độ riêng theo user. Quản lý/nhập/bìa ở Phase 5, tải sách ở Phase 6–7. Google Drive sẽ lưu file, database lưu metadata và trạng thái.
+Đã thêm nền **React/TypeScript/Vite + Netlify Functions + PostgreSQL/Supabase + Node worker** bên cạnh ứng dụng Apps Script. Có khung giao diện, domain/contracts, schema/RLS, CI, luồng Google OAuth/PKCE và quản trị phân quyền. Auth/API/SQL/browser đã kiểm thử local; Google OAuth thật còn chờ cấu hình staging. Phase 3 có Drive adapter, API đọc chương/ảnh có kiểm quyền, cache PostgreSQL và migration dry-run; kiểm thử bằng dữ liệu synthetic ở local. Phase 4 có thư viện/reader cuộn và lật trang, mục lục, font/ngày đêm, cache và tiến độ riêng theo user. Phase 5 có quản lý sách, bản nháp/Lưu tất cả, nhập file/cặp marker/thư mục, thêm chương và ảnh bìa. Phase 6 có phân tích URL tự động/thủ công, checkpoint phân trang, hàng chờ bền vững và bảng 8 cột. Executor local xử lý import/analysis/outbox; tải WEB và scheduler đầy đủ ở Phase 7. Google Drive sẽ lưu file, database lưu metadata và trạng thái.
 
-Xem [hướng dẫn Phase 4](docs/phase-4/README.md), [báo cáo Phase 4](docs/phase-4/REPORT.md), [hướng dẫn Phase 3](docs/phase-3/README.md), [báo cáo Phase 3](docs/phase-3/REPORT.md), [setup nền Phase 1](docs/phase-1/README.md), [hướng dẫn Google OAuth/Phase 2](docs/phase-2/README.md), [kết quả kiểm chứng](docs/phase-2/REPORT.md) và [plan triển khai](PLAN_WEB_APP.md). Làm local trước; sau khi đóng code mới kiểm Google API, Netlify và database cloud. Ưu tiên gói miễn phí; chưa provision staging hoặc bật billing. Các hướng dẫn Apps Script bên dưới vẫn áp dụng cho V1.59.2.
+Xem [hướng dẫn Phase 5](docs/phase-5/README.md), [báo cáo Phase 5](docs/phase-5/REPORT.md), [hướng dẫn Phase 6](docs/phase-6/README.md), [báo cáo Phase 6](docs/phase-6/REPORT.md), [hướng dẫn Phase 4](docs/phase-4/README.md), [báo cáo Phase 4](docs/phase-4/REPORT.md), [hướng dẫn Phase 3](docs/phase-3/README.md), [báo cáo Phase 3](docs/phase-3/REPORT.md), [setup nền Phase 1](docs/phase-1/README.md), [hướng dẫn Google OAuth/Phase 2](docs/phase-2/README.md), [kết quả kiểm chứng](docs/phase-2/REPORT.md) và [plan triển khai](PLAN_WEB_APP.md). Làm local trước; sau khi đóng code mới kiểm Google API, Netlify và database cloud. Ưu tiên gói miễn phí; chưa provision staging hoặc bật billing. Các hướng dẫn Apps Script bên dưới vẫn áp dụng cho V1.59.2.
 
 ## Chức năng chính
 
@@ -179,7 +179,7 @@ Mã có cơ chế loại bỏ một số chương lỗi nội dung rỗng/quá n
 
 - [Hướng dẫn sử dụng chi tiết](HUONG_DAN_SU_DUNG.md)
 - [Mô tả và lịch sử phát triển của bản nguồn](plan_TrinhTaiTruyen.md)
-- [Kế hoạch chuyển sang web app Netlify: 10 phase, giữ tính năng cũ và bổ sung đăng nhập/phân quyền/ảnh bìa](PLAN_WEB_APP.md) — Phase 0 có baseline; Phase 1–4 đã triển khai local, Phase 5–9 chưa triển khai.
+- [Kế hoạch chuyển sang web app Netlify: 10 phase, giữ tính năng cũ và bổ sung đăng nhập/phân quyền/ảnh bìa](PLAN_WEB_APP.md) — Phase 0 có baseline; Phase 1–6 đã triển khai local, Phase 7–9 chưa triển khai.
 - [Hạn mức Google Apps Script](https://developers.google.com/apps-script/guides/services/quotas)
 - [Triển khai ứng dụng web Apps Script](https://developers.google.com/apps-script/guides/web)
 

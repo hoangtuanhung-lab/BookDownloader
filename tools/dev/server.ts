@@ -4,7 +4,7 @@ const env={...process.env,APP_ENV:process.env.APP_ENV||'local',DATABASE_URL:proc
 createServer(async (req,res)=>{
  try {
   const chunks:Buffer[]=[];let size=0;
-  for await(const chunk of req){size+=chunk.length;if(size>8192){res.writeHead(413);res.end('Request too large');return;}chunks.push(chunk);}
+  for await(const chunk of req){size+=chunk.length;if(size>1200000){res.writeHead(413);res.end('Request too large');return;}chunks.push(chunk);}
   const request=new Request('http://127.0.0.1:8888'+req.url,{method:req.method,headers:req.headers as Record<string,string>,body:['GET','HEAD'].includes(req.method||'GET')?undefined:Buffer.concat(chunks)});
   const response=await handleApi(request,env);
   res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));

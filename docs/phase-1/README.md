@@ -36,10 +36,10 @@ Trên máy của bạn, mở địa chỉ Vite in ra (mặc định cổng 5173)
 ```bash
 npm run build
 npm run test:bundle
-npm run worker
+npm run worker:check
 ```
 
-Worker Phase 1 kiểm DB rồi thoát: chưa nhận job, chưa tải truyện. `.env` được nạp cho dev API, worker và runner DB; biến đã export được ưu tiên. Runner migration/tests chỉ chấp nhận DB local (`localhost`, `127.0.0.1`, `db`), không dùng để chạy lên production. Migrations có checksum, lock và transaction; chạy lại bỏ qua file đã áp dụng, sửa file đã áp dụng sẽ bị từ chối. Thêm migration mới khi đổi schema.
+Bản Phase 1 kiểm DB rồi thoát: chưa nhận job, chưa tải truyện. `.env` được nạp cho dev API, worker và runner DB; biến đã export được ưu tiên. Runner migration/tests chỉ chấp nhận DB local (`localhost`, `127.0.0.1`, `db`), không dùng để chạy lên production. Migrations có checksum, lock và transaction; chạy lại bỏ qua file đã áp dụng, sửa file đã áp dụng sẽ bị từ chối. Thêm migration mới khi đổi schema.
 
 SQL/RLS tests tự tạo dữ liệu synthetic trong transaction và rollback toàn bộ. Không seed admin thật hay quyền cho tài khoản đăng nhập đầu tiên.
 
@@ -58,13 +58,15 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:browser
 
 Nếu thư mục home chỉ đọc, dùng `npm ci --cache /tmp/book-npm-cache`. Docker build có thể dùng `DOCKER_CONFIG=/tmp/book-docker`; Compose không cần sửa home. Không tắt TLS/package checksum để xử lý lỗi cài đặt. Đã kiểm các lệnh local với Node/npm ở trên; xem REPORT cho phạm vi.
 
+> Với checkout Phase 5–6 hiện tại, dùng `worker:check` để kiểm DB mà không cần credentials. `npm run worker` đã là executor hữu hạn nhận import/analysis/outbox; xem [hướng dẫn Phase 5](../phase-5/README.md). Các mô tả nhiệm vụ Phase 1 bên dưới là snapshot lịch sử.
+
 ## Docker worker
 
 Từ thư mục gốc:
 
 ```bash
 docker build -f apps/worker/Dockerfile -t book-worker:phase1 .
-docker run --rm --network host --env-file .env book-worker:phase1
+docker run --rm --network host --env-file .env book-worker:phase1 node dist/worker.mjs --check
 ```
 
 `--network host` dùng cho PostgreSQL local trên Linux. Trên Docker Desktop, đặt `DATABASE_URL` dùng `host.docker.internal` và dùng cấu hình kết nối staging cho worker khi deployment thật; hiện local adapter chỉ chấp nhận host local đã nêu, nên ưu tiên chạy `npm run worker` trên Desktop. Không dùng password local cho cloud.

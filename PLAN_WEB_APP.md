@@ -1,12 +1,12 @@
 # Kế hoạch chuyển Trình tải truyện sang web app Netlify
 
-- Bản kế hoạch: 0.6 — 08/10/2026 (Phase 0–4 local; cloud để sau khi đóng code).
+- Bản kế hoạch: 0.7 — 08/10/2026 (Phase 0–6 local; cloud để sau khi đóng code).
 - Baseline: Apps Script V1.59.2 tại commit `aae3c570286edac1db5ca355cbce40f5108d0a10` (mã info.txt được thêm ở `18d1b1e`); đọc `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md`, 29 file mã nguồn và bộ kiểm thử `tests/book-info.test.js` để đối chiếu khi triển khai.
-- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3 đã triển khai adapter/API/migration nền và kiểm chứng local; Phase 4 đã triển khai thư viện/reader và kiểm chứng local; Phase 5–9 chưa triển khai. Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 4](docs/phase-4/REPORT.md). Xem [báo cáo Phase 3](docs/phase-3/REPORT.md). Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
+- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3 đã triển khai adapter/API/migration nền và kiểm chứng local; Phase 4 đã triển khai thư viện/reader và kiểm chứng local; Phase 5 đã có quản lý/import/bìa và executor tối thiểu; Phase 6 đã có analysis/checkpoint/bảng 8 cột, kiểm chứng local; Phase 7–9 chưa triển khai. Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 5](docs/phase-5/REPORT.md), [báo cáo Phase 6](docs/phase-6/REPORT.md). Xem [báo cáo Phase 4](docs/phase-4/REPORT.md). Xem [báo cáo Phase 3](docs/phase-3/REPORT.md). Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
 - Mục tiêu: giữ toàn bộ hành vi nghiệp vụ đang có, thêm đăng nhập Google, phân quyền nhiều người và ảnh bìa; Google Drive chỉ lưu file, PostgreSQL là nguồn dữ liệu chính.
 - Cách làm: trước mỗi thay đổi mã, đọc plan cũ và plan này, xác định mã chức năng/phase, cập nhật checklist và bằng chứng kiểm thử sau khi làm. Tài liệu có nội dung lệch mã thì đối chiếu mã thật và ghi rõ chênh lệch, không lấy kết quả lịch sử làm kết quả mới.
 
-**Quyết định chủ dự án:** làm local trước, sau khi đóng code mới kiểm Google API, Netlify và database cloud. Các gate dịch vụ thật của Phase 1–4 giữ mở; không cản triển khai phase local tiếp theo. Ưu tiên gói miễn phí, chỉ đề xuất nâng cấp sau khi đo tải.
+**Quyết định chủ dự án:** làm local trước, sau khi đóng code mới kiểm Google API, Netlify và database cloud. Các gate dịch vụ thật của Phase 1–6 giữ mở; không cản triển khai phase local tiếp theo. Ưu tiên gói miễn phí, chỉ đề xuất nâng cấp sau khi đo tải.
 
 ## 1. Phạm vi và quyết định nền tảng
 
@@ -341,32 +341,32 @@ Phase 0 đã có bằng chứng bên dưới; Phase 1 có nền local bên dư�
 
 ### Phase 5 — Quản lý sách, nhập truyện, thể loại và ảnh bìa
 
-**Phụ thuộc:** 3–4. **Đầu ra:** quản lý đủ nghiệp vụ cũ và N03.
+**Phụ thuộc:** 3–4. **Trạng thái:** triển khai local; checklist dưới chỉ xác nhận code và kiểm local, chưa nghiệm thu cloud. **Đầu ra:** quản lý đủ nghiệp vụ cũ và N03.
 
-- [ ] Port edit/delete/groups/chapters/genre danh mục, primary genre, uniqueness normalize; option trash folder và audit actor.
-- [ ] Giữ draft/Lưu tất cả, vàng pending, partial errors và cảnh báo rời trang; optimistic concurrency hiển thị xung đột thay vì mất edit khác.
-- [ ] Port single TXT/Markdown/CSV, Hồi/lời tựa, cặp marker/toc/story và báo thiếu/thừa; upload không giới hạn bởi payload Function tùy ý. File lớn dùng phiên upload server quản lý/worker qua Drive, không public bucket nội dung vĩnh viễn.
-- [ ] Port import folder, name fallback và skipped; không tính info/import/log/bìa là chương. Thư mục đã đăng ký không dùng cho sách khác; phải có quyền ghi để tạo info.
-- [ ] Port thêm chương link/file/paste; bắt buộc group/order, cấm URL trùng; giới hạn text 300000 ký tự và file 2 MB cho thêm chương; giữ ngoại lệ text ngắn.
-- [ ] Ảnh bìa: đề xuất JPEG/PNG/WebP, tối đa 5 MB upload, kiểm magic bytes/decode/pixel limit, chuẩn hóa orientation, bỏ metadata, resize cạnh dài tối đa 1200 px; các giới hạn này là thiết kế mới cần kiểm chứng.
-- [ ] UI preview/chọn lại/xóa ảnh; ảnh mới staging asset, commit theo lần Lưu tất cả nếu sửa ở Quản lý. Hủy draft hoặc upload mồ côi được dọn sau TTL; không mất cover đang dùng khi upload lỗi.
-- [ ] Drive cover ID/hash/version trong DB; proxy cache có quyền, thay ảnh invalidate; chưa có ảnh dùng bìa chữ cũ. info.txt vẫn bốn mục, không thêm ảnh bìa vào file.
-- [ ] Outbox rename/move/info/cover với retry, retry không tạo file trùng và không xóa file ngoài ownership. Sách đang đồng bộ/lỗi hiện trạng thái rõ.
+- [x] Port edit/delete/groups/chapters/genre danh mục, primary genre, uniqueness normalize; option trash folder và audit actor.
+- [x] Giữ draft/Lưu tất cả, vàng pending, partial errors và cảnh báo rời trang; optimistic concurrency hiển thị xung đột thay vì mất edit khác.
+- [x] Port single TXT/Markdown/CSV, Hồi/lời tựa, cặp marker/toc/story và báo thiếu/thừa; upload chia chunk 256 KiB, import tối đa 64 MiB/phiên, 8 phiên/actor, TTL 24h; không gửi toàn bộ file qua một Function. File lớn dùng phiên upload server quản lý với bytes staging DB riêng tư có TTL; worker tạo _import.json và TXT trên Drive, hoàn tất mới dọn. Không public bucket nội dung vĩnh viễn.
+- [x] Port import folder, name fallback và skipped; không tính info/import/log/bìa là chương. Thư mục đã đăng ký không dùng cho sách khác; phải có quyền ghi để tạo info.
+- [x] Port thêm chương link/file/paste; bắt buộc group/order, cấm URL trùng; giới hạn text 300000 ký tự và file 2 MB cho thêm chương; giữ ngoại lệ text ngắn.
+- [x] Ảnh bìa: đề xuất JPEG/PNG/WebP, tối đa 5 MB upload, kiểm magic bytes/decode/20 triệu pixel với sharp 0.35.5, chuẩn hóa orientation, bỏ metadata, resize cạnh dài tối đa 1200 px; các giới hạn này là thiết kế mới cần kiểm chứng.
+- [x] UI preview/chọn lại/xóa ảnh; ảnh mới staging asset, commit theo lần Lưu tất cả nếu sửa ở Quản lý. Hủy draft hoặc upload mồ côi được dọn sau TTL; không mất cover đang dùng khi upload lỗi.
+- [x] Drive cover ID/hash/version trong DB; proxy cache có quyền, thay ảnh invalidate; chưa có ảnh dùng bìa chữ cũ. info.txt vẫn bốn mục, không thêm ảnh bìa vào file.
+- [x] Outbox rename/move/info/cover với retry, retry không tạo file trùng và không xóa file ngoài ownership. Sách đang đồng bộ/lỗi hiện trạng thái rõ.
 
-**Gate:** F14/F16–F28/F36–F38/N03 theo phạm vi phase đạt; import folder/file thật staging; preview/hủy/Lưu tất cả và thiếu quyền đều được kiểm tra. Import có thể enqueue trước khi worker hoàn chỉnh, nhưng phase chỉ hoàn thành sau khi executor tối thiểu tạo file thật và resume được.
+**Gate local:** F14/F16–F28/F36–F38/N03 theo phạm vi phase đạt; import folder/file thật staging; preview/hủy/Lưu tất cả và thiếu quyền đều được kiểm tra. Executor tối thiểu đã tạo file/checkpoint bằng adapter fixture với PostgreSQL thật local, resume và replay được kiểm chứng. Xem [README](docs/phase-5/README.md), [REPORT](docs/phase-5/REPORT.md). **Gate Drive/file thật staging còn mở**, thực hiện sau đóng code; không coi adapter fixture là Google API thật.
 
 ### Phase 6 — Phân tích URL và bảng Tải sách
 
-**Phụ thuộc:** 3, 5. **Đầu ra:** parser/analysis worker và bảng tương đương cũ.
+**Phụ thuộc:** 3, 5. **Trạng thái:** triển khai local; checklist dưới chỉ xác nhận code và kiểm local, chưa smoke website thật. **Đầu ra:** parser/analysis worker và bảng tương đương cũ.
 
-- [ ] Port discovery/parser/adapter với dependency injection, SITE_RULES và junk; phân trang/mixed/URL template không sinh URL thiếu bằng phỏng đoán.
-- [ ] Manual sample URL + total giữ giới hạn 1–20000; validate/SSRF ở máy chủ ngay cả với URL do thuật toán sinh.
-- [ ] Queue analysis bền vững, UI optimistic row hiện ngay, gửi request xong reconcile; reject trả lại input không mất URL.
-- [ ] Phân tích tuần tự; thêm khi đang chạy, giữ lỗi/retry/drop; đóng tab không mất queue; không auto tải ANALYZED.
-- [ ] Bảng 8 cột, info folder link và bước phân tích, edit lưu ngay, genre bulk có quyền manage; tạo info.txt tại hold.
-- [ ] Reanalyze tìm chapter mới, bảo toàn chapter IDs/file/progress; xử lý mixed ordering và nhãn theo baseline.
+- [x] Port discovery/parser/adapter với dependency injection, SITE_RULES và junk; phân trang/mixed/URL template không sinh URL thiếu bằng phỏng đoán.
+- [x] Manual sample URL + total giữ giới hạn 1–20000; validate/SSRF ở máy chủ ngay cả với URL do thuật toán sinh.
+- [x] Queue analysis bền vững, UI optimistic row hiện ngay, gửi request xong reconcile; reject trả lại input không mất URL.
+- [x] Phân tích tuần tự; thêm khi đang chạy, giữ lỗi/retry/drop; đóng tab không mất queue; không auto tải ANALYZED.
+- [x] Bảng 8 cột, info folder link và bước phân tích, edit lưu ngay, genre bulk có quyền manage; tạo info.txt tại hold.
+- [x] Reanalyze tìm chapter mới, bảo toàn chapter IDs/file/progress; xử lý mixed ordering và nhãn theo baseline.
 
-**Gate:** F01–F07/F26/F27 có golden + E2E; website fixture có paging/mixed/error; smoke website thật có quyền truy cập. Cloudflare/CAPTCHA không hỗ trợ thì báo rõ như giới hạn cũ, không coi là thành công parser.
+**Gate local:** F01–F07/F26/F27 có golden + E2E; website fixture có paging/mixed/error; smoke website thật có quyền truy cập. Đã kiểm fixture/golden/SQL/API/E2E và checkpoint nhiều trang; xem [README](docs/phase-6/README.md), [REPORT](docs/phase-6/REPORT.md). **Gate smoke website thật còn mở** cùng kiểm cloud sau đóng code. Cloudflare/CAPTCHA không hỗ trợ thì báo rõ như giới hạn cũ, không coi là thành công parser.
 
 ### Phase 7 — Worker tải đầy đủ, resume và vận hành tác vụ
 

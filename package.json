@@ -1,6 +1,6 @@
 {
   "name": "bookdownloader",
-  "version": "2.0.0-phase.4",
+  "version": "2.0.0-phase.6",
   "private": true,
   "type": "module",
   "engines": {
@@ -20,7 +20,7 @@
     "build:web": "vite build --config apps/web/vite.config.ts",
     "build:server": "node tools/dev/build.mjs",
     "test:legacy": "node --test tests/book-info.test.js tests/baseline/*.test.cjs",
-    "test": "tsx --test tests/phase-1/*.test.ts tests/phase-2/*.test.ts tests/phase-3/*.test.ts tests/phase-4/*.test.ts",
+    "test": "tsx --test tests/phase-1/*.test.ts tests/phase-2/*.test.ts tests/phase-3/*.test.ts tests/phase-4/*.test.ts tests/phase-5/*.test.ts tests/phase-6/*.test.ts",
     "test:db": "node --env-file-if-exists=.env --import tsx tools/dev/db-tests.ts",
     "db:migrate": "node --env-file-if-exists=.env --import tsx tools/dev/migrate.ts",
     "db:up": "docker compose up -d --wait db",
@@ -37,7 +37,10 @@
     "migration:dry-run": "tsx tools/migration/dry-run.ts",
     "migration:inventory": "node --env-file-if-exists=.env --import tsx tools/migration/inventory.ts",
     "test:reader:db": "node --env-file-if-exists=.env --import tsx tools/dev/reader-db-tests.ts",
-    "test:reader:browser": "playwright test --config tests/phase-4/playwright.config.ts"
+    "test:reader:browser": "playwright test --config tests/phase-4/playwright.config.ts",
+    "test:management:db": "node --env-file-if-exists=.env --import tsx tools/dev/management-db-tests.ts",
+    "test:management:browser": "playwright test --config tests/phase-5/playwright.config.ts",
+    "worker:check": "node --env-file-if-exists=.env --import tsx apps/worker/src/main.ts --check"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.117.3",
@@ -45,6 +48,7 @@
     "pg": "8.16.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "sharp": "0.35.5",
     "zod": "4.1.12"
   },
   "devDependencies": {
