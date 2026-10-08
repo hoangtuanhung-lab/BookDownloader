@@ -10,6 +10,8 @@ Mã nguồn ban đầu được nhập từ `TrinhTaiTruyen_V1.59.1.zip`. Phiên
 
 Xem [Phase 9 vận hành](docs/phase-9/README.md), [báo cáo Phase 9](docs/phase-9/REPORT.md), [release/rollback và sơ đồ](docs/phase-9/RUNBOOK.md), [Phase 8 local](docs/phase-8/README.md), [báo cáo và phần còn mở](docs/phase-8/REPORT.md), [hướng dẫn Phase 7](docs/phase-7/README.md), [báo cáo Phase 7](docs/phase-7/REPORT.md), [hướng dẫn Phase 5](docs/phase-5/README.md), [báo cáo Phase 5](docs/phase-5/REPORT.md), [hướng dẫn Phase 6](docs/phase-6/README.md), [báo cáo Phase 6](docs/phase-6/REPORT.md), [hướng dẫn Phase 4](docs/phase-4/README.md), [báo cáo Phase 4](docs/phase-4/REPORT.md), [hướng dẫn Phase 3](docs/phase-3/README.md), [báo cáo Phase 3](docs/phase-3/REPORT.md), [setup nền Phase 1](docs/phase-1/README.md), [hướng dẫn Google OAuth/Phase 2](docs/phase-2/README.md), [kết quả kiểm chứng](docs/phase-2/REPORT.md) và [plan triển khai](PLAN_WEB_APP.md). Làm local trước; sau khi đóng code mới kiểm Google API, Netlify và database cloud. Ưu tiên gói miễn phí; chưa provision staging hoặc bật billing. Các hướng dẫn Apps Script bên dưới vẫn áp dụng cho V1.59.2.
 
+Bước tiếp theo: [Phase 10 — kiểm staging sau đóng code](docs/phase-10/README.md). Đã chuẩn bị checklist; chưa có URL/credentials để chạy dịch vụ thật, production vẫn chưa kích hoạt.
+
 ## Chức năng chính
 
 - Phân tích một hoặc nhiều URL truyện, lấy tên, tác giả, thể loại và danh sách chương; giữ truyện đã phân tích để người dùng chọn bắt đầu tải.

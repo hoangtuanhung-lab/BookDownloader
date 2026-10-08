@@ -1,6 +1,6 @@
 # Kế hoạch chuyển Trình tải truyện sang web app Netlify
 
-- Bản kế hoạch: 0.10 — 09/10/2026 (Phase 0–9 local; cloud để sau khi đóng code).
+- Bản kế hoạch: 0.11 — Phase 0–9 local; bổ sung Phase 10 kiểm staging sau đóng code.
 - Baseline: Apps Script V1.59.2 tại commit `aae3c570286edac1db5ca355cbce40f5108d0a10` (mã info.txt được thêm ở `18d1b1e`); đọc `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md`, 29 file mã nguồn và bộ kiểm thử `tests/book-info.test.js` để đối chiếu khi triển khai.
 - Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3 đã triển khai adapter/API/migration nền và kiểm chứng local; Phase 4 đã triển khai thư viện/reader và kiểm chứng local; Phase 5 đã có quản lý/import/bìa và executor tối thiểu; Phase 6 đã có analysis/checkpoint/bảng 8 cột, kiểm chứng local; Phase 7 đã có worker tải WEB/FILE, cap riêng, resume/fencing, monitor và kiểm chứng local; Phase 8 đã có công cụ migration/verify/backup-restore/load/parity local; gate dịch vụ/thư viện thật còn mở. Phase 9 đã triển khai vận hành local: maintenance/root UI-API, reconcile FILE/queue/LOG/CONFIG, delta có backup/review, full backup/restore, release candidate/CI/manual deploy và tài liệu; production chưa kích hoạt. Xem [Phase 9](docs/phase-9/REPORT.md). Xem [báo cáo Phase 8](docs/phase-8/REPORT.md). Xem [báo cáo Phase 7](docs/phase-7/REPORT.md). Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 5](docs/phase-5/REPORT.md), [báo cáo Phase 6](docs/phase-6/REPORT.md). Xem [báo cáo Phase 4](docs/phase-4/REPORT.md). Xem [báo cáo Phase 3](docs/phase-3/REPORT.md). Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
 - Mục tiêu: giữ toàn bộ hành vi nghiệp vụ đang có, thêm đăng nhập Google, phân quyền nhiều người và ảnh bìa; Google Drive chỉ lưu file, PostgreSQL là nguồn dữ liệu chính.
@@ -434,6 +434,18 @@ Các mục bên dưới là **nghiệm thu trên dữ liệu/dịch vụ thật*
 
 **Gate:** nghiệm thu đầy đủ trên dịch vụ thật, owner chấp nhận chuyển vận hành, không có worker cũ/mới ghi chồng. Chỉ phase này mới gọi hệ mới hoàn tất thay thế; bản đọc sớm ở phase 4 là bản thử có phạm vi rõ.
 
+### Phase 10 — Kiểm thử staging sau đóng code (bổ sung)
+
+**Phụ thuộc:** code Phase 9 đã đóng; không yêu cầu production gate Phase 9 đã đạt. **Đầu ra:** bằng chứng Google API/Supabase/Netlify thật và quyết định sẵn sàng chuyển vận hành. Đây là phần nghiệm thu cloud đã hoãn, không tự đóng gate production Phase 9.
+
+- [x] Đọc hai plan/Phase 9, kiểm binding names/presence, chuẩn bị [hướng dẫn staging](docs/phase-10/README.md); hiện chưa có URL/credentials dịch vụ.
+- [ ] 10A: project Supabase/site Netlify staging riêng, free tier; cấu hình secrets đúng nơi, ghi URLs/revision, không bật billing.
+- [ ] 10B: 23 migrations + checksum ledger có review, Supabase RLS/RPC thật; Google OAuth/login/session/roles và Netlify health/version/SPA/CSP.
+- [ ] 10C: Drive owner/scopes/root staging, info/bìa/import; worker cùng SHA, finite download/retry/maintenance, chưa bật scheduler khi chưa kiểm.
+- [ ] 10D: backup DB + bytes/restore/rollback staging, mobile/đo quota-chi phí và báo cáo kết quả thật.
+
+**Gate:** các kiểm thử staging có bằng chứng thật; thiếu credential/URL ghi chưa chạy, không suy từ 495/495 kiểm thử local. Production/cutover/thư viện thật vẫn theo runbook và gate Phase 9. Chưa thay mã/version ứng dụng trong bước chuẩn bị này.
+
 ## 8. Thứ tự, checkpoint và phạm vi mỗi lần làm
 
 ```mermaid
@@ -447,6 +459,7 @@ flowchart LR
     P6 --> P7["7: Tải nền đầy đủ"]
     P7 --> P8["8: Migration/parity"]
     P8 --> P9["9: Phát hành"]
+    P9 --> P10["10: Kiểm staging sau đóng code"]
 ```
 
 - Checkpoint A (0–3): nền tảng và dữ liệu mẫu, chưa thay ứng dụng cũ.
