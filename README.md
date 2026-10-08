@@ -173,6 +173,7 @@ Mã có cơ chế loại bỏ một số chương lỗi nội dung rỗng/quá n
 
 - [Hướng dẫn sử dụng chi tiết](HUONG_DAN_SU_DUNG.md)
 - [Mô tả và lịch sử phát triển của bản nguồn](plan_TrinhTaiTruyen.md)
+- [Kế hoạch chuyển sang web app Netlify: 10 phase, giữ tính năng cũ và bổ sung đăng nhập/phân quyền/ảnh bìa](PLAN_WEB_APP.md) — kế hoạch chưa triển khai.
 - [Hạn mức Google Apps Script](https://developers.google.com/apps-script/guides/services/quotas)
 - [Triển khai ứng dụng web Apps Script](https://developers.google.com/apps-script/guides/web)
 

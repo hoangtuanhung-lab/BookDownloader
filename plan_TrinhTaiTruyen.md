@@ -375,6 +375,9 @@ Trạng thái: ĐANG MỞ | Phiên bản hiện tại: V1.59.2 | Cập nhật: 2
 - [!] 11. Chạy script kiểm tra, khóa checklist, xuất zip. Lý do: chưa khóa vì mục 8 còn LỖI K09; đã xuất zip tạm `TrinhTaiTruyen_V1.42.0.zip` ghi CHƯA KHÓA
 
 ## MÔ TẢ PHẦN MỀM
+
+**Kế hoạch chuyển sang web app:** xem [PLAN_WEB_APP.md](PLAN_WEB_APP.md), bản 0.1 ngày 08/10/2026. Kế hoạch gồm 10 phase (0–9), bảng đối chiếu chức năng/API V1.59.2, tái sử dụng module và các mục của plan này, Netlify + database + Drive lưu file, đăng nhập Google/phân quyền/ảnh bìa, migration và rollback. Đây là kế hoạch chưa triển khai; tài liệu này vẫn là baseline và lịch sử Apps Script V1.59.2. Mọi sửa mã phải đọc cả phần baseline liên quan và phase tương ứng trước khi làm.
+
 Trình tải truyện: web app Google Apps Script, Google Sheet làm cơ sở dữ liệu, Google Drive lưu file TXT của truyện. Ba chức năng: tải truyện từ website, quản lý sách, đọc truyện. Dùng riêng một mình (Chủ dự án xác nhận ngày 2026-09-30), không phân quyền theo người dùng; bảo vệ bằng cách triển khai Web App chỉ cho chính chủ script. Nền tảng: Google Apps Script Web App, giao diện tiếng Việt.
 
 File này là **plan và cũng là mô tả dự án**, hợp nhất từ `MO_TA_DU_AN.md` (bản 1.42.5 trở về trước) và plan cũ theo chỉ đạo của Chủ dự án ngày 2026-09-30. Mục 1 đến 3 nằm ở phần này, mục 4 đến 9 nằm ở THIẾT KẾ CHI TIẾT, mục 10 (các mốc phiên bản cũ) nằm ở NHẬT KÝ THAY ĐỔI.
