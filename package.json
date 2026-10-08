@@ -1,6 +1,6 @@
 {
   "name": "bookdownloader",
-  "version": "2.0.0-phase.3",
+  "version": "2.0.0-phase.4",
   "private": true,
   "type": "module",
   "engines": {
@@ -20,7 +20,7 @@
     "build:web": "vite build --config apps/web/vite.config.ts",
     "build:server": "node tools/dev/build.mjs",
     "test:legacy": "node --test tests/book-info.test.js tests/baseline/*.test.cjs",
-    "test": "tsx --test tests/phase-1/*.test.ts tests/phase-2/*.test.ts tests/phase-3/*.test.ts",
+    "test": "tsx --test tests/phase-1/*.test.ts tests/phase-2/*.test.ts tests/phase-3/*.test.ts tests/phase-4/*.test.ts",
     "test:db": "node --env-file-if-exists=.env --import tsx tools/dev/db-tests.ts",
     "db:migrate": "node --env-file-if-exists=.env --import tsx tools/dev/migrate.ts",
     "db:up": "docker compose up -d --wait db",
@@ -35,7 +35,9 @@
     "test:auth:concurrency": "node --env-file-if-exists=.env --import tsx tools/dev/auth-concurrency-tests.ts",
     "test:storage:db": "node --env-file-if-exists=.env --import tsx tools/dev/storage-db-tests.ts",
     "migration:dry-run": "tsx tools/migration/dry-run.ts",
-    "migration:inventory": "node --env-file-if-exists=.env --import tsx tools/migration/inventory.ts"
+    "migration:inventory": "node --env-file-if-exists=.env --import tsx tools/migration/inventory.ts",
+    "test:reader:db": "node --env-file-if-exists=.env --import tsx tools/dev/reader-db-tests.ts",
+    "test:reader:browser": "playwright test --config tests/phase-4/playwright.config.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.117.3",
@@ -46,6 +48,11 @@
     "zod": "4.1.12"
   },
   "devDependencies": {
+    "@fontsource/eb-garamond": "5.3.0",
+    "@fontsource/literata": "5.3.0",
+    "@fontsource/merriweather": "5.3.0",
+    "@fontsource/roboto": "5.3.0",
+    "@fontsource/tinos": "5.3.0",
     "@playwright/test": "1.56.1",
     "@types/node": "24.10.0",
     "@types/pg": "8.15.6",

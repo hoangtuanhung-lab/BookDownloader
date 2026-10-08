@@ -1,12 +1,12 @@
 # Kế hoạch chuyển Trình tải truyện sang web app Netlify
 
-- Bản kế hoạch: 0.5 — 08/10/2026 (Phase 0–3 local; cloud để sau khi đóng code).
+- Bản kế hoạch: 0.6 — 08/10/2026 (Phase 0–4 local; cloud để sau khi đóng code).
 - Baseline: Apps Script V1.59.2 tại commit `aae3c570286edac1db5ca355cbce40f5108d0a10` (mã info.txt được thêm ở `18d1b1e`); đọc `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md`, 29 file mã nguồn và bộ kiểm thử `tests/book-info.test.js` để đối chiếu khi triển khai.
-- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3 đã triển khai adapter/API/migration nền và kiểm chứng local; Phase 4–9 chưa triển khai. Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 3](docs/phase-3/REPORT.md). Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
+- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3 đã triển khai adapter/API/migration nền và kiểm chứng local; Phase 4 đã triển khai thư viện/reader và kiểm chứng local; Phase 5–9 chưa triển khai. Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 4](docs/phase-4/REPORT.md). Xem [báo cáo Phase 3](docs/phase-3/REPORT.md). Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
 - Mục tiêu: giữ toàn bộ hành vi nghiệp vụ đang có, thêm đăng nhập Google, phân quyền nhiều người và ảnh bìa; Google Drive chỉ lưu file, PostgreSQL là nguồn dữ liệu chính.
 - Cách làm: trước mỗi thay đổi mã, đọc plan cũ và plan này, xác định mã chức năng/phase, cập nhật checklist và bằng chứng kiểm thử sau khi làm. Tài liệu có nội dung lệch mã thì đối chiếu mã thật và ghi rõ chênh lệch, không lấy kết quả lịch sử làm kết quả mới.
 
-**Quyết định chủ dự án:** làm local trước, sau khi đóng code mới kiểm Google API, Netlify và database cloud. Các gate dịch vụ thật của Phase 1–3 giữ mở; không cản triển khai phase local tiếp theo. Ưu tiên gói miễn phí, chỉ đề xuất nâng cấp sau khi đo tải.
+**Quyết định chủ dự án:** làm local trước, sau khi đóng code mới kiểm Google API, Netlify và database cloud. Các gate dịch vụ thật của Phase 1–4 giữ mở; không cản triển khai phase local tiếp theo. Ưu tiên gói miễn phí, chỉ đề xuất nâng cấp sau khi đo tải.
 
 ## 1. Phạm vi và quyết định nền tảng
 
@@ -327,16 +327,17 @@ Phase 0 đã có bằng chứng bên dưới; Phase 1 có nền local bên dư�
 
 ### Phase 4 — Đọc truyện và thư viện cho độc giả
 
-**Phụ thuộc:** 2–3. **Đầu ra:** bản dùng được để đọc sách nhập thử.
+**Phụ thuộc:** 2–3. **Đầu ra:** thư viện/reader local đọc dữ liệu nhập thử synthetic, API/SQL và UI đã kiểm chứng. Cloud để sau khi đóng code theo chủ dự án.
 
-- [ ] Port danh sách tìm không dấu, thư viện grid/table/sort/pagination và card mặc định từ Manager; chỉ sách xuất bản được hiển thị cho reader.
-- [ ] Port cây Phần/Quyển/Chương/Hồi, số hiệu/phần không nhóm/lời tựa, chuyển chương, empty/deleted/error state.
-- [ ] Giữ scroll/page, font hệ số, theme/blue, phím/touch, thanh nổi, resize giữ ratio và modal trợ giúp.
-- [ ] Giữ cluster 5, prefetch, 2 cụm cache; AbortController/request version ngăn response sách cũ hiện ở sách mới; giới hạn memory/bytes trên mobile.
-- [ ] Progress/preferences namespace user; debounce local 500 ms/server khoảng 4 s, lifecycle flush best-effort có retry lần mở sau. DB revision/server time tránh client clock cũ ghi đè; xung đột chương hiện hỏi tiếp tục như cũ.
-- [ ] Tiến độ trên card đồng bộ theo user; không copy progress chủ thư viện sang user mới. Reader content cache vẫn phải kiểm permission/visibility mỗi request.
+- [x] Library tìm không dấu tên/tác giả/thể loại, grid/table/sort/pagination 24, bìa chữ/ảnh riêng và progress card; chỉ sách published/chưa xóa ở màn Đọc.
+- [x] Mục lục Phần/Quyển/Chương/Hồi, số ghép/âm/nhóm trống/lời tựa; trang 200, navigation và empty/deleted/error/retry.
+- [x] Scroll/page, font hệ số + self-host Vietnamese fonts/license, theme/blue, phím/touch/tap, thanh nổi, resize/font loading giữ ratio và trợ giúp dialog.
+- [x] Cluster 5, prefetch, tối đa 2 cụm/4 MB cache browser và 2 MB nội dung/cluster server; metadata/quyền/version trước cache, abort/request generation chống sách cũ.
+- [x] Progress/preferences namespace user, local 500 ms/server khoảng 4 s, lifecycle flush + durable pending retry. Reload cùng user giữ pending; logout/switch/revoke xóa. Revision/server timestamp và dialog conflict; chọn server không ghi vị trí cũ.
+- [x] Card progress riêng actor; hai user/browser contexts không lẫn dữ liệu, đọc không cần worker. API không cho browser spoof actor/file IDs.
+- [ ] Kiểm Google/Drive/Supabase/PostgREST/Netlify và thiết bị cảm ứng/heap/thư viện lớn thật, để đợt nghiệm thu cloud sau đóng code.
 
-**Gate:** F23/F29–F35/N04 có E2E trên desktop/mobile, keyboard và trình duyệt thật; hai user không lẫn cache, hai thiết bị khôi phục đúng; reader vẫn đọc được khi worker không chạy.
+**Gate local:** F23/F29–F35/N04 có Chromium E2E desktop/mobile/keyboard, SQL/permission/cache và hai browser contexts; đã đạt. Xem [README](docs/phase-4/README.md), [REPORT](docs/phase-4/REPORT.md). **Gate cloud/điện thoại vật lý còn mở**, không coi mocks là dịch vụ thật.
 
 ### Phase 5 — Quản lý sách, nhập truyện, thể loại và ảnh bìa
 

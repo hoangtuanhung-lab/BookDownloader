@@ -1,0 +1,88 @@
+import '@fontsource/literata/latin-400.css';
+import '@fontsource/literata/latin-ext-400.css';
+import '@fontsource/literata/vietnamese-400.css';
+import '@fontsource/merriweather/latin-400.css';
+import '@fontsource/merriweather/latin-ext-400.css';
+import '@fontsource/merriweather/vietnamese-400.css';
+import '@fontsource/roboto/latin-400.css';
+import '@fontsource/roboto/latin-ext-400.css';
+import '@fontsource/roboto/vietnamese-400.css';
+import '@fontsource/eb-garamond/latin-400.css';
+import '@fontsource/eb-garamond/latin-ext-400.css';
+import '@fontsource/eb-garamond/vietnamese-400.css';
+import '@fontsource/tinos/latin-400.css';
+import '@fontsource/tinos/latin-ext-400.css';
+import '@fontsource/tinos/vietnamese-400.css';
+import {useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
+import {ChapterPage,ChapterCluster,LibraryBook,ReaderPreferences,type LibraryBook as Book,type ReaderChapter,type ClusterItem} from '../../../../packages/contracts/src/index';
+import {chapterLabel,ClusterCache,fonts,persist,stored,userKey,ProgressSync,type Call,type PendingPosition} from './model';
+type Preferences=ReturnType<typeof ReaderPreferences.parse>;
+const defaults:Preferences={font:'Tinos',fontSize:19,theme:'day',blueFilter:0,mode:'chapter',view:'scroll'};
+export function Reader({user,initialBook,call,notify,back}:{user:string;initialBook:Book;call:Call;notify:(text:string)=>void;back:()=>void}){
+ const bid=initialBook.id,key=userKey(user,'progress:'+bid),prefKey=userKey(user,'preferences');
+ const [book,setBook]=useState(initialBook),[chapters,setChapters]=useState<ReaderChapter[]>([]),[selected,setSelected]=useState<ReaderChapter|null>(null),[index,setIndex]=useState(0),[item,setItem]=useState<ClusterItem|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(true),[tree,setTree]=useState(false),[gear,setGear]=useState(false),[help,setHelp]=useState(false),[prefs,setPrefs]=useState<Preferences>(defaults),[preferencesReady,setPreferencesReady]=useState(false),[page,setPage]=useState(0),[pages,setPages]=useState(1),[conflict,setConflict]=useState<any>(null),[treeOffset,setTreeOffset]=useState(0);
+ const viewport=useRef<HTMLDivElement>(null),text=useRef<HTMLDivElement>(null),dialog=useRef<HTMLDialogElement>(null),conflictDialog=useRef<HTMLDialogElement>(null);
+ const cache=useRef(new ClusterCache(user+':'+bid)),alive=useRef(false),generation=useRef(0),navAbort=useRef<AbortController|null>(null),prefetches=useRef(new Set<AbortController>()),ready=useRef(false),ratio=useRef(0),geometry=useRef({pages:1,step:1}),current=useRef<ReaderChapter|null>(null),prefsRef=useRef(prefs),bookRef=useRef(book),positionTimer=useRef<ReturnType<typeof setTimeout>|null>(null),syncTimer=useRef<ReturnType<typeof setTimeout>|null>(null),currentStart=useRef(0);
+ prefsRef.current=prefs;bookRef.current=book;
+ const sync=useRef<ProgressSync|null>(null);
+ if(!sync.current)sync.current=new ProgressSync(key,'/me/progress/'+bid,call,server=>{if(alive.current)setConflict(server||{revision:0});});
+ function position(){const v=viewport.current;if(!v||!current.current||!ready.current)return null;const value=prefsRef.current.view==='page'?(geometry.current.pages>1?Math.round(v.scrollLeft/geometry.current.step)/(geometry.current.pages-1):0):(v.scrollHeight>v.clientHeight?v.scrollTop/(v.scrollHeight-v.clientHeight):0);ratio.current=Math.max(0,Math.min(1,value));return {chapterId:current.current.id,ratio:ratio.current,scrollPosition:prefsRef.current.view==='page'?0:v.scrollTop};}
+ const record=()=>{const value=position();if(value)sync.current?.record(value);};
+ function schedule(){if(!ready.current)return;position();if(positionTimer.current)clearTimeout(positionTimer.current);positionTimer.current=setTimeout(record,500);if(syncTimer.current)clearTimeout(syncTimer.current);syncTimer.current=setTimeout(()=>{record();void sync.current?.flush();},4000);}
+ const navigate=useCallback(async(target:number,restore=0)=>{
+  if(!alive.current)return;record();void sync.current?.flush();ready.current=false;navAbort.current?.abort();const controller=new AbortController();navAbort.current=controller;const mine=++generation.current;
+  setIndex(target);setBusy(true);setError('');setItem(null);ratio.current=restore;current.current=null;
+  try{
+   const fresh=ChapterPage.parse(await call(`/books/${bid}/chapters?offset=${target}&limit=1`,{signal:controller.signal}));if(!alive.current||mine!==generation.current)return;setBook(fresh.book);
+   const chapter=fresh.chapters[0];if(!chapter){setError(fresh.total?'Chương không còn trong thư viện.':'Truyện chưa có chương để đọc.');setSelected(null);return;}
+   current.current=chapter;setSelected(chapter);currentStart.current=Math.floor(target/5)*5;
+   const offset=Math.floor(target/200)*200;const list=ChapterPage.parse(await call(`/books/${bid}/chapters?offset=${offset}`,{signal:controller.signal}));if(mine!==generation.current||!alive.current)return;setChapters(list.chapters);setTreeOffset(offset);
+   let value=cache.current.get(currentStart.current,chapter.id,chapter.cacheTag);
+   if(!value||value.error){const cluster=ChapterCluster.parse(await call(`/books/${bid}/cluster?start=${currentStart.current}`,{signal:controller.signal}));if(mine!==generation.current||!alive.current)return;cache.current.put(cluster,currentStart.current);value=cluster.items.find(i=>i.id===chapter.id&&i.cacheTag===chapter.cacheTag);}
+   if(!value||value.error||value.text===undefined){setError(value?.error||'Không tải được nội dung chương.');return;}setItem(value);
+   const next=currentStart.current+5;if(next<fresh.total){const prefetch=new AbortController();prefetches.current.add(prefetch);void call(`/books/${bid}/cluster?start=${next}`,{signal:prefetch.signal}).then(result=>{if(alive.current&&!prefetch.signal.aborted)cache.current.put(result,currentStart.current);}).catch(()=>{}).finally(()=>prefetches.current.delete(prefetch));}
+  }catch(e:any){if(alive.current&&!controller.signal.aborted&&mine===generation.current)setError(e.message||'Không đọc được truyện');}
+  finally{if(alive.current&&mine===generation.current)setBusy(false);}
+ },[call,bid]);
+ useEffect(()=>{
+  alive.current=true;sync.current=new ProgressSync(key,'/me/progress/'+bid,call,server=>{if(alive.current)setConflict(server||{revision:0});});const controller=new AbortController();
+  void Promise.all([call('/books/'+bid,{signal:controller.signal}),call('/me/preferences',{signal:controller.signal})]).then(([value,serverPrefs])=>{
+   if(!alive.current||controller.signal.aborted)return;const latest=LibraryBook.parse(value);setBook(latest);bookRef.current=latest;
+   const local=stored<any>(prefKey,null);const parsed=ReaderPreferences.safeParse(local?.value);const valuePrefs=local?.dirty&&parsed.success?parsed.data:serverPrefs?ReaderPreferences.parse(serverPrefs):defaults;setPrefs(valuePrefs);setPreferencesReady(true);
+   const resume=sync.current!.start(latest.progress);const pos=resume.local||resume.server;const start=pos?.chapterId===latest.progress?.chapterId?(latest.progressIndex||0):stored<number>(userKey(user,'index:'+bid),0);
+   void navigate(Math.min(Math.max(0,start),Math.max(0,latest.chapterCount-1)),pos?.ratio||0);
+  }).catch(e=>{if(alive.current&&!controller.signal.aborted){setError(e.message||'Không mở được truyện');setBusy(false);}});
+  const flush=()=>{record();void sync.current?.flush(true);};const hidden=()=>{if(document.hidden)flush();};window.addEventListener('pagehide',flush);document.addEventListener('visibilitychange',hidden);
+  return()=>{alive.current=false;ready.current=false;generation.current++;controller.abort();navAbort.current?.abort();for(const c of prefetches.current)c.abort();prefetches.current.clear();cache.current.clear();if(positionTimer.current)clearTimeout(positionTimer.current);if(syncTimer.current)clearTimeout(syncTimer.current);sync.current?.stop();sync.current=null;window.removeEventListener('pagehide',flush);document.removeEventListener('visibilitychange',hidden);};
+ },[bid,call]);
+ useEffect(()=>{if(!preferencesReady)return;const value=ReaderPreferences.parse(prefs);persist(prefKey,{value,dirty:true});const controller=new AbortController();const timer=setTimeout(()=>{void call('/me/preferences',{method:'PUT',body:JSON.stringify(value),signal:controller.signal}).then(()=>{if(!controller.signal.aborted)persist(prefKey,{value,dirty:false});}).catch(()=>{});},500);return()=>{clearTimeout(timer);controller.abort();};},[prefs,preferencesReady,prefKey,call]);
+ function layout(){const v=viewport.current,a=text.current;if(!v||!a||!item)return;ready.current=false;
+  const r=ratio.current;
+  if(prefsRef.current.view==='page'){const w=Math.floor(v.clientWidth),h=v.clientHeight,controls=Math.ceil(document.querySelector('.reader-float')?.getBoundingClientRect().height||84);a.style.height=Math.max(100,h-controls-16)+'px';a.style.width=w+'px';a.style.columnWidth=w+'px';a.style.columnGap='32px';const step=w+32,n=Math.max(1,Math.round((a.scrollWidth+32)/step));geometry.current={pages:n,step};const pg=Math.round(r*(n-1));v.scrollTop=0;v.scrollLeft=pg*step;setPages(n);setPage(pg);}
+  else{a.style.height=a.style.width=a.style.columnWidth=a.style.columnGap='';v.scrollLeft=0;v.scrollTop=r*Math.max(0,v.scrollHeight-v.clientHeight);geometry.current={pages:1,step:1};setPage(0);setPages(1);}
+  ready.current=true;
+ }
+ useLayoutEffect(()=>{if(!item)return;layout();persist(userKey(user,'index:'+bid),index);},[item,prefs,bid,index]);
+ useEffect(()=>{const resized=()=>layout();const observer=new ResizeObserver(resized);if(viewport.current)observer.observe(viewport.current);window.addEventListener('resize',resized);document.fonts.addEventListener('loadingdone',resized);return()=>{observer.disconnect();window.removeEventListener('resize',resized);document.fonts.removeEventListener('loadingdone',resized);};},[item]);
+ function turn(direction:number){if(!ready.current)return;const v=viewport.current;if(prefsRef.current.view!=='page'){void navigate(index+direction);return;}const pg=Math.round((v?.scrollLeft||0)/geometry.current.step)+direction;if(pg<0){if(index>0)void navigate(index-1,1);}else if(pg>=geometry.current.pages){if(index<book.chapterCount-1)void navigate(index+1);}else if(v){v.scrollLeft=pg*geometry.current.step;setPage(pg);schedule();}}
+ useEffect(()=>{function keydown(event:KeyboardEvent){if((event.target as HTMLElement).closest('input,select,textarea,dialog')||event.altKey||event.ctrlKey||event.metaKey)return;if(['ArrowLeft','ArrowRight','PageUp','PageDown'].includes(event.key)){event.preventDefault();const d=['ArrowRight','PageDown'].includes(event.key)?1:-1;if(prefsRef.current.view==='page')turn(d);else if(['ArrowLeft','ArrowRight'].includes(event.key)&&index+d>=0&&index+d<book.chapterCount)void navigate(index+d);else viewport.current?.scrollBy({top:d*viewport.current.clientHeight*.85});}if(event.key==='Escape'){setTree(false);setGear(false);}}
+  window.addEventListener('keydown',keydown);return()=>window.removeEventListener('keydown',keydown);},[index,book.chapterCount,item]);
+ useEffect(()=>{if(help)dialog.current?.showModal();else dialog.current?.close();},[help]);useEffect(()=>{if(conflict)conflictDialog.current?.showModal();else conflictDialog.current?.close();},[conflict]);
+ const touch=useRef({x:0,y:0,swiped:false});
+ async function resolve(useServer:boolean){
+  try{if(useServer){const latest=LibraryBook.parse(await call('/books/'+bid));if(!alive.current)return;sync.current?.discard();if(sync.current)sync.current.revision=latest.progress?.revision||0;ready.current=false;setConflict(null);void navigate(latest.progressIndex||0,latest.progress?.ratio||0);}
+   else{setConflict(null);sync.current?.rebase();void sync.current?.flush();notify('Tiếp tục vị trí đọc trên thiết bị này');}}
+  catch(e:any){if(alive.current)notify(e.message||'Chưa lấy được vị trí máy chủ');}
+ }
+ async function treePage(offset:number){try{const data=ChapterPage.parse(await call(`/books/${bid}/chapters?offset=${offset}`));if(alive.current){setChapters(data.chapters);setTreeOffset(offset);}}catch(e:any){if(alive.current)notify(e.message);}}
+ return <section className="reader" data-theme={prefs.theme}><button onClick={()=>{record();void sync.current?.flush().then(()=>{if(alive.current)back();});}}>← Thư viện</button><h1>{book.name}</h1><p>{book.author||'Chưa rõ tác giả'}</p><div className="reader-toolbar"><button aria-expanded={tree} onClick={()=>setTree(!tree)}>Mục lục</button><button aria-expanded={gear} onClick={()=>setGear(!gear)}>Cài đặt đọc</button><button onClick={()=>setHelp(true)}>Trợ giúp đọc</button></div>
+ {gear&&<fieldset className="reader-settings"><legend>Cài đặt đọc</legend><label>Phông chữ<select value={prefs.font} onChange={e=>setPrefs(p=>({...p,font:e.target.value as Preferences['font']}))}>{Object.keys(fonts).map(font=><option key={font} value={font}>{font==='Tinos'?'Times New Roman / Tinos':font}</option>)}</select></label><label>Cỡ chữ<input type="range" min="12" max="48" value={prefs.fontSize} onChange={e=>setPrefs(p=>({...p,fontSize:Number(e.target.value)}))}/><output>{prefs.fontSize}</output></label><button onClick={()=>setPrefs(p=>({...p,theme:p.theme==='day'?'night':'day'}))}>{prefs.theme==='day'?'Chế độ đêm':'Chế độ ngày'}</button><label>Lọc ánh sáng xanh<select value={prefs.blueFilter} onChange={e=>setPrefs(p=>({...p,blueFilter:Number(e.target.value)}))}>{[0,.15,.3,.45].map(n=><option key={n} value={n}>{Math.round(n*100)}%</option>)}</select></label><button onClick={()=>{position();setPrefs(p=>({...p,view:p.view==='page'?'scroll':'page'}));}}>{prefs.view==='page'?'Cuộn dọc':'Lật trang'}</button></fieldset>}
+ {tree&&<nav className="chapter-tree" aria-label="Mục lục chương"><h2>Mục lục</h2><button onClick={()=>document.querySelectorAll<HTMLDetailsElement>('.chapter-tree details').forEach(d=>d.open=true)}>Mở hết</button><button onClick={()=>document.querySelectorAll<HTMLDetailsElement>('.chapter-tree details').forEach(d=>d.open=false)}>Thu gọn</button>{[...new Set(chapters.map(c=>c.part))].map(part=><details key={part} open><summary>{part||'Không có phần'}</summary>{[...new Set(chapters.filter(c=>c.part===part).map(c=>c.volume))].map(vol=><details key={vol} open><summary>{vol||'Không có quyển'}</summary>{chapters.filter(c=>c.part===part&&c.volume===vol).map(ch=><button key={ch.id} aria-current={ch.index===index?'true':undefined} onClick={()=>{setTree(false);void navigate(ch.index);}}>{chapterLabel(ch,book.label)}</button>)}</details>)}</details>)}<button disabled={!treeOffset} onClick={()=>void treePage(Math.max(0,treeOffset-200))}>200 chương trước</button><button disabled={treeOffset+200>=book.chapterCount} onClick={()=>void treePage(treeOffset+200)}>200 chương sau</button></nav>}
+ <h2>{selected?chapterLabel(selected,book.label,item?.title||selected.title):'Đọc truyện'}</h2>{busy&&<p role="status">Đang tải chương…</p>}{error&&<div role="alert">{error}<button onClick={()=>void navigate(index,ratio.current)}>Thử lại chương</button></div>}
+ <div className="reader-paper"><div className="blue-filter" style={{opacity:prefs.blueFilter}}/><div ref={viewport} tabIndex={0} aria-label="Nội dung chương" className={'reader-viewport '+(prefs.view==='page'?'paged':'scroll')} onScroll={()=>{if(prefsRef.current.view==='page')setPage(Math.round((viewport.current?.scrollLeft||0)/geometry.current.step));schedule();}} onClick={e=>{if(prefs.view!=='page'||touch.current.swiped||window.getSelection()?.toString())return;const box=e.currentTarget.getBoundingClientRect(),x=(e.clientX-box.left)/box.width;if(x<.3)turn(-1);else if(x>.7)turn(1);}} onTouchStart={e=>{const t=e.changedTouches[0];touch.current={x:t.clientX,y:t.clientY,swiped:false};}} onTouchEnd={e=>{const t=e.changedTouches[0],dx=t.clientX-touch.current.x,dy=t.clientY-touch.current.y;if(prefs.view==='page'&&Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){touch.current.swiped=true;turn(dx<0?1:-1);}}}>
+ <div ref={text} className="reader-text" style={{fontFamily:fonts[prefs.font].css,fontSize:prefs.fontSize*fonts[prefs.font].factor}}>{item?.text?.split(/\n{2,}/).filter(Boolean).map((paragraph,i)=><p key={i}>{paragraph}</p>)}</div></div></div>
+ <div className="reader-float"><button disabled={busy||index<=0} onClick={()=>void navigate(index-1)}>Chương trước</button><span>{book.chapterCount?index+1:0}/{book.chapterCount}</span><button disabled={busy||index>=book.chapterCount-1} onClick={()=>void navigate(index+1)}>Chương sau</button>{prefs.view==='page'&&<><button disabled={!ready.current||(page===0&&index===0)} onClick={()=>turn(-1)}>Lật trước</button><output aria-label="Số trang">{page+1}/{pages}</output><button disabled={!ready.current||(page===pages-1&&index===book.chapterCount-1)} onClick={()=>turn(1)}>Lật sau</button></>}</div>
+ <dialog ref={dialog} onCancel={()=>setHelp(false)} onClose={()=>setHelp(false)}><h2>Hướng dẫn đọc</h2><p>Cuộn dọc để đọc. Trong chế độ lật trang, dùng ← →, PageUp/PageDown, nút lật, chạm mép trái/phải hoặc vuốt ngang. Trong chế độ cuộn, ← → chuyển chương. Mục lục giữ Phần, Quyển, Hồi và lời tựa.</p><p>Tiến độ lưu riêng theo tài khoản. Khi hai thiết bị thay đổi cùng lúc, chọn vị trí muốn tiếp tục. Nếu mạng lỗi, vị trí trên thiết bị được thử đồng bộ lần mở sau.</p><button autoFocus onClick={()=>setHelp(false)}>Đóng trợ giúp</button></dialog>
+ <dialog ref={conflictDialog} onCancel={e=>e.preventDefault()}><h2>Vị trí đọc đã thay đổi</h2><p>Thiết bị khác đã cập nhật tiến độ. Bạn muốn tiếp tục vị trí nào?</p><button onClick={()=>void resolve(true)}>Dùng vị trí trên máy chủ</button><button onClick={()=>void resolve(false)}>Tiếp tục trên thiết bị này</button></dialog>
+ </section>;
+}

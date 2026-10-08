@@ -25,7 +25,16 @@ export type Account = z.infer<typeof Account>;
 export const AdminUser = Account.extend({email:z.string().nullable(),status:z.enum(['active','blocked'])}).strict();
 export type AdminUser = z.infer<typeof AdminUser>;
 export const AccountUpdate = z.object({permissions:z.array(Permission).max(4),status:z.enum(['active','blocked'])}).strict();
-export const ReaderPreferences = z.object({font:z.enum(['Literata','Merriweather','Roboto','EB Garamond','Tinos']),fontSize:z.number().int().min(12).max(48),theme:z.enum(['day','night']),blueFilter:z.number().min(0).max(1),mode:z.enum(['chapter','continuous'])}).strict();
+export const ReaderPreferences = z.object({font:z.enum(['Literata','Merriweather','Roboto','EB Garamond','Tinos']),fontSize:z.number().int().min(12).max(48),theme:z.enum(['day','night']),blueFilter:z.number().min(0).max(1),mode:z.enum(['chapter','continuous']),view:z.enum(['scroll','page']).optional()}).strict();
 export const ProgressUpdate = z.object({chapterId:z.uuid(),ratio:z.number().min(0).max(1),scrollPosition:z.number().min(0).max(1e9),expectedRevision:z.number().int().min(0).max(Number.MAX_SAFE_INTEGER)}).strict();
 export const ReadingProgress = ProgressUpdate.omit({expectedRevision:true}).extend({revision:z.number().int().positive(),updatedAt:z.string()}).strict();
 export function hasPermission(account:Account,permission:Permission):boolean {return account.permissions.includes('admin')||account.permissions.includes(permission);}
+export const LibraryBook=ReaderBook.omit({coverUrl:true}).extend({label:z.string(),chapterCount:z.number().int().nonnegative(),hasCover:z.boolean(),progress:ReadingProgress.nullable(),progressIndex:z.number().int().nonnegative().nullable(),version:z.number().int().positive()}).strict();
+export type LibraryBook=z.infer<typeof LibraryBook>;
+export const LibraryPage=z.object({books:z.array(LibraryBook).max(24),total:z.number().int().nonnegative(),offset:z.number().int().nonnegative()}).strict();
+export const ReaderChapter=z.object({id:z.uuid(),index:z.number().int().nonnegative(),order:z.number(),displayNumber:z.string(),title:z.string(),part:z.string(),volume:z.string(),cacheTag:z.string()}).strict();
+export type ReaderChapter=z.infer<typeof ReaderChapter>;
+export const ChapterPage=z.object({book:LibraryBook,chapters:z.array(ReaderChapter).max(200),total:z.number().int().nonnegative(),offset:z.number().int().nonnegative()}).strict();
+export const ClusterItem=z.object({id:z.uuid(),cacheTag:z.string(),text:z.string().optional(),title:z.string().optional(),error:z.string().optional()}).strict();
+export type ClusterItem=z.infer<typeof ClusterItem>;
+export const ChapterCluster=z.object({start:z.number().int().nonnegative(),items:z.array(ClusterItem).max(5)}).strict();

@@ -35,11 +35,13 @@ jobs:
       - run: npm run test:db
       - run: npm run test:auth:db
       - run: npm run test:storage:db
+      - run: npm run test:reader:db
       - run: npm run test:auth:concurrency
       - run: npm run db:migrate # Check repeatability.
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - run: npm run test:auth:browser
+      - run: npm run test:reader:browser
       - run: npm run build:web && npm run test:bundle
         env:
           SUPABASE_SERVICE_ROLE_KEY: server-secret-sentinel

@@ -4,7 +4,7 @@ import {z} from 'zod';
 import {checkDatabase} from '../../packages/infrastructure/src/health';
 import {safeLog} from '../../packages/infrastructure/src/logging';
 import {createAuthServices,type AuthServices} from '../../packages/infrastructure/src/auth';
-import {Account,AccountUpdate,AdminUser,AppError,hasPermission,ProgressUpdate,ReaderPreferences} from '../../packages/contracts/src/index';
+import {LibraryBook,LibraryPage,ChapterPage,Account,AccountUpdate,AdminUser,AppError,hasPermission,ProgressUpdate,ReaderPreferences} from '../../packages/contracts/src/index';
 export async function handleApi(request:Request,env:NodeJS.ProcessEnv=process.env,check=checkDatabase,injected?:AuthServices,storage?:ReaderStorage):Promise<Response> {
  const correlationId=randomUUID();
  const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Correlation-ID':correlationId,'X-Content-Type-Options':'nosniff'};
@@ -52,6 +52,28 @@ export async function handleApi(request:Request,env:NodeJS.ProcessEnv=process.en
   if(progress && ['GET','PUT'].includes(request.method)) {
    requirePermission('read');z.uuid().parse(progress[1]);const value=request.method==='PUT'?ProgressUpdate.parse(await body()):null;
    return json(await services.rpc('app_progress',{actor:identity.id,target_book:progress[1],new_value:value}));
+  }
+  function offset(name='offset'){return z.coerce.number().int().min(0).max(10000000).parse(url.searchParams.get(name)??0);}
+  if(pathname==='/api/books' && request.method==='GET'){
+   requirePermission('read');const query=z.string().max(200).parse(url.searchParams.get('q')||'');const sort=z.enum(['name','author','updated','progress']).parse(url.searchParams.get('sort')||'name');
+   return json(LibraryPage.parse(await services.rpc('app_library',{actor:identity.id,query,sort_by:sort,page_offset:offset()})));
+  }
+  const readerBook=/^\/api\/books\/([^/]+)$/.exec(pathname);
+  if(readerBook && request.method==='GET'){requirePermission('read');z.uuid().parse(readerBook[1]);return json(LibraryBook.parse(await services.rpc('app_reader_book',{actor:identity.id,target_book:readerBook[1]})));}
+  const chapterPage=/^\/api\/books\/([^/]+)\/chapters$/.exec(pathname);
+  if(chapterPage && request.method==='GET'){
+   requirePermission('read');z.uuid().parse(chapterPage[1]);const limit=z.coerce.number().int().min(1).max(200).parse(url.searchParams.get('limit')??200);
+   return json(ChapterPage.parse(await services.rpc('app_reader_chapters',{actor:identity.id,target_book:chapterPage[1],page_offset:offset(),page_limit:limit})));
+  }
+  const cluster=/^\/api\/books\/([^/]+)\/cluster$/.exec(pathname);
+  if(cluster && request.method==='GET'){
+   requirePermission('read');z.uuid().parse(cluster[1]);const start=offset('start');if(start%5)throw new AppError('INVALID_INPUT',400,'Cụm chương cần bắt đầu ở bội số 5');
+   const args={actor:identity.id,target_book:cluster[1]};const page=ChapterPage.parse(await services.rpc('app_reader_chapters',{...args,page_offset:start,page_limit:5}));
+   let source=storage;const drive:ReaderStorage={readText:(id)=>(source??=readerStorage(env)).readText(id),readBytes:(id)=>(source??=readerStorage(env)).readBytes(id)};
+   const items=[];let bytes=0;
+   for(const chapter of page.chapters){try{const content=await readStoredChapter(services,drive,identity.id,cluster[1],chapter.id);const size=Buffer.byteLength(JSON.stringify(content));if(bytes+size>2000000)throw new AppError('CONTENT_TOO_LARGE',413,'Nội dung cụm chương quá lớn');bytes+=size;items.push({id:chapter.id,cacheTag:chapter.cacheTag,...content});}
+    catch(error){if(!(error instanceof AppError)||['FORBIDDEN','UNAUTHENTICATED'].includes(error.code))throw error;items.push({id:chapter.id,cacheTag:chapter.cacheTag,error:error.message});}}
+   await services.rpc('app_reader_book',args);return json({start,items});
   }
   const chapterContent=/^\/api\/books\/([^/]+)\/chapters\/([^/]+)\/content$/.exec(pathname);
   if(chapterContent && request.method==='GET') {

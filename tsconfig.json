@@ -24,6 +24,7 @@
     "tests/phase-1/**/*.ts",
     "tests/phase-2/**/*.ts",
     "tests/phase-3/**/*.ts",
-    "tools/migration/**/*.ts"
+    "tools/migration/**/*.ts",
+    "tests/phase-4/**/*.ts"
   ]
 }

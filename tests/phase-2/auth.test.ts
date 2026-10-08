@@ -21,7 +21,8 @@ test('me identity and current permissions are server-derived',async()=>{
  const res=await handleApi(req('/me'),env,undefined,services(['read']));assert.deepEqual(await res.json(),{id,name:'Reader',permissions:['read']});assert.equal(res.headers.get('Cache-Control'),'no-store');
 });
 for(const [permissions,permission,path] of [[['read'],'read','/books'],[['download'],'download','/download'],[['manage'],'manage','/manage'],[['admin'],'admin','/admin/missing']] as const)test('independent permission '+permission,async()=>{
- const svc=services([...permissions]);assert.equal((await handleApi(req(path),env,undefined,svc)).status,501);
+ const svc=services([...permissions]);if(permission==='read'){const original=svc.rpc.bind(svc);svc.rpc=(name,args)=>name==='app_library'?Promise.resolve({books:[],total:0,offset:0}):original(name,args);}
+ assert.equal((await handleApi(req(path),env,undefined,svc)).status,permission==='read'?200:501);
  for(const [otherPermission,otherPath] of [['read','/books'],['download','/download'],['manage','/manage'],['admin','/admin/missing']] as const)if(!hasPermission({id,name:'',permissions:[...permissions]},otherPermission))assert.equal((await handleApi(req(otherPath),env,undefined,svc)).status,403);
 });
 test('direct admin calls by reader/download/manage denied',async()=>{
