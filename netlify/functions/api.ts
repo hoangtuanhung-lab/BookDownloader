@@ -1,10 +1,11 @@
+import {readStoredChapter,readStoredCover,readerStorage,type ReaderStorage} from '../../packages/infrastructure/src/reader-storage';
 import {randomUUID} from 'node:crypto';
 import {z} from 'zod';
 import {checkDatabase} from '../../packages/infrastructure/src/health';
 import {safeLog} from '../../packages/infrastructure/src/logging';
 import {createAuthServices,type AuthServices} from '../../packages/infrastructure/src/auth';
 import {Account,AccountUpdate,AdminUser,AppError,hasPermission,ProgressUpdate,ReaderPreferences} from '../../packages/contracts/src/index';
-export async function handleApi(request:Request,env:NodeJS.ProcessEnv=process.env,check=checkDatabase,injected?:AuthServices):Promise<Response> {
+export async function handleApi(request:Request,env:NodeJS.ProcessEnv=process.env,check=checkDatabase,injected?:AuthServices,storage?:ReaderStorage):Promise<Response> {
  const correlationId=randomUUID();
  const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Correlation-ID':correlationId,'X-Content-Type-Options':'nosniff'};
  const url=new URL(request.url),pathname=url.pathname.replace(/^\/.netlify\/functions\/api\//,'/api/');
@@ -51,6 +52,18 @@ export async function handleApi(request:Request,env:NodeJS.ProcessEnv=process.en
   if(progress && ['GET','PUT'].includes(request.method)) {
    requirePermission('read');z.uuid().parse(progress[1]);const value=request.method==='PUT'?ProgressUpdate.parse(await body()):null;
    return json(await services.rpc('app_progress',{actor:identity.id,target_book:progress[1],new_value:value}));
+  }
+  const chapterContent=/^\/api\/books\/([^/]+)\/chapters\/([^/]+)\/content$/.exec(pathname);
+  if(chapterContent && request.method==='GET') {
+   requirePermission('read');z.uuid().parse(chapterContent[1]);z.uuid().parse(chapterContent[2]);
+   // Resolve storage lazily so a cache hit does not require a fresh Google token.
+   const lazy:ReaderStorage=storage||{readText:(id)=>readerStorage(env).readText(id),readBytes:(id)=>readerStorage(env).readBytes(id)};
+   return json(await readStoredChapter(services,lazy,identity.id,chapterContent[1],chapterContent[2]));
+  }
+  const cover=/^\/api\/books\/([^/]+)\/cover$/.exec(pathname);
+  if(cover && request.method==='GET') {
+   requirePermission('read');z.uuid().parse(cover[1]);const result=await readStoredCover(services,storage||readerStorage(env),identity.id,cover[1]);
+   return new Response(Buffer.from(result.bytes),{headers:{...headers,'Content-Type':result.mimeType,'Content-Security-Policy':"default-src 'none'; sandbox"}});
   }
   // Permission guard remains active even before business implementations land.
   if(pathname.startsWith('/api/download')||pathname.startsWith('/api/jobs')||pathname.startsWith('/api/analysis')||pathname==='/api/books/from-web'||pathname.endsWith('/download-actions'))requirePermission('download');

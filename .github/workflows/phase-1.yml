@@ -34,6 +34,7 @@ jobs:
       - run: npm run check
       - run: npm run test:db
       - run: npm run test:auth:db
+      - run: npm run test:storage:db
       - run: npm run test:auth:concurrency
       - run: npm run db:migrate # Check repeatability.
       - run: npx playwright install --with-deps chromium
@@ -42,6 +43,8 @@ jobs:
       - run: npm run build:web && npm run test:bundle
         env:
           SUPABASE_SERVICE_ROLE_KEY: server-secret-sentinel
+          DRIVE_CLIENT_SECRET: drive-secret-sentinel
+          DRIVE_REFRESH_TOKEN: drive-secret-sentinel
       - run: docker build -f apps/worker/Dockerfile -t book-worker:ci .
       - run: docker run --rm --network host -e APP_ENV -e DATABASE_URL book-worker:ci
 # Netlify Git integration owns previews; credentials scoped to staging contexts.

@@ -1,10 +1,12 @@
 # Kế hoạch chuyển Trình tải truyện sang web app Netlify
 
-- Bản kế hoạch: 0.4 — 08/10/2026 (Phase 0, nền Phase 1 và Phase 2 local; staging còn mở).
+- Bản kế hoạch: 0.5 — 08/10/2026 (Phase 0–3 local; cloud để sau khi đóng code).
 - Baseline: Apps Script V1.59.2 tại commit `aae3c570286edac1db5ca355cbce40f5108d0a10` (mã info.txt được thêm ở `18d1b1e`); đọc `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md`, 29 file mã nguồn và bộ kiểm thử `tests/book-info.test.js` để đối chiếu khi triển khai.
-- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3–9 chưa triển khai. Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
+- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2 đã có code auth/phân quyền và kiểm chứng local; Phase 3 đã triển khai adapter/API/migration nền và kiểm chứng local; Phase 4–9 chưa triển khai. Chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 3](docs/phase-3/REPORT.md). Xem [báo cáo Phase 2](docs/phase-2/REPORT.md). Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
 - Mục tiêu: giữ toàn bộ hành vi nghiệp vụ đang có, thêm đăng nhập Google, phân quyền nhiều người và ảnh bìa; Google Drive chỉ lưu file, PostgreSQL là nguồn dữ liệu chính.
 - Cách làm: trước mỗi thay đổi mã, đọc plan cũ và plan này, xác định mã chức năng/phase, cập nhật checklist và bằng chứng kiểm thử sau khi làm. Tài liệu có nội dung lệch mã thì đối chiếu mã thật và ghi rõ chênh lệch, không lấy kết quả lịch sử làm kết quả mới.
+
+**Quyết định chủ dự án:** làm local trước, sau khi đóng code mới kiểm Google API, Netlify và database cloud. Các gate dịch vụ thật của Phase 1–3 giữ mở; không cản triển khai phase local tiếp theo. Ưu tiên gói miễn phí, chỉ đề xuất nâng cấp sau khi đo tải.
 
 ## 1. Phạm vi và quyết định nền tảng
 
@@ -311,16 +313,17 @@ Phase 0 đã có bằng chứng bên dưới; Phase 1 có nền local bên dư�
 
 ### Phase 3 — Drive adapter, dữ liệu mẫu và migration chỉ đọc
 
-**Phụ thuộc:** 1–2. **Đầu ra:** đọc/ghi Drive staging, dry-run import và đối chiếu.
+**Phụ thuộc:** 1–2. **Đầu ra local:** Drive API v3 adapter, API đọc nội dung/ảnh qua quyền SQL, cache PostgreSQL, dữ liệu synthetic và dry-run/ID map. Code tích hợp cloud được chuẩn bị; kiểm chứng thật để sau đóng code theo chủ dự án.
 
-- [ ] Kết nối Drive của chủ thư viện, kiểm quyền/refresh/quota và root folder; thiết lập thư mục staging riêng.
-- [ ] Port tên/thư mục/file/info/import/log, ID cache trong DB; async pagination Drive API, retry và quyền file mất/trashed.
-- [ ] Bảo toàn file TXT, header và đường dẫn nhóm; đọc chương/ảnh qua API kiểm quyền. Thiết kế cache lâu dài có version/giới hạn byte, không dựa vào RAM Function sống qua request.
-- [ ] Công cụ export read-only từ Sheets và Properties; dry-run validation, bảng ID map, báo cáo số lượng/trùng tên/URL/folder/status/missing file.
-- [ ] Tạo staging library từ mẫu nhỏ hoặc bản sao; không rename/trash/ghi info lên thư viện production khi dry-run.
-- [ ] Test Drive thật: tạo folder/info, cập nhật không trùng, permission denied, file trashed, timeout/recover; giới hạn số request và có metric.
+- [x] Adapter owner OAuth refresh và root validation, request/byte budget, metric; kiểm chứng bằng transport local. Cấu hình server-only, không yêu cầu độc giả nối Drive.
+- [x] Port tên/thư mục/chapter/info/import/log; `syncBookInfo` khóa row và lưu ID/version vào DB, pagination/retry/403/404/trashed. Helper nghiệp vụ chờ nối vào quản lý/tải ở Phase 5–7.
+- [x] TXT/header/nhóm giữ định dạng; API đọc chapter/cover lấy ID từ mapping đúng sách. Cache bền vững có version/hash bộ lọc, TTL 5 phút, 60 KB/entry và 8 MB tổng; quyền được kiểm trước cache hit.
+- [x] Export chỉ đọc BOOKS/CHAPTERS/CONFIG allowlist và Properties ID; tool inventory GET-only; dry-run validation, ID map và báo cáo counts/trùng/status/missing/outside-book. Không ghi database hoặc Drive khi dry-run. Export UI, user progress/queue/log đầy đủ để Phase 8.
+- [x] Thư viện mô phỏng nhỏ từ nội dung tự viết; PostgreSQL test riêng có cleanup, test repeat/concurrent info và cache. Không thao tác thư viện production.
+- [ ] Kết nối Drive **thật** của chủ thư viện, kiểm owner/scopes/refresh/quota/editor root và staging riêng; chưa chạy theo quyết định làm local trước.
+- [ ] Nghiệm thu Drive/Sheets/Supabase/Netlify **thật**: tạo/cập nhật info, lỗi quyền/trash, timeout/recover; chuyển sang đợt kiểm cloud sau đóng code.
 
-**Gate:** API đọc một chương đúng nội dung; reader không đọc file ngoài sách; dry-run có tổng và lỗi chi tiết, không có ghi ngoài staging. Adapter write lỗi không trả success giả.
+**Gate local:** API đọc đúng chương, reader không đọc file ngoài sách dù cache đã có, dry-run có totals/lỗi chi tiết, không có remote write; adapter lỗi không trả success giả. Đã kiểm chứng; xem [README](docs/phase-3/README.md) và [REPORT](docs/phase-3/REPORT.md). **Gate cloud còn mở**, không dùng mock để coi dịch vụ thật đã nghiệm thu. UI reader/thư viện ở Phase 4.
 
 ### Phase 4 — Đọc truyện và thư viện cho độc giả
 
