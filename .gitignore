@@ -11,3 +11,11 @@ node_modules/
 .local-library/
 .DS_Store
 Thumbs.db
+
+# Web rewrite outputs
+apps/web/dist/
+dist/
+coverage/
+*.tsbuildinfo
+.local-browser-results/
+playwright-report/

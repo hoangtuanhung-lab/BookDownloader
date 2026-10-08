@@ -1,8 +1,8 @@
 # Kế hoạch chuyển Trình tải truyện sang web app Netlify
 
-- Bản kế hoạch: 0.2 — 08/10/2026 (đã thực hiện baseline Phase 0).
+- Bản kế hoạch: 0.3 — 08/10/2026 (Phase 0 và nền local Phase 1; staging còn mở).
 - Baseline: Apps Script V1.59.2 tại commit `aae3c570286edac1db5ca355cbce40f5108d0a10` (mã info.txt được thêm ở `18d1b1e`); đọc `plan_TrinhTaiTruyen.md`, `HUONG_DAN_SU_DUNG.md`, 29 file mã nguồn và bộ kiểm thử `tests/book-info.test.js` để đối chiếu khi triển khai.
-- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1–9 chưa triển khai; chưa có ứng dụng Netlify, database, OAuth hoặc worker cloud được tạo. Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
+- Trạng thái: Phase 0 đạt gate đối chiếu với 98/98 kiểm thử; khảo sát thư viện thật còn mở. Phase 1 đã triển khai nền local; gate staging còn mở. Phase 2–9 chưa triển khai; chưa tạo Netlify/Supabase/OAuth/worker cloud. Xem [báo cáo Phase 1](docs/phase-1/REPORT.md). Xem [báo cáo Phase 0](docs/phase-0/REPORT.md).
 - Mục tiêu: giữ toàn bộ hành vi nghiệp vụ đang có, thêm đăng nhập Google, phân quyền nhiều người và ảnh bìa; Google Drive chỉ lưu file, PostgreSQL là nguồn dữ liệu chính.
 - Cách làm: trước mỗi thay đổi mã, đọc plan cũ và plan này, xác định mã chức năng/phase, cập nhật checklist và bằng chứng kiểm thử sau khi làm. Tài liệu có nội dung lệch mã thì đối chiếu mã thật và ghi rõ chênh lệch, không lấy kết quả lịch sử làm kết quả mới.
 
@@ -262,7 +262,7 @@ Mutation idempotent bằng request_id/dedupe key. Bulk trả kết quả từng 
 
 ## 7. Kế hoạch các phase và tiêu chí hoàn thành
 
-Phase 0 đã có bằng chứng bên dưới; các checklist triển khai Phase 1–9 đang chưa làm. Mỗi phase phải có code, migration/schema khi cần, tests, hướng dẫn chạy, kết quả và lỗi còn mở. Không đánh dấu hoàn thành bằng việc build thành công hoặc ảnh chụp một màn hình.
+Phase 0 đã có bằng chứng bên dưới; Phase 1 có nền local bên dưới; các checklist triển khai Phase 2–9 đang chưa làm. Mỗi phase phải có code, migration/schema khi cần, tests, hướng dẫn chạy, kết quả và lỗi còn mở. Không đánh dấu hoàn thành bằng việc build thành công hoặc ảnh chụp một màn hình.
 
 ### Phase 0 — Chốt baseline và bộ đối chiếu
 
@@ -281,14 +281,18 @@ Phase 0 đã có bằng chứng bên dưới; các checklist triển khai Phase 
 
 **Phụ thuộc:** 0. **Đầu ra:** web/API/worker skeleton chạy local và staging.
 
-- [ ] Thêm cấu trúc mới cạnh mã Apps Script, giữ nguyên file gốc; khóa phiên bản runtime/package manager, lockfile, .env.example chỉ có tên/giá trị không bí mật.
-- [ ] Tạo schema, migrations, constraints, indices tìm/sort/jobs/chapters, RLS deny-by-default và seed không chứa dữ liệu thật.
-- [ ] Tách domain pure giữ golden tests; tạo interfaces BookRepository, DriveStorage, HttpFetcher, JobRepository, Clock.
-- [ ] Tạo React shell từ Sidebar/CSS/logo/toast/modal/help, route placeholders rõ chưa triển khai; không để React và legacy JS cùng quản lý một DOM.
-- [ ] CI: frozen install, typecheck, unit/contracts/SQL tests, build; deploy preview dùng staging. Migration production chạy có kiểm soát, không từ PR tùy ý.
-- [ ] Netlify SPA redirect sau API routes; security headers/CSP phù hợp OAuth/font, redaction logs, correlation ID; worker Docker chạy noninteractive.
+- [x] Thêm cấu trúc mới cạnh mã Apps Script, giữ nguyên file gốc; khóa phiên bản runtime/package manager, lockfile, .env.example chỉ có tên/giá trị không bí mật.
+- [x] Tạo schema, migrations, constraints, indices tìm/sort/jobs/chapters, RLS deny-by-default và seed không chứa dữ liệu thật.
+- [x] Tách domain pure giữ golden tests; tạo interfaces BookRepository, DriveStorage, HttpFetcher, JobRepository, Clock.
+- [x] Tạo React shell từ Sidebar/CSS/logo/toast/modal/help, route placeholders rõ chưa triển khai; không để React và legacy JS cùng quản lý một DOM.
+- [x] Lưu CI: frozen install, typecheck, unit/contracts/SQL tests, build/browser/Docker; khai báo context preview staging. Migration production ngoài PR/build; site/credentials và preview thật còn ở mục `[!]` dưới.
+- [x] Netlify SPA redirect sau API routes; security headers/CSP phù hợp OAuth/font, redaction logs, correlation ID; worker Docker chạy noninteractive.
 
-**Gate:** clean checkout chạy được setup đã ghi; build/typecheck đạt; API health kiểm DB; service keys không có trong bundle/browser; test RLS thực thi có ca bị từ chối.
+- [!] Staging chưa được triển khai/kiểm chứng vì chưa có site/project và credentials Netlify/Supabase. CI/Netlify config đã viết; chưa xác nhận remote CI hoặc preview. Không tự provision/bật billing.
+
+**Bằng chứng local:** [setup](docs/phase-1/README.md), [report](docs/phase-1/REPORT.md). 98 legacy + 73 domain/contracts/API + 29 SQL/RLS + 5 browser đạt; build/typecheck/bundle/worker kiểm chứng local.
+
+**Gate chưa khóa do staging:** clean checkout chạy được setup đã ghi; build/typecheck đạt; API health kiểm DB; service keys không có trong bundle/browser; test RLS thực thi có ca bị từ chối.
 
 ### Phase 2 — Đăng nhập Google và phân quyền
 

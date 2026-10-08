@@ -1,0 +1,45 @@
+name: Web foundation checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_PASSWORD: local-only-password
+          POSTGRES_DB: bookdownloader
+        ports: ["55432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d bookdownloader"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+    env:
+      APP_ENV: local
+      DATABASE_URL: postgresql://postgres:local-only-password@127.0.0.1:55432/bookdownloader
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Golden runner verifies pinned legacy commit.
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm install -g npm@11.9.0
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check
+      - run: npm run test:db
+      - run: npm run db:migrate # Check repeatability.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - run: npm run build:web && npm run test:bundle
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: server-secret-sentinel
+      - run: docker build -f apps/worker/Dockerfile -t book-worker:ci .
+      - run: docker run --rm --network host -e APP_ENV -e DATABASE_URL book-worker:ci
+# Netlify Git integration owns previews; credentials scoped to staging contexts.
+# No migration or deploy runs with production credentials from a PR.

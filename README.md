@@ -4,6 +4,12 @@
 
 Mã nguồn ban đầu được nhập từ `TrinhTaiTruyen_V1.59.1.zip`. Phiên bản hiện tại trong `Code.gs`: **1.59.2**, cập nhật **08/10/2026**.
 
+## Web app mới — Phase 1
+
+Đã thêm nền **React/TypeScript/Vite + Netlify Functions + PostgreSQL/Supabase + Node worker** bên cạnh ứng dụng Apps Script. Có khung giao diện, domain/contracts, schema/RLS, CI và bộ kiểm thử local; đăng nhập Google, tải/đọc/quản lý sách thật sẽ triển khai theo các phase tiếp theo. Google Drive sẽ lưu file, database lưu metadata và trạng thái.
+
+Xem [hướng dẫn chạy Phase 1](docs/phase-1/README.md), [kết quả kiểm chứng](docs/phase-1/REPORT.md) và [plan triển khai](PLAN_WEB_APP.md). Ưu tiên gói miễn phí; chưa provision staging hoặc bật billing. Các hướng dẫn Apps Script bên dưới vẫn áp dụng cho V1.59.2.
+
 ## Chức năng chính
 
 - Phân tích một hoặc nhiều URL truyện, lấy tên, tác giả, thể loại và danh sách chương; giữ truyện đã phân tích để người dùng chọn bắt đầu tải.

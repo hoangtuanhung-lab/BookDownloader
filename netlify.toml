@@ -1,0 +1,31 @@
+[build]
+  command = "npm run typecheck && npm run build"
+  publish = "apps/web/dist"
+  functions = "netlify/functions"
+[build.environment]
+  NODE_VERSION = "24.19.0"
+  NPM_VERSION = "11.9.0"
+[functions]
+  node_bundler = "esbuild"
+[context.deploy-preview.environment]
+  APP_ENV = "staging"
+[context.branch-deploy.environment]
+  APP_ENV = "staging"
+[context.production.environment]
+  APP_ENV = "production"
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    X-Frame-Options = "DENY"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co; frame-src 'none'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://accounts.google.com https://*.supabase.co"

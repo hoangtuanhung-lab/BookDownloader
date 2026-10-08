@@ -1,0 +1,52 @@
+{
+  "name": "bookdownloader",
+  "version": "2.0.0-phase.1",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x",
+    "npm": "11.x"
+  },
+  "packageManager": "npm@11.9.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env --import tsx tools/dev/server.ts",
+    "dev:web": "vite --config apps/web/vite.config.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run build:web && npm run build:server",
+    "build:web": "vite build --config apps/web/vite.config.ts",
+    "build:server": "node tools/dev/build.mjs",
+    "test:legacy": "node --test tests/book-info.test.js tests/baseline/*.test.cjs",
+    "test": "tsx --test tests/phase-1/*.test.ts",
+    "test:db": "node --env-file-if-exists=.env --import tsx tools/dev/db-tests.ts",
+    "db:migrate": "node --env-file-if-exists=.env --import tsx tools/dev/migrate.ts",
+    "db:up": "docker compose up -d --wait db",
+    "db:down": "docker compose down",
+    "worker": "node --env-file-if-exists=.env --import tsx apps/worker/src/main.ts",
+    "check": "npm run typecheck && npm run test:legacy && npm test && npm run build",
+    "test:browser": "playwright test --config tests/phase-1/playwright.config.ts",
+    "test:bundle": "node tools/dev/check-bundle.mjs"
+  },
+  "dependencies": {
+    "csv-parse": "7.0.3",
+    "pg": "8.16.3",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/node": "24.10.0",
+    "@types/pg": "8.15.6",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@vitejs/plugin-react": "5.0.4",
+    "esbuild": "0.25.12",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vite": "7.3.7"
+  }
+}
