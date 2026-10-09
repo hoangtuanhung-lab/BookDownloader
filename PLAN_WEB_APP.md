@@ -443,6 +443,8 @@ Các mục bên dưới là **nghiệm thu trên dữ liệu/dịch vụ thật*
 - [x] Chuẩn bị [bootstrap SQL cho schema mới](docs/phase-10/staging-bootstrap.sql), đủ 23 checksum/transaction/fresh-target guard; 4/4 kiểm tra local; chủ dự án báo đã chạy SQL trên Supabase, kết quả ledger/API chưa xác minh.
 - [x] Sửa false positive Netlify secret scan: ngoại lệ chỉ `SUPABASE_URL` công khai, giữ quét credentials; TOML/bundle local đạt, chờ redeploy thật.
 - [x] Hotfix `2.0.0-phase.9.1`: RPC void 204/empty không bị đọc JSON gây báo lỗi lưu quyền; 193 unit/API + 17 auth SQL + 1 concurrency + 12 browser, build/bundle local đạt. [Báo cáo](docs/phase-10/ADMIN_SAVE_FIX.md); chờ redeploy và kiểm lưu quyền thật.
+- [x] Chủ dự án báo lưu quyền thành công sau hotfix; xác nhận của chủ dự án, chưa kiểm độc lập từ workspace.
+- [x] Hotfix `2.0.0-phase.9.2`: tùy chọn worker nền Netlify cho staging không cần máy tính chạy worker; thêm URL tự gọi worker, nút Phân tích cho dòng queued, cấu hình thiếu hiện rõ; scheduled wake 5 phút chỉ xử lý khi bật `NETLIFY_WORKER_ENABLED`. Tái sử dụng executor/lease/checkpoint/maintenance/root và info.txt; không đổi schema hoặc GAS. 200 unit/API, 15 browser, 22 SQL/executor và một kiểm tranh chấp session lock PostgreSQL local đạt. [Hướng dẫn và giới hạn](docs/phase-10/NETLIFY_WORKER.md); deployment/Drive thật còn mở.
 - [ ] 10B: 23 migrations + checksum ledger có review, Supabase RLS/RPC thật; Google OAuth/login/session/roles và Netlify health/version/SPA/CSP.
 - [ ] 10C: Drive owner/scopes/root staging, info/bìa/import; worker cùng SHA, finite download/retry/maintenance, chưa bật scheduler khi chưa kiểm.
 - [ ] 10D: backup DB + bytes/restore/rollback staging, mobile/đo quota-chi phí và báo cáo kết quả thật.

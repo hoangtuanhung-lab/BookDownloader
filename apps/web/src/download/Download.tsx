@@ -20,6 +20,8 @@ export function Download({
     [pending, setPending] = useState<any[]>([]),
     [error, setError] = useState(""),
     [genres, setGenres] = useState(""),
+    [worker, setWorker] = useState<{ configured: boolean; missing: string[] } | null>(null),
+    [starting, setStarting] = useState(false),
     [settings, setSettings] = useState<any | null>(null);
   const controller = useRef(new AbortController()),
     submissions = useRef(new Set<string>()),
@@ -28,12 +30,14 @@ export function Download({
     const c = new AbortController();
     controller.current = c;
     const n = ++generation.current;
+    void call("/analysis/worker", { signal: c.signal }).then((status) => {
+      if (n === generation.current) setWorker(status);
+    }).catch(() => {});
     async function poll() {
       try {
         const data = await call("/analysis", { signal: c.signal });
         if (n === generation.current) {
           setJobs(data.jobs);
-          setError("");
         }
       } catch (e) {
         if (!c.signal.aborted) setError((e as Error).message);
@@ -48,6 +52,7 @@ export function Download({
     };
   }, [call]);
   async function submit() {
+    setError("");
     const urls = [
       ...new Set(
         input
@@ -119,6 +124,17 @@ export function Download({
       setError((e as Error).message);
     }
   }
+  async function startAnalysis() {
+    if (starting) return;
+    setStarting(true);
+    setError("");
+    try {
+      await call("/analysis/worker", { method: "POST", signal: controller.current.signal });
+      notify("Đã yêu cầu phân tích các URL đang chờ");
+    } catch (e) {
+      if (!controller.current.signal.aborted) setError((e as Error).message);
+    } finally { setStarting(false); }
+  }
   async function save(j: any, field: string, value: string) {
     if (!j.book) return;
     try {
@@ -187,6 +203,12 @@ export function Download({
       </label>
       <button onClick={() => void submit()}>Thêm URL và phân tích</button>
       {error && <p role="alert">{error}</p>}
+      {worker && !worker.configured && (
+        <p role="status">
+          Worker Netlify chưa được cấu hình đủ: {worker.missing.join(", ")}.
+          URL được giữ trong hàng chờ; chưa thể tự phân tích trên Netlify.
+        </p>
+      )}
       <div className="table-wrap">
         <table>
           <caption>Bảng phân tích truyện</caption>
@@ -291,6 +313,11 @@ export function Download({
                   {j.error && <p>{j.error}</p>}
                 </td>
                 <td>
+                  {j.status === "queued" && (
+                    <button disabled={starting} onClick={() => void startAnalysis()}>
+                      {starting ? "Đang yêu cầu…" : "Phân tích"}
+                    </button>
+                  )}
                   {j.book?.status === "ANALYZED" && (
                     <button
                       onClick={() =>

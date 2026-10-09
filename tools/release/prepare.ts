@@ -30,13 +30,15 @@ export async function prepareRelease(output: string, allowDirty = false) {
     throw Error(
       "Server artifacts are from another revision; rebuild after commit",
     );
-  for (const path of ["dist/api.mjs", "dist/worker.mjs"])
+  for (const path of ["dist/api.mjs", "dist/worker.mjs", "dist/library-worker-background.mjs", "dist/library-worker-schedule.mjs"])
     if ((await fileHash(path)) !== build.files[path])
       throw Error("Server build hash mismatch");
   const paths = [
       ...(await list("apps/web/dist")),
       "dist/api.mjs",
       "dist/worker.mjs",
+      "dist/library-worker-background.mjs",
+      "dist/library-worker-schedule.mjs",
       "dist/build-record.json",
     ],
     files: Record<string, string> = {};

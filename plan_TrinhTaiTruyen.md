@@ -1,5 +1,7 @@
 # PLAN: TrinhTaiTruyen
 
+> Hotfix web `2.0.0-phase.9.2` (09/10/2026): bổ sung worker nền Netlify tùy chọn và nút Phân tích ở dòng chờ; giữ queue/checkpoint, không tự tải truyện ANALYZED, vẫn tạo info.txt bốn mục qua executor cũ. Xem [hướng dẫn](docs/phase-10/NETLIFY_WORKER.md). Chỉ xác minh local; Netlify/Supabase/Drive thật cần nghiệm thu. Mã GAS V1.59.2 giữ nguyên.
+
 > File này là **plan và mô tả dự án hợp nhất** (thay `MO_TA_DU_AN.md`). Trước khi làm bất kỳ việc gì, đọc mục "Cách làm việc ở các phiên sau" trong MÔ TẢ PHẦN MỀM.
 
 > Web rewrite: Phase 1–9 đã có nền, auth/phân quyền, Drive adapter/cache/migration, thư viện/reader, quản lý/import/bìa, phân tích URL và worker tải WEB/FILE/monitor, kiểm thử local. Làm local trước; Google API, Netlify và database cloud kiểm sau khi đóng code. Theo [PLAN_WEB_APP.md](PLAN_WEB_APP.md), [hướng dẫn](docs/phase-7/README.md) và [báo cáo Phase 7](docs/phase-7/REPORT.md), [Phase 8 local/gaps](docs/phase-8/REPORT.md), [Phase 9 vận hành local](docs/phase-9/REPORT.md). Mã Apps Script vẫn V1.59.2, không đổi baseline.

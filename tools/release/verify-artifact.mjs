@@ -17,6 +17,8 @@ export async function verifyArtifact(directory, expectedRevision) {
   if (
     !manifest.files?.["dist/api.mjs"] ||
     !manifest.files?.["dist/worker.mjs"] ||
+    !manifest.files?.["dist/library-worker-background.mjs"] ||
+    !manifest.files?.["dist/library-worker-schedule.mjs"] ||
     !manifest.files?.["dist/build-record.json"] ||
     !manifest.files?.["apps/web/dist/index.html"] ||
     !Object.keys(manifest.files).some((p) =>
@@ -27,7 +29,7 @@ export async function verifyArtifact(directory, expectedRevision) {
   for (const [path, hash] of Object.entries(manifest.files)) {
     if (
       !/^[a-f0-9]{64}$/.test(hash) ||
-      !/^(apps\/web\/dist\/|dist\/((api|worker)\.mjs|build-record\.json)$)/.test(
+      !/^(apps\/web\/dist\/|dist\/((api|worker|library-worker-background|library-worker-schedule)\.mjs|build-record\.json)$)/.test(
         path,
       )
     )

@@ -246,6 +246,8 @@ test("candidate artifact detects corruption, wrong commit, dirty build and symli
       "apps/web/dist/assets/main.js",
       "dist/api.mjs",
       "dist/worker.mjs",
+      "dist/library-worker-background.mjs",
+      "dist/library-worker-schedule.mjs",
       "dist/build-record.json",
     ]) {
       await writeFile(dir + "/" + path, path);

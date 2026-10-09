@@ -10,6 +10,7 @@ import {
   type ReaderStorage,
 } from "../../packages/infrastructure/src/reader-storage";
 import { randomUUID } from "node:crypto";
+import { kickWorker, workerStatus } from "../../packages/infrastructure/src/netlify-worker";
 import { z } from "zod";
 import {
   MetadataEdit,
@@ -57,7 +58,7 @@ export async function handleApi(
   check = checkDatabase,
   injected?: AuthServices,
   storage?: ReaderStorage,
-  business: {validateUrl:(url:string)=>Promise<unknown>;rootFactory?:typeof createDrive} = { validateUrl: validateSource },
+  business: {validateUrl:(url:string)=>Promise<unknown>;rootFactory?:typeof createDrive;kickWorker?:typeof kickWorker} = { validateUrl: validateSource },
 ): Promise<Response> {
   const correlationId = randomUUID();
   const headers = {
@@ -228,10 +229,21 @@ export async function handleApi(
         .max(10000000)
         .parse(url.searchParams.get(name) ?? 0);
     }
-    const manage = (operation: string, input: unknown = {}) =>
-      services!.rpc("app_manage", { actor: identity.id, operation, input });
-    const analysis = (operation: string, input: unknown = {}) =>
-      services!.rpc("app_analysis", { actor: identity.id, operation, input });
+    async function wakeWorker() {
+      if (env.NETLIFY_WORKER_ENABLED !== "true") return;
+      try { await (business.kickWorker || kickWorker)(env); }
+      catch { safeLog("worker_kick_unavailable", correlationId); }
+    }
+    const manage = async (operation: string, input: unknown = {}) => {
+      const result = await services!.rpc("app_manage", { actor: identity.id, operation, input });
+      if (["save", "import", "job-retry", "sync-retry", "chapter-add", "chapter-action", "delete"].includes(operation)) await wakeWorker();
+      return result;
+    };
+    const analysis = async (operation: string, input: unknown = {}) => {
+      const result = await services!.rpc("app_analysis", { actor: identity.id, operation, input });
+      if (["queue", "retry", "genre-bulk"].includes(operation)) await wakeWorker();
+      return result;
+    };
     if (pathname.startsWith("/api/manage")) {
       requirePermission("manage");
       const managedCover = /^\/api\/manage\/books\/([^/]+)\/cover$/.exec(
@@ -425,8 +437,11 @@ export async function handleApi(
     }
     if (pathname.startsWith("/api/download")) {
       requirePermission("download");
-      const download = (operation: string, input: unknown = {}) =>
-        services!.rpc("app_download", { actor: identity.id, operation, input });
+      const download = async (operation: string, input: unknown = {}) => {
+        const result = await services!.rpc("app_download", { actor: identity.id, operation, input });
+        if (!["list", "errors"].includes(operation)) await wakeWorker();
+        return result;
+      };
       if (pathname === "/api/download" && request.method === "GET") {
         const filter = z
           .enum(["all", "FILE", "WEB", "FOLDER"])
@@ -468,6 +483,12 @@ export async function handleApi(
     }
     if (pathname.startsWith("/api/analysis")) {
       requirePermission("download");
+      if (pathname === "/api/analysis/worker" && request.method === "GET")
+        return json(workerStatus(env));
+      if (pathname === "/api/analysis/worker" && request.method === "POST") {
+        await (business.kickWorker || kickWorker)(env);
+        return json({ accepted: true }, 202);
+      }
       if (pathname === "/api/analysis" && request.method === "GET")
         return json(await analysis("list"));
       if (pathname === "/api/analysis" && request.method === "POST") {

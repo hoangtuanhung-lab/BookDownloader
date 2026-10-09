@@ -72,6 +72,8 @@ Apply cần DB hiện tại trùng backup và metadata baseline chưa bị sửa
 
 ## Cửa sổ chuyển vận hành
 
+Web `2.0.0-phase.9.2` bổ sung hai Netlify functions worker vào candidate/manifest. Tùy chọn [worker Netlify](../phase-10/NETLIFY_WORKER.md) xử lý khi `NETLIFY_WORKER_ENABLED=true`; để false/unset trước nghiệm thu. Nếu dùng tùy chọn này, published deploy có lịch wake 5 phút từ netlify.toml; khi rollback/cutover phải tắt flag hoặc bật maintenance và đối chiếu lịch với Cloud Run, không coi deployment chỉ thay API/web. Thay đổi này không tự đóng gate production.
+
 - Ghi release SHA/schema checksum/worker digest/backup và người chịu trách nhiệm. Dừng worker/scheduler mới, bật bảo trì và chờ writer kết thúc. Chủ quản dừng GAS triggers/freeze chỉnh sửa; export cuối.
 - Backup Sheets/Properties/LOG/inventory **và bytes Drive** cùng DB mới, thử restore/hashes. Reconcile delta cuối, owner progress/FILE pending/review từng sách. Không có writer cũ/mới ghi chồng.
 - Deploy schema tương thích đã review; worker đúng SHA: `docker build --build-arg RELEASE_REVISION=<SHA> -f apps/worker/Dockerfile -t <image:SHA> .`. Lưu digest, chạy `worker --check`, finite pass staging. Check chỉ xác minh schema, chưa chứng minh Google access.

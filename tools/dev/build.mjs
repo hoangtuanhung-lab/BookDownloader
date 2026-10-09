@@ -29,8 +29,11 @@ await build({
   packages: "external",
 });
 
+for (const name of ["library-worker-background", "library-worker-schedule"]) {
+  await build({ define, entryPoints: ["netlify/functions/" + name + ".ts"], outfile: "dist/" + name + ".mjs", bundle: true, platform: "node", target: "node24", format: "esm", packages: "external" });
+}
 const hashes = {};
-for (const name of ["api.mjs", "worker.mjs"])
+for (const name of ["api.mjs", "worker.mjs", "library-worker-background.mjs", "library-worker-schedule.mjs"])
   hashes["dist/" + name] = createHash("sha256")
     .update(await readFile("dist/" + name))
     .digest("hex");

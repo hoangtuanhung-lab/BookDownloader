@@ -52,6 +52,8 @@ File không tạo Auth schema/users/sessions giả, không chứa khóa và khô
 
 ## 10C — Drive và worker
 
+Hotfix web `2.0.0-phase.9.2` bổ sung [worker nền Netlify](NETLIFY_WORKER.md) và nút Phân tích cho URL chờ; phù hợp thử staging không chạy worker trên máy tính. Chỉ bật sau khi có đầy đủ bindings server và kiểm gói/hạn mức thực tế. Cloud Run worker dưới đây vẫn là phương án ban đầu.
+
 - Theo [Drive](../phase-3/README.md), cấu hình OAuth owner/scopes/refresh bằng secrets server. Dùng root staging mới, dữ liệu tự viết; không dùng thư viện production để thử ghi.
 - Admin → Vận hành → bật bảo trì → đăng ký/tạo root; xác minh folder writable/root binding/receipt. Kiểm `info.txt` đủ bốn mục và cập nhật không nhân bản, ảnh bìa, TXT/marker/folder import và FILE pending resume.
 - Worker image từ SHA đã đóng: `docker build --build-arg RELEASE_REVISION=<SHA> -f apps/worker/Dockerfile -t <image:SHA> .`. Kiểm `--version`/`--check`, rồi finite pass với DB/Drive staging. Check schema không thay kiểm Google access.

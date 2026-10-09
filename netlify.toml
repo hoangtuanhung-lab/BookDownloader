@@ -9,6 +9,8 @@
   SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL"
 [functions]
   node_bundler = "esbuild"
+[functions."library-worker-schedule"]
+  schedule = "*/5 * * * *"
 [context.deploy-preview.environment]
   APP_ENV = "staging"
 [context.branch-deploy.environment]

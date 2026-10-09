@@ -73,8 +73,9 @@ jobs:
         run: |
           mkdir -p dist
           cp ../candidate/dist/api.mjs ../candidate/dist/worker.mjs ../candidate/dist/build-record.json dist/
+          cp ../candidate/dist/library-worker-background.mjs ../candidate/dist/library-worker-schedule.mjs dist/
           npm run release:prepare -- ../deployment-record
-      - name: Publish web and API only
+      - name: Publish web and Netlify functions
         working-directory: source
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -83,6 +84,7 @@ jobs:
           node -e 'if(!process.env.NETLIFY_AUTH_TOKEN||!/^[a-f0-9-]{36}$/.test(process.env.NETLIFY_SITE_ID||""))process.exit(1)'
           mkdir -p .release-functions
           cp ../candidate/dist/api.mjs .release-functions/api.mjs
+          cp ../candidate/dist/library-worker-background.mjs ../candidate/dist/library-worker-schedule.mjs .release-functions/
           npm exec --yes --package=netlify-cli@27.12.0 -- netlify deploy --dir apps/web/dist --functions .release-functions --site "$NETLIFY_SITE_ID" --prod --no-build --message "release $EXPECTED_SHA"
           # No schema migration, worker deployment or scheduler activation is performed here.
       - uses: actions/upload-artifact@v4

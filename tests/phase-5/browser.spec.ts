@@ -156,6 +156,9 @@ async function fixture(page: Page) {
         analysis.push({ id: book, url: raw, status: "queued", book: null });
       return route.fulfill({ json: analysis, status: 202 });
     }
+    if (path === "/analysis/worker") {
+      return route.fulfill({ json: method === "GET" ? { configured: false, missing: ["kết nối database Session pooler"] } : { accepted: true }, status: method === "GET" ? 200 : 202 });
+    }
     if (path === "/analysis/actions") {
       analysis = analysis.filter(
         (j) => body.action !== "drop" || j.id !== body.id,
@@ -472,4 +475,30 @@ test("browser Back warns before discarding metadata drafts", async ({
   await expect(page).toHaveURL(/\/manage$/);
   await page.getByRole("button", { name: "Ở lại" }).click();
   await expect(page.locator(".managed-book.pending")).toHaveCount(1);
+});
+
+test("queued analysis has a start button; starting does not enqueue URL again", async ({ page }) => {
+  const f = await fixture(page);
+  await page.goto("/download");
+  await page.getByRole("textbox", { name: "URL truyện (mỗi dòng hoặc ngăn bằng ;)" }).fill("https://source.test/book/");
+  await page.getByRole("button", { name: "Thêm URL và phân tích", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Worker Netlify chưa được cấu hình đủ" })).toBeVisible();
+  const row = page.getByRole("row").filter({ hasText: "https://source.test/book/" });
+  await expect(row.getByRole("cell").last().getByRole("button", { name: "Phân tích", exact: true })).toBeVisible();
+  await row.getByRole("button", { name: "Phân tích", exact: true }).click();
+  await expect.poll(() => f.requests.filter(r => r.path === "/analysis/worker" && r.method === "POST").length).toBe(1);
+  expect(f.requests.filter(r => r.path === "/analysis" && r.method === "POST")).toHaveLength(1);
+  await expect(row.getByText("Chờ phân tích", { exact: true })).toBeVisible();
+});
+test("manual worker failure stays visible across polling and keeps queued row", async ({ page }) => {
+  await fixture(page);
+  await page.route("**/api/analysis/worker", route => route.fulfill({ status: route.request().method() === "POST" ? 503 : 200, json: route.request().method() === "POST" ? { message: "Chưa gọi được worker; URL vẫn được giữ trong hàng chờ" } : { configured: true, missing: [] } }));
+  await page.goto("/download");
+  await page.getByRole("textbox", { name: "URL truyện (mỗi dòng hoặc ngăn bằng ;)" }).fill("https://source.test/book/");
+  await page.getByRole("button", { name: "Thêm URL và phân tích", exact: true }).click();
+  await page.getByRole("button", { name: "Phân tích", exact: true }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Chưa gọi được worker" })).toContainText("Chưa gọi được worker");
+  await expect.poll(() => page.getByRole("row").filter({ hasText: "source.test/book" }).count()).toBe(1);
+  await page.waitForTimeout(1700);
+  await expect(page.getByRole("alert").filter({ hasText: "Chưa gọi được worker" })).toContainText("Chưa gọi được worker");
 });
