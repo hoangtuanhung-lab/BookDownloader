@@ -442,11 +442,12 @@ Các mục bên dưới là **nghiệm thu trên dữ liệu/dịch vụ thật*
 - [ ] 10A: project Supabase/site Netlify staging riêng, free tier; cấu hình secrets đúng nơi, ghi URLs/revision, không bật billing.
 - [x] Chuẩn bị [bootstrap SQL cho schema mới](docs/phase-10/staging-bootstrap.sql), đủ 23 checksum/transaction/fresh-target guard; 4/4 kiểm tra local; chủ dự án báo đã chạy SQL trên Supabase, kết quả ledger/API chưa xác minh.
 - [x] Sửa false positive Netlify secret scan: ngoại lệ chỉ `SUPABASE_URL` công khai, giữ quét credentials; TOML/bundle local đạt, chờ redeploy thật.
+- [x] Hotfix `2.0.0-phase.9.1`: RPC void 204/empty không bị đọc JSON gây báo lỗi lưu quyền; 193 unit/API + 17 auth SQL + 1 concurrency + 12 browser, build/bundle local đạt. [Báo cáo](docs/phase-10/ADMIN_SAVE_FIX.md); chờ redeploy và kiểm lưu quyền thật.
 - [ ] 10B: 23 migrations + checksum ledger có review, Supabase RLS/RPC thật; Google OAuth/login/session/roles và Netlify health/version/SPA/CSP.
 - [ ] 10C: Drive owner/scopes/root staging, info/bìa/import; worker cùng SHA, finite download/retry/maintenance, chưa bật scheduler khi chưa kiểm.
 - [ ] 10D: backup DB + bytes/restore/rollback staging, mobile/đo quota-chi phí và báo cáo kết quả thật.
 
-**Gate:** các kiểm thử staging có bằng chứng thật; thiếu credential/URL ghi chưa chạy, không suy từ 495/495 kiểm thử local. Production/cutover/thư viện thật vẫn theo runbook và gate Phase 9. Chưa thay mã/version ứng dụng trong bước chuẩn bị này.
+**Gate:** các kiểm thử staging có bằng chứng thật; thiếu credential/URL ghi chưa chạy, không suy từ 495/495 kiểm thử local. Production/cutover/thư viện thật vẫn theo runbook và gate Phase 9. Bước chuẩn bị ban đầu giữ mã ứng dụng; hotfix RPC transport `2.0.0-phase.9.1` xử lý lỗi khi kiểm staging, không đổi schema.
 
 ## 8. Thứ tự, checkpoint và phạm vi mỗi lần làm
 

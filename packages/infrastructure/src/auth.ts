@@ -28,7 +28,15 @@ export function createAuthServices(env:NodeJS.ProcessEnv):AuthServices {
   },
   async rpc(name,args) {
    const response=await call('/rest/v1/rpc/'+name,{method:'POST',headers:{apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify(args)});
-   const body=await response.json();
+   // PostgREST returns 204/empty bodies for void RPCs, including permission updates.
+   // A completed write must not be reported as a JSON parsing failure or retried.
+   let body:any=null;
+   try {
+    const raw=await response.text();
+    if(raw.trim())body=JSON.parse(raw);
+   }catch {
+    throw new AppError('DATABASE_UNAVAILABLE',503,'Không xử lý được phản hồi từ database');
+   }
    if(!response.ok) {
     const code=body?.code;
     if(code==='42501')throw new AppError('FORBIDDEN',403,'Tài khoản bị khóa hoặc không có quyền');
